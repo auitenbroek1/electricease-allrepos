@@ -1,0 +1,204 @@
+﻿@model ElectricEase.Models.Assembly_MasterInfo
+
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<script>
+    $(function () {
+        $("#DistributorID").change(function () {
+            if ($("#DistributorID").val() != "") {
+                LoadDistributorAssembliesCategorydropdown('@Model.Assemblies_Category');
+            }
+        });
+
+        $("#Assemblies_Category").change(function () {
+            if ($(this).val() == "0" || $(this).val() == "other") {
+                $(".other_active").prop('disabled', false);
+            } else {
+                $(".other_active").val("");
+                $(".other_active").prop('disabled', true);
+            }
+        });
+
+        $("#DistributorID").change(function () {
+            //FillPartsPopup();
+
+            if ($("#DistributorID").val() != "") {
+                loadPartsPopupGrid();
+                $('#ClientPartsTable tbody').on('click', 'input[type="checkbox"]', function (e) {
+                    var checkBoxId = $(this).val();
+                    var rowIndex;
+
+                    //Assemblyparts Operations
+                    rowIndex = $.inArray(checkBoxId, selectedpart); //Checking if the Element is in the array.
+                    if (this.checked && rowIndex === -1) {
+                        selectedpart.push(checkBoxId); // If checkbox selected and element is not in the list->Then push it in array.
+                    }
+                    else if (!this.checked && rowIndex !== -1) {
+                        selectedpart.splice(rowIndex, 1); // Remove it from the array.
+                    }
+                });
+            }
+        });
+    });
+</script>
+<style>
+    label {
+        color: black;
+    }
+</style>
+<script>
+</script>
+<div class="row">
+    <div class="col-md-20">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="ajax-refresh2">
+                    <!--Starting -->
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="label"><strong>Distributor<span class="err">*</span>:</strong></label>
+                                    @if (Model.DistributorID != 0)
+                                    {
+                                        @Html.DropDownListFor(m => m.DistributorID, ViewBag.Distributor as SelectList, "Select", new { @class = "form-control selectpicker", disabled = "disabled" })
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownListFor(m => m.DistributorID, ViewBag.Distributor as SelectList, "Select", new { @class = "form-control selectpicker" })
+                                    }
+                                    <span id="spandistributorerror" style="display:none;" class="err">Select distributor</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="label"><strong>Name <span class="err">*</span> :</strong></label>
+                                    <input type="hidden" id="AsId" name="AsId" value="@Model.AssemblyId" />
+                                    @if (ViewBag.Edit == "EditAS")
+                                    {
+                                        <input type="hidden" id="AsName" name="AsName" value="@ViewBag.ASname" />
+                                    }
+                                    @Html.TextBoxFor(m => m.Assemblies_Name, new { @class = "form-control", @maxlength = "250", @placeholder = "Assembly Name" })
+                                    @Html.ValidationMessage("firstname")
+                                    <span id="spannameerror" style="display:none;" class="err">Enter name</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2" style="display: none">
+                                <div class="form-group">
+                                    <label for="title"><strong>Severity <span class="err">*</span>: </strong></label>
+                                    @Html.DropDownListFor(m => m.severity, new SelectList(new List<Object> { new { value = "Easy", text = "Easy" }, new { value = "Difficult", text = "Difficult" }, new { value = "Complex", text = "Complex" } }, "value", "text"), new { @class = "form-control" })
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="label"><strong>Category <span class="err">*</span>:</strong></label>
+                                    <input type="hidden" id="hidAssembliescategory" name="AsName" value="@Model.Assemblies_Category" />
+                                    @Html.DropDownListFor(m => m.Assemblies_Category, Enumerable.Empty<SelectListItem>(), "Select", new { @class = "form-control selectpicker", data_type = "other" })
+                                    <span id="spancategoryerror" style="display:none;" class="err">Select category</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group hide_other">
+                                    <label for="label"><strong>If Other Category <span class="err" style="display:none;" id="Other_Category">*</span>:</strong></label>
+                                    @Html.TextBoxFor(m => m.OtherAssemblies_Category, new { @class = "form-control other_active", @maxlength = "50", @placeholder = "Other", disabled = "disabled" })
+                                    <span id="spanothercategoryerror" style="display:none;" class="err">Enter other category</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="title"><strong>Description <span class="err">*</span>:</strong></label>
+                                    @Html.TextAreaFor(m => m.Assemblies_Description, new { @class = "form-control", @style = "resize: none;", @maxlength = "1000" })
+                                    @Html.ValidationMessageFor(m => m.Assemblies_Description)
+                                    <span id="spandescriptionerror" style="display:none;" class="err">Enter description</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <br />
+                                <button class="btn btn-flat btn-default btn-sm" onclick="PreviewPopUp();"><i class="fa fa-check-square-o"></i><span>Preview</span></button>
+                                <button class="btn btn-flat btn-default btn-sm" onclick="PreASDescriptionInPopUp();"><i class="fa fa-check-square-o"></i><span>Select From Previous</span></button>
+                            </div>
+                            <div class="col-md2" style="display:none">
+                                <div class="form-group">
+                                    <label for="title"><strong>Active:</strong></label>
+                                    @if (Model.Assemblies_Name == null || Model.Assemblies_Name == "")
+                                    {
+                                        @Html.CheckBoxFor(m => m.Isactive, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                    }
+                                    else
+                                    {
+                                        @Html.CheckBoxFor(m => m.Isactive, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger", onchange = "change();" })
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#PreviewInPopUp" id="Previewopenpopup" style="display: none">popup</a>
+                        <div id="PreviewInPopUp" class="modal fade" role="dialog">
+                            <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 59px;">
+                                <div class="modal-header" style="background-color: #333333; height: 35px;">
+                                    <button type="button" class="close" data-dismiss="modal" id="Previewpopupclose" style="color: #fff !important;">&times;</button>
+                                    <h4 class="modal-title" style="color: #FFF !important;">Description Preview</h4>
+                                </div>
+                                <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                                    <div class="panel-body">
+                                        <div class="row-fluid">
+                                            <textarea id="divPreviewdata" class="" onkeyup="PreviewKeyUp(this);" style="float: left; width: 98%; min-height: 500px; margin: 10px;"></textarea>
+                                        </div>
+                                        <div class="pull-right popup-btn">
+                                            <button value="Submit" data-dismiss="modal" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" onclick="">Ok</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#DecriptionInPopUp" id="Descriptionopenpopup" style="display: none">popup</a>
+                        <div id="DecriptionInPopUp" class="modal fade" role="dialog">
+                            <div class="modal-dialog" style="width: 78%; margin-left: 21%; margin-top: 70px;">
+                                <div class="modal-header" style="background-color: #333333; height: 35px;">
+                                    <button type="button" class="close" data-dismiss="modal" id="DecriptionInPopUpClose" style="color: #fff !important;">&times;</button>
+                                    <h4 class="modal-title" style="color: #FFF !important;">Previous Assemblies Description</h4>
+                                </div>
+                                <div class="modal-content" style="overflow: scroll; border-radius: 0; min-height: 185px; max-height: 500px; overflow: scroll">
+                                    <div id="divDecriptiondata"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (Model.Assemblies_Name != "" && Model.Assemblies_Name != null)
+                {
+                    <div class="panel-footer clearfix">
+                        <div class="pull-left" style="font-size: x-small;">
+                            <div>
+                                <label style="color: #3D81BD !important;">Created By  : &nbsp @Model.Created_By on<span></span> @Model.Created_Date</label>
+                            </div>
+                        </div>
+                        <div class="pull-right" style=" font-size: x-small;">
+                            <div>
+                                <label style="color: #3D81BD !important;">Updated By  : &nbsp @Model.Updated_By on<span></span> @Model.Updated_Date</label>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<script type="text/javascript">
+    //$("#Assemblies_Name").keypress(function (e) {
+    //    var characterReg = /^[-_ a-zA-Z0-9]+$/;
+    //    if (!characterReg.test(e.key)) {
+    //        return false;
+    //    }
+    //});
+    $("#Assemblies_Category").change(function () {
+        if ($("#Assemblies_Category").val() == "0" || $("#Assemblies_Category").val() == "other") {
+            $("#Other_Category").show();
+        } else {
+            $("#Other_Category").hide();
+        }
+    });
+</script>

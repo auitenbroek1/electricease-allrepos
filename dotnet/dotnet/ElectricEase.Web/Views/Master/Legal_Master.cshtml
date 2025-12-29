@@ -1,0 +1,315 @@
+﻿@model ElectricEase.Models.Legal_DetailsInfo
+
+@{
+    ViewBag.Title = "Legal_Master";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+
+
+<script>
+    $(document).ready(function () {
+        $('li').removeClass('active');
+        //$("#legalmaster").addClass('active');
+        $("#legalmaster").addClass('active');
+
+        $(".content-title").text("Legal Master");
+    });
+
+    $("#Ljob").click(function () {
+        //alert("dsfsdfsdf");
+        $(this).addClass('active').siblings().removeClass('active');
+
+        $(".content-title").hide();
+        //var activepage = $('a', this).attr("href");
+        //$(activepage).show();
+        // document.title = $('h1', activepage).first().text();
+        // $('title').text(document.title);
+        return false;
+    });
+    //$("#subjobs").click(function () {
+    //    alert("ggggg");
+    //    $("#dashboard").addClass('active').siblings().removeClass('active');
+
+    //    $(".content-title").hide();
+    //    var activepage = $('a', this).attr("href");
+    //    $(activepage).show();
+    //    document.title = $('h1', activepage).first().text();
+    //    $('title').text(document.title);
+    //    return false;
+    //});
+</script>
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full">
+            <form class="form-horizontal" role="form">
+
+                <fieldset>
+                    <div id="accordion">
+                        <h7 class="box-heading"><strong>Legal Details</strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                        <span class="pull-right apse a">
+                                        <i class="icon ion-chevron-up"></i></span>
+                                    </a>
+                                </h7>
+                        <hr>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <!--div class="col-lg-6">
+                                        <!-- parts details area start -->
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="ajax-refresh2">
+
+                                                <div class="panel-body">
+                                                    <div class="row-fluid">
+                                                        <div class="col-sm-10">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Legal Term</strong></label>
+                                                                <textarea rows="5" class="form-control" name="LegalText" id="ClientDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Category</strong></label>
+                                                                <select class="form-control" name="UnitId" id="IUnitId" tabindex="2">
+                                                                    <option value="">Select or Create New Category</option>
+                                                                    <option value="1"></option>
+                                                                    <option value="2">Can Lighting</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="panel-footer clearfix">
+                                                    <div class="pull-right">
+                                                        <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10">Save</button>
+                                                        <a href="labour.php" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11">Clear</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- parts details area End -->
+                            <!--/div-->
+                        </div>
+
+                        <div class="row"></div>
+                        <div class="row">
+                            <h7 class="box-heading"><strong>Legal Listing</strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                    <span class="pull-right apse b">
+                                    <i class="icon ion-chevron-up"></i></span>
+                                    </a>
+                                    </h7>
+                            <hr>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse in">
+                            <!--div class="col-lg-6">
+                                             <!-- parts list area start-->
+                            <div class="col-md-6">
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="col-lg-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <!--h3 class="panel-title text-center">Item List</h3-->
+                                        <div class="panel-body table-responsive">
+
+                                            <table class="table table-bordered datatables">
+                                                <thead class="thead-color">
+                                                    <tr>
+                                                        <th style="text-align: center;">S.No.</th>
+                                                        <th width="100px" style="text-align: center;">Category</th>
+                                                        <th width="500px" style="text-align: center;">Legal</th>
+
+                                                        <th style="text-align: center;">&#10003;</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="text-align: center;">1</td>
+                                                        <td></td>
+                                                        <td>All prices are subject to change after 30 days.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">2</td>
+                                                        <td></td>
+                                                        <td>Attached is an estimate only for the work requested by the Customer. This estimate includes all fees for the permits and inspections which will be handled by KB Electric, Inc. This estimate becomes an offer if the customer accepts all terms contained herein. KB Electric’s, Inc., commencement of the work constitutes Customer’s acceptance of all terms included herein. The commencement date is the effective date of the contract. KB Electric, Inc. shall have the right to collect from the other party its reasonable costs and necessary disbursements and attorneys fees incurred in enforcing this Agreement.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">3</td>
+                                                        <td></td>
+                                                        <td>Full payment is due upon completion of work.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">4</td>
+                                                        <td></td>
+                                                        <td>In some cases, we find that wire size is not properly matched after we change a breaker box. KB Electric, Inc., is required by law to match wire size with the proper breaker size, i.e., #14 wire and 15a breaker, or #12 wire and a 20a breaker. This may cause a circuit overload, and the overloaded circuit will need to be re-fed for an additional charge.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">5</td>
+                                                        <td></td>
+                                                        <td>It is our policy to replace all outlets and switches with new ones on the main floors of the house. KB Electric, Inc., will only replace the outlets and switches in the basement and attic if it is required so by law.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">6</td>
+                                                        <td></td>
+                                                        <td>KB Electric, Inc., will determine whether the wire needs to be replaced or the existing wire will be left intact.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">7</td>
+                                                        <td></td>
+                                                        <td>The Customer agrees herein to furnish 40% of the total amount included in the final estimate to KB Electric, Inc., prior to the commencement of work. The Customer further agrees to pay in full upon completion of work.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">8</td>
+                                                        <td></td>
+                                                        <td>The Customer agrees herein to furnish 40% of the total amount included in the final estimate to KB Electric, Inc., prior to the commencement of work. The Customer further agrees to furnish 40% of the total amount included in the FINAL estimate to KB Electric, Inc., upon completion of the rough-in. The remaining 20% is to be furnished to KB Electric, Inc., within fifteen (15) days upon completion of the project.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td style="text-align: center;">9</td>
+                                                        <td></td>
+                                                        <td>The Customer agrees herein to furnish 80% of the total amount included in the final estimate to KB Electric, Inc., upon completion of the rough-in. The remaining 20% is to be furnished to KB Electric, Inc., within fifteen (15) days upon completion of the project.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">10</td>
+                                                        <td></td>
+                                                        <td>WARRANTY: Two-year Workmanship Warranty KB Electric, Inc., warrants that all workmanship provided by our employees be free from defects, including the installation of parts and repairs, for two (2) years from the date of the installation, and will repair any installation that we find to be defective free of charge, subject to the limitations defined below. TWO-YEAR PARTS WARRANTY KB Electric, Inc., warrants that all parts provided and installed by our employees be free of defects for two (2) years and that we will provide a replacement part free of charge or repair damaged or defective parts free of charge (at our discretion), subject to the limitations detailed below. This warranty includes the cost of the installation of the new part, if such installation is deemed necessary by KB Electric, Inc. This warranty specifically excludes non-durable replaceable parts including, but not limited to, light bulbs, ballasts, fuses, batteries, etc. GENERAL CONDITIONS AND EXCLUSIONS This warranty extends only to parts and labor provided by KB Electric, Inc. Parts provided by others or installations done by others are expressly excluded from this warranty. This warranty does not cover items damaged by acts of nature, misuse, or abuse. Remedies for warranty claims are limited to the repair or replacement of the damaged part or faulty installation. This warranty does not provide for a refund of the installation or a defected part. This warranty does not cover the cost of repairs made by others unless authorized in writing by KB Electric, Inc. This warranty does not apply to installation or parts for which KB Electric, Inc., has not received payment. Failure to pay voids any and all warranty coverage offered by KB Electric, Inc.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td style="text-align: center;">11</td>
+                                                        <td></td>
+                                                        <td>We will wire home to electrical code based on the current adopted NEC. Local jurisdictions may enforce additional codes that have not been included in this estimate. Any additional electrical installation that may be required by local jurisdiction will be billed as an extra.</td>
+                                                        <td>
+                                                            <a href="" id="editItem">
+                                                                <i class="icon ion-social-dropbox"></i>
+                                                            </a>
+                                                            &nbsp;&nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a>
+                                                        </td>
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Parts List Area End -->
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- /fieldset -->
+            </form>
+            <!-- /form -->
+        </div>
+        <!-- /box -->
+    </div>
+    <!-- /app body -->
+</div>
+

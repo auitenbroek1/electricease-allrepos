@@ -1,0 +1,97 @@
+﻿@model  List<ElectricEase.Models.Labor_DetailsInfoList>
+@{
+    string isdisabled = "Laborselectrow(this)";
+}
+<script>
+    $(document).ready(function () {
+        var rows_selected = [];
+        $("#Labortable").dataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+        });
+    });
+    function selectall(val) {
+        var selected = $(val).attr('checked');
+        if (val.checked) {
+            laborpopselected = [];
+            $('#Labortable').find("input:checkbox").each(function () {
+                laborpopselected.push(this.id);
+                this.checked = true;
+            });
+        }
+        else {
+            $('#Labortable').find("input:checkbox").each(function () {
+                laborpopselected = [];
+                if (!this.disabled)
+                    this.checked = false;
+            });
+        }
+    }
+</script>
+
+<div class="table-resposive" style="max-height: 500px;overflow-y:auto">
+    <table class="table" id="Labortable">
+        <thead>
+            <tr>
+                <th style="width:10%">
+                    <input hidden="hidden" type="checkbox" value="selectall" id="laborselectall" onchange="selectall(this);" />Select
+                </th>
+                <th>Labor Name</th>
+                <th>Labor Category</th>
+                <th> Cost</th>
+                <th>Resale</th>
+                <th>Burden</th>
+            </tr>
+        </thead>
+        <tbody id="LaborBody">
+            @foreach (var item in Model)
+            {
+                if (item.isChekced == true)
+                {
+                    isdisabled = "";
+                }
+                else
+                {
+                    isdisabled = "Laborselectrow(this)";
+                }
+                <tr style="cursor:pointer" onclick="@isdisabled">
+                    <td>
+                        @if (item.isChekced == true)
+                        {
+                            <input type="checkbox" disabled id="@item.Laborer_Name" data-id="@item.Client_ID" value="@item.Laborer_Name" checked="checked" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" id="@item.Laborer_Name" onclick="Laborselectrow(this)" data-id="@item.Client_ID" value="@item.Laborer_Name" />
+                        }
+                    </td>
+                    <td>
+                        @item.Laborer_Name
+                    </td>
+                    <td>
+                        @item.Labor_Category
+                    </td>
+                    <td>
+                        @item.Cost
+                    </td>
+                    <td>
+                        @item.Resale_Cost
+                    </td>
+                    <td>
+                        @item.Burden
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="row" style="margin:1%">
+    <div class="row-fluid">
+
+        <div class="pull-right popup-btn">
+            <button type="button" value="Submit" class="btn btn-flat btn-primary btn-sm" id="submit" onclick="saveLabor('selectedlabor');" tabindex="10">Submit</button>
+        </div>
+
+    </div>
+</div>

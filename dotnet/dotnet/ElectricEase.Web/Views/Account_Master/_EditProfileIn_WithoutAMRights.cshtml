@@ -1,0 +1,138 @@
+﻿@model ElectricEase.Models.EditAccount_MasterInfo
+
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+            <fieldset>
+                <div id="accordion">
+                    <h7 class="box-heading"><strong> Account Details </strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                        <span class="pull-right apse a">
+                                        <i class="icon ion-chevron-up"></i></span>
+                                    </a>
+                                </h7>
+                    <hr>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+
+                        @using (Html.BeginForm("AddNewUser", "Account_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data", id = "Addform" }))
+                        {
+                            @Html.ValidationSummary(true);
+                                
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div>
+                                                <div class="panel-body">
+                                                    @*@if (HttpContext.Current.User.IsInRole("Admin"))
+                                                    { 
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="title"><strong>Client ID :</strong></label>
+                                                                    @Html.DropDownListFor(m => m.Client_ID, Enumerable.Empty<SelectListItem>(), "Select", new { Name = "Client_ID", @class = "form-control" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }*@
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>First Name :</strong></label>
+                                                                @Html.TextBoxFor(m => m.First_Name, new { @class = "form-control", @maxlength = "50", @placeholder = "First Name" })
+                                                                @Html.ValidationMessageFor(m => m.First_Name)
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Last Name:</strong></label>
+                                                                @Html.TextBoxFor(m => m.Last_Name, new { @class = "form-control", @maxlength = "50", @placeholder = "Last Name" })
+                                                                @Html.ValidationMessageFor(m => m.Last_Name)
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Phone :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", @maxlength = "50", @placeholder = "Phone" })
+                                                                @Html.ValidationMessageFor(m => m.Phone)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Email :</strong></label>
+                                                                @Html.TextBoxFor(m => m.E_Mail, new { @class = "form-control", @maxlength = "50", @placeholder = "Email" })
+                                                                @Html.ValidationMessageFor(m => m.E_Mail)
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>User ID :</strong></label>
+                                                                @Html.TextBoxFor(m => m.User_ID, new { @class = "form-control", @maxlength = "50", @placeholder = "User ID " })
+                                                                @Html.ValidationMessageFor(m => m.User_ID)
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Password :</strong></label>
+                                                                @Html.PasswordFor(m => m.Password, new { @class = "form-control", @maxlength = "50", @placeholder = "Password" })
+                                                                @Html.ValidationMessageFor(m => m.Password)
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="lable"><strong>Photo:</strong></label>
+                                                                @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                @Html.ValidationMessageFor(m => m.UploadedFile)
+                                                                <label id="requirdMsg"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group" id="dvPreview"></div>
+                                                        @* <div class="form-group" >
+                                        </div>*@
+                                                    </div>
+                                                </div>
+                                                <div class="panel-footer clearfix">
+                                                    <div class="pull-right">
+                                                        @*<button type="submit">Upload Image</button>*@
+                                                        <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" id="Addbtn">Add</button>
+                                                        <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset">Clear</a>
+                                                        @*<input type="reset" id = "Reset" value ="Reset" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11"/>*@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>

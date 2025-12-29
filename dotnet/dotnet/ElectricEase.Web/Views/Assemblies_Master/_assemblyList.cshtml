@@ -1,0 +1,257 @@
+﻿
+@model ElectricEase.Models.Assembly_MasterInfo
+@{
+    Layout = null;
+}
+<script>
+
+    $(document).ready(function () {
+        var assemdropdwn = document.getElementsByName("AssembliesTbl_length");
+        var searchbox = $('#AssembliesTbl_filter input');
+        var pagno = Cookies.get('Assemdtpageno');
+        if (pagno == null || pagno == "") {
+            pagno = 0;
+        }
+        var pagelen = Cookies.get('Assemdtpagelen');
+        if (typeof pagelen != 'undefined' && pagelen != null && pagelen != "") {
+            pagelen = Number(pagelen);
+        }
+        else {
+            pagelen = 5;
+        }
+        var table = null;
+        if (Cookies.get('Assemdtpagelen') != null && Cookies.get('Assemdtpagelen') != "") {
+            var tab = $("#AssembliesTbl").dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "order": [[0, "asc"]],
+                "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+                "iDisplayLength": pagelen
+
+            });
+            table = tab;
+            if (Cookies.get('Assemdtsorting') != null && Cookies.get('Assemdtsorting') != "") {
+                var sort = Cookies.get('Assemdtsorting').split(',');
+                if (sort.length > 0) {
+                    tab.fnSort([[sort[0], sort[1]]]);
+                }
+            }
+            pagno = Number(pagno);
+            var total = $('.paginate_button');
+            if (total.length == 3) {
+                pagno = 0;
+            }
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('Assemsearch') != null && Cookies.get('Assemsearch') != "") {
+                tab.fnFilter(Cookies.get('Assemsearch'));
+            }
+        }
+        else {
+            var tab = $("#AssembliesTbl").dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+                "order": [[0, "asc"]]
+
+            });
+            table = tab;
+            if (Cookies.get('Assemdtsorting') != null && Cookies.get('Assemdtsorting') != "") {
+                var sort = Cookies.get('Assemdtsorting').split(',');
+                if (sort.length > 0) {
+                    tab.fnSort([[sort[0], sort[1]]]);
+                }
+            }
+            pagno = Number(pagno);
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('Assemsearch') != null && Cookies.get('Assemsearch') != "") {
+                tab.fnFilter(Cookies.get('Assemsearch'));
+            }
+        }
+        if (isloaded) {
+            setTimeout(function () {
+                var ddl = $("select[name=Assemblies_Category]");
+                var ddlopt = $("select[name=Assemblies_Category] option");
+                var opt = "";
+
+                for (var i = 0; i < ddlopt.length; i++) {
+                    if ($(ddlopt[i]).val() != null && $(ddlopt[i]).val() != "" && $(ddlopt[i]).val() != "1") {
+                        $('#lstassembly_cat').append("<option value='" + $(ddlopt[i]).val() + "'>" + $(ddlopt[i]).val() + "</options>");
+                    }
+                }
+            }, 2000)
+            isloaded = true;
+        }
+        $($('#AssembliesTbl_length')[0].parentElement).removeClass('col-sm-6')
+        $($('#AssembliesTbl_length')[0].parentElement).addClass('col-sm-10')
+
+        $(assemdropdwn).change(function () {
+            var len = this.value;
+            Cookies.set('Assemdtpagelen', len);
+        });
+        $('#AssembliesTbl_filter input').on("keyup", function () {
+            Cookies.set('Assemsearch', $(this).val());
+        });
+        $('#AssembliesTbl').on('page.dt', function () {
+            var info = this;
+            setTimeout(function () {
+                var ss = $('.paginate_button.active');
+                var pgno = ss[0].innerText;
+                if (pgno != "" && pgno != "0") {
+                    pgno = Number(pgno) - Number(1);
+                }
+                Cookies.set('Assemdtpageno', pgno);
+            }, 1000);
+            var ss = $('.paginate_button.active');
+        });
+
+        $('#AssembliesTbl').on('order.dt', function () {
+            var sortedCol = $('#AssembliesTbl').dataTable().fnSettings().aaSorting[0][0];
+            var sortedDir = $('#AssembliesTbl').dataTable().fnSettings().aaSorting[0][1];
+            Cookies.set('Assemdtsorting', sortedCol + ',' + sortedDir);
+
+
+        });
+        //var assembdiv = $('#DataTables_Table_0');
+        //$(assembdiv[0].parentElement).removeClass('col-md-12');
+        //$(assembdiv[0].parentElement).addClass('table-responsive');
+    });
+    function assembcatChange() {
+        isloaded = true;
+        category = $('#lstassembly_cat').val();
+        Cookies.set("assemfilter", $('#lstassembly_cat').val());
+        //getassemblyList($('#lstassembly_cat').val());
+    }
+</script>
+<style>
+    .deletedparts {
+        color: red !important;
+    }
+
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+
+    .inactiveicon {
+        color: #ff0000;
+        font-size: 18px;
+    }
+
+    .activicon {
+        color: forestgreen;
+        font-size: 18px;
+    }
+</style>
+<div class="col-md-2">
+    <select id="lstassembly_cat" class="form-control" onchange="assembcatChange()">
+        <option value="">All Assembly Category</option>
+    </select>
+</div>
+<table id="AssembliesTbl" class="table table-bordered datatables" cellspacing="0" width="100%">
+    <thead style="background-color: #45525F">
+        <tr>
+            <th></th>
+            <th style="width:15%">Assemblies Name</th>
+            <th>Assembly Category</th>
+            <th style="width:25%">Assemblies Description</th>
+            <th style="width:17%">AssemblyParts Count</th>
+            <th>Type</th>
+            @*<th>Status</th>*@
+            <th>Action</th>
+        </tr>
+    </thead>
+    @{ string name = "Client";}
+    <tbody id="asbody">
+
+        @foreach (var item in Model.asList)
+        {
+            var rowcolor = "";
+            if (item.assemblypartsCount == 0)
+            {
+                rowcolor = "deletedparts";
+            }
+            <tr>
+                <td>@item.ID</td>
+                <td class="@rowcolor">@item.Assemblies_Name</td>
+                <td class="@rowcolor">@item.Assemblies_Category</td>
+                <td class="@rowcolor">
+                    @{
+                        string desc = "";
+                        desc = item.Assemblies_Description == null ? "" : item.Assemblies_Description;
+                        if (desc.Length > 100)
+                        {
+                            desc = desc.Substring(0, 50) + "...";
+                        }
+                        <span>@desc</span>
+                    }
+                </td>
+                <td class="@rowcolor">@item.assemblypartsCount</td>
+                @if (item.Type != null)
+                {
+                    <td>@item.Type</td>
+                }
+                else
+                {
+                    <td>@name</td>
+                }
+                @*<td class="@rowcolor">@if (@item.IsActive == true)
+                    {
+                        <span class="glyphicon glyphicon-ok-circle activicon"></span>
+                    }
+                    else
+                    {
+                        <span class="glyphicon glyphicon-remove-circle inactiveicon"></span>
+                    }
+                    </td>*@
+                @if (item.IsActive == true)
+                {
+                    <td class="@rowcolor">
+                        <a href="javascript:void(0);" onclick="editassembly('@item.Assemblies_Name');">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>&nbsp;&nbsp;&nbsp;
+
+                        <a class="confirm" id="alert" href="javascript:void(0)" onclick="deleteAssembly('@item.Assemblies_Name.Trim()')">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+
+
+
+                    </td>
+                }
+                else
+                {
+                    <td class="@rowcolor" align="center">
+                        <a href="javascript:void(0);" onclick="editassembly('@item.Assemblies_Name');">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+@*@{
+        var AssebliesGrid = new WebGrid(source: Model.asList, canPage: false, canSort: false);
+    }
+
+     @AssebliesGrid.GetHtml(
+                               tableStyle: "table table-bordered datatables AssembliesList",
+                                alternatingRowStyle: "alt",
+                                columns: AssebliesGrid.Columns(
+                                AssebliesGrid.Column(columnName: "Assemblies_Name", header: "Assemblies Name"),
+                                AssebliesGrid.Column(columnName: "Assemblies_Description", header: "Assemblies Description"),
+                               AssebliesGrid.Column(header: "Action", format: @<text><a href="javascript:void(0)" onclick="editassembly('@item.Assemblies_Name')"> <span class="glyphicon glyphicon-pencil"></span></a>&nbsp;&nbsp;&nbsp;<a class="confirm" id="deletebtn" href="#" onclick="deleteAssembly('@item.Assemblies_Name')"><span class="glyphicon glyphicon-trash"></span></a></text>)
+
+                               )
+                               )*@

@@ -1,0 +1,176 @@
+﻿@model ElectricEase.Models.Parts_DetailsInfo
+
+@{
+    ViewBag.Title = "NR_Parts_Master";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        $('li').removeClass('active');
+        $("#Nparts").addClass('active');
+
+        $(".content-title").text("Parts Master");
+
+    });
+    $("#Ljob").click(function () {
+        //alert("dsfsdfsdf");
+        $(this).addClass('active').siblings().removeClass('active');
+
+        $(".content-title").hide();
+        //var activepage = $('a', this).attr("href");
+        //$(activepage).show();
+        // document.title = $('h1', activepage).first().text();
+        // $('title').text(document.title);
+        return false;
+    });
+</script>
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full">
+            <form class="form-horizontal" role="form">
+
+                <fieldset>
+                    <div id="accordion">
+                       
+
+                        <div class="row"></div>
+                        <div class="row">
+                            <h7 class="box-heading"><strong>Parts Listing</strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                    <span class="pull-right apse b">
+                                    <i class="icon ion-chevron-up"></i></span>
+                                    </a>
+                                    </h7>
+                            <hr>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse in">
+                            <!--div class="col-lg-6">
+                                             <!-- parts list area start-->
+                            <div class="col-md-6">
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="col-lg-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <!--h3 class="panel-title text-center">Item List</h3-->
+                                        <div class="panel-body table-responsive">
+
+                                            <table class="table table-bordered datatables">
+                                                <thead class="thead-color">
+                                                    <tr>
+                                                        <th style="text-align: center;">S.No.</th>
+                                                        <th width="300px" style="text-align: center;">Category</th>
+                                                        <th width="300px" style="text-align: center;">Part</th>
+                                                        <th style="text-align: center;">Resale</th>
+                                                        <th style="text-align: center;">Purchased From</th>
+                                                       
+                                                       
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="text-align: center;">1</td>
+                                                        <td>Boxes</td>
+                                                        <td>CANTX-1G</td>
+                                                        <td style="text-align: right;">$0.60</td>
+                                                        <td>Supplier 1</td>
+                                                        
+
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">2</td>
+                                                        <td>Boxes</td>
+                                                        <td>CANTX-2G</td>
+                                                        <td style="text-align: right;">$1.33</td>
+                                                        <td>Supplier 1</td>
+                                                        
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">3</td>
+                                                        <td>Boxes</td>
+                                                        <td>CANTX-3G</td>
+                                                        <td style="text-align: right;">$2.18</td>
+                                                        <td>Supplier 1</td>
+                                                        
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">4</td>
+                                                        <td>Boxes</td>
+                                                        <td>CANTX-4G</td>
+                                                        <td style="text-align: right;">$4.90</td>
+                                                        <td>Supplier 2</td>
+                                                        
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">5</td>
+                                                        <td>Can Lighting</td>
+                                                        <td>CPL-REMOD-CAN-6-IC</td>
+                                                        <td style="text-align: right;">$10.40</td>
+                                                        <td>Supplier 1</td>
+                                                        
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">6</td>
+                                                        <td>Can Lighting</td>
+                                                        <td>CPL-REMOD-4-NONIC</td>
+                                                        <td style="text-align: right;">$17.50</td>
+                                                        <td>Supplier 1</td>
+                                                        
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">7</td>
+                                                        <td>Covers</td>
+                                                        <td>LEV-2G-SW-COV-W</td>
+                                                        <td style="text-align: right;">$7.50</td>
+                                                        <td>Supplier 10</td>
+                                                        
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">8</td>
+                                                        <td>Devices</td>
+                                                        <td>LEV-3W-DRY-F</td>
+                                                        <td style="text-align: right;">$1.20</td>
+                                                        <td>Supplier 1</td>
+                                                        
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td style="text-align: center;">9</td>
+                                                        <td>Flex</td>
+                                                        <td>FLEX-1</td>
+                                                        <td style="text-align: right;">$9.20</td>
+                                                        <td>Supplier 1</td>
+                                                        
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">10</td>
+                                                        <td>Flex</td>
+                                                        <td>FLEX-1-CONN</td>
+                                                        <td style="text-align: right;">$129.20</td>
+                                                        <td>Supplier 1</td>
+                                                        
+                                                    </tr>
+                                                    
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Parts List Area End -->
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- /fieldset -->
+            </form>
+            <!-- /form -->
+        </div>
+        <!-- /box -->
+    </div>
+    <!-- /app body -->
+</div>
+

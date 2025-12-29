@@ -1,0 +1,340 @@
+﻿@model ElectricEase.Models.Client_MasterInfo
+@{
+    Layout = "";
+
+}
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<div class="magic-layoutz">
+    @if (ViewBag.UpdateErrordMsg != null)
+    {
+        <div class="box-row profile-hd">
+            <div class="error box-row" style="background: #FF4747; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.UpdateErrordMsg</div>
+        </div>
+    }
+    <fieldset>
+        <div id="accordion">
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Distributor<span class="err">*</span> :</strong></label><br />
+                                                @Html.DropDownListFor(m => m.DistributorID, ViewBag.Distributor as SelectList, "Select", new { @class = "form-control selectpicker", })
+                                                @Html.ValidationMessageFor(m => m.DistributorID)
+                                                <span class="err" style="display:none;" id="spandistributorerror">Select distributor</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                @if (Model.Client_ID != 0)
+                                                {
+                                                    <input type="hidden" value="@Model.Client_ID" name="Client_ID" id="Client_ID" />
+                                                }
+                                                <label for="title"><strong>Client Company<span class="err">*</span>:</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_Company, new { @class = "form-control", @maxlength = "500", @placeholder = "Client Company" })
+                                                @Html.ValidationMessageFor(m => m.Client_Company)
+                                                <span class="err" style="display:none;" id="spanclientcompanyerror">Enter client company</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Contact Person <span class="err">*</span>:</strong></label>
+                                                @Html.TextBoxFor(m => m.Contact_person, new { @class = "form-control", @maxlength = "100", @placeholder = "Contact Person" })
+                                                @Html.ValidationMessageFor(m => m.Contact_person)
+                                                <span class="err" style="display:none;" id="spancontactpersonerror">Enter contact person</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Address :</strong></label>
+                                                @Html.TextBoxFor(m => m.Address, new { @class = "form-control", @maxlength = "200", @placeholder = "Address" })
+                                                @Html.ValidationMessageFor(m => m.Address)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Address2 :</strong></label>
+                                                @Html.TextBoxFor(m => m.Address2, new { @class = "form-control", @maxlength = "200", @placeholder = "Address2" })
+                                                @Html.ValidationMessageFor(m => m.Address2)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>City :</strong></label>
+                                                @Html.TextBoxFor(m => m.City, new { @class = "form-control", @maxlength = "100", @placeholder = "City" })
+                                                @Html.ValidationMessageFor(m => m.City)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>State :</strong></label>
+                                                @Html.DropDownListFor(m => m.Client_State, ViewBag.State as SelectList, "Select", new { @class = "form-control" })
+
+                                                @Html.ValidationMessageFor(m => m.Client_State)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Zip Code :</strong></label>
+                                                @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control", @maxlength = "9", @placeholder = "ZipCode" })
+                                                @Html.ValidationMessageFor(m => m.ZipCode)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Phone <span class="err">*</span> :</strong></label>
+                                                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", @maxlength = "10", @placeholder = "Phone" })
+                                                <span id="Phone_errmsg" class="error"></span>
+                                                @Html.ValidationMessageFor(m => m.Phone)
+                                                <span class="err" style="display:none;" id="spanphoneerror">Enter phone</span>
+                                                <span class="err" style="display:none;" id="spaninvalidphoneerror">Enter valid phone</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Mobile <span class="err">*</span>:</strong></label>
+                                                @Html.TextBoxFor(m => m.Mobile, new { @class = "form-control", @maxlength = "10", @placeholder = "Mobile" })
+                                                <span id="Mobile_errmsg" class="error"></span>
+                                                @Html.ValidationMessageFor(m => m.Mobile)
+                                                <span class="err" style="display:none;" id="spanmobileerror">Enter mobile</span>
+                                                <span class="err" style="display:none;" id="spaninvalidmobileerror">Enter valid mobile</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Fax :</strong></label>
+                                                @Html.TextBoxFor(m => m.Fax, new { @class = "form-control", @maxlength = "50", @placeholder = "Fax" })
+                                                @Html.ValidationMessageFor(m => m.Fax)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Email <span class="err">*</span> :</strong></label>
+                                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control required email", @maxlength = "100", @placeholder = "Email", onblur = "emailvalidation(this);" })
+                                                @Html.ValidationMessageFor(m => m.Email)
+                                                <span class="err" style="display:none;" id="spanemailerror">Enter email</span>
+                                                <span class="err" style="display:none;" id="spaninvalidemailerror">Enter valid email</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Active:</strong></label>
+                                                @if (Model.Client_ID == 0)
+                                                {
+                                                    @Html.CheckBoxFor(m => m.activateStatus, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.CheckBoxFor(m => m.activateStatus, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger", onchange = "change();" })
+                                                }
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <div class="row">
+                                                @if (Model.Client_Logo == null)
+                                                {
+
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="lable"><strong>Company Logo <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload", onchange = "GetImage(this);" })
+                                                            @Html.ValidationMessageFor(m => m.UploadedFile)
+                                                            @*<div class="filuploaderr"><strong><span class="err">Note: Logo size should be less then 600kb</span></strong></div>*@
+                                                            <label id="requirdMsg"></label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group" id="dvPreview">
+                                                        </div>
+                                                    </div>
+                                                }
+                                                @if (Model.Client_Logo != null)
+                                                {
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="lable"><strong>Company Logo<span class="err">*</span> :</strong></label>
+                                                            @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload", onchange = "GetImage(this);" })
+                                                            @* <span class="err" style="display:none;" id="spancompanylogoerror">Select Company Logo</span>*@
+                                                            @*<div class="filuploaderr"><strong><span class="err">Note: Logo size should be less then 600kb</span></strong></div>*@
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group" id="dvPreview" style="display: none"></div>
+                                                        <div class="form-group" id="firstlogo">
+                                                            <img src="data:image;base64,@System.Convert.ToBase64String(Model.Client_Logo)" id="upimg" width="80" height="80" style="margin-top:-9px" />
+                                                        </div>
+                                                    </div>
+                                                }
+                                                <span class="err" style="display:none;" id="spancompanylogoerror">Select company logo</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-row  profile-hd">
+                    <h7 class="box-heading">
+                        <strong> &nbsp  Add Client Login Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                        </span>
+                    </h7>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Client Admin ID<span class="err">*</span> :</strong></label>
+                                                @if (Model.Client_ID == 0)
+                                                {
+                                                    @Html.TextBoxFor(m => m.SuperUser, new { @class = "form-control", @maxlength = "100", @placeholder = "Client Admin", onchange = "checkIsExist(this);" })
+                                                    <span class="err" id="loginidmsg"></span>
+                                                }
+                                                else
+                                                {
+                                                    @Html.TextBoxFor(m => m.SuperUser, new { @class = "form-control", @maxlength = "100", @placeholder = "Client Admin", disabled = "disabled" })
+                                                }
+
+                                                @Html.ValidationMessageFor(m => m.SuperUser)
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Password <span class="err">*</span> :</strong></label>
+                                                @if (Model.SuperUser_Pwd != null)
+                                                {
+                                                    <input type="hidden" id="Pwd" value="@Model.SuperUser_Pwd" />
+                                                }
+                                                @Html.TextBoxFor(m => m.SuperUser_Pwd, new { @class = "form-control", @maxlength = "100", @placeholder = "Password", type = "password" })
+                                                @*@Html.ValidationMessageFor(m => m.SuperUser_Pwd)*@
+
+                                            </div>
+                                        </div>
+                                        @*<div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>JobID Preffix  :</strong></label>
+                                                @Html.TextBoxFor(m => m.JobIDPreffix, new { @class = "form-control", @maxlength = "3", @placeholder = "Preffix" })
+                                                @Html.ValidationMessageFor(m => m.JobIDPreffix)
+                                               
+                                            </div>
+                                        </div>*@
+                                    </div>
+                                    @*<div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Sender Email Address  :</strong></label>
+                                                @Html.TextBoxFor(m => m.Sender_EmailAddress, new { @class = "form-control", @maxlength = "100", @placeholder = "Sender Email" })
+                                                @Html.ValidationMessageFor(m => m.Sender_EmailAddress)
+                                               
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Sender Email Password  :</strong></label>
+                                                @Html.PasswordFor(m => m.Sender_EmailPassword, new { @class = "form-control", @maxlength = "100", @placeholder = " Sender Password" })
+                                                @Html.ValidationMessageFor(m => m.Sender_EmailPassword)
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Domain Name  :</strong></label>
+                                                @Html.TextBoxFor(m => m.DomainName, new { @class = "form-control", @maxlength = "100", @placeholder = "Domain Name" })
+                                                @Html.ValidationMessageFor(m => m.DomainName)
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="display:none">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>SMTP Host  :</strong></label>
+                                                @Html.TextBoxFor(m => m.SMTP_Host, new { @class = "form-control", @maxlength = "100", @placeholder = "Host" })
+                                                @Html.ValidationMessageFor(m => m.SMTP_Host)
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>SMTP Port  :</strong></label>
+                                                @Html.TextBoxFor(m => m.SMTP_Port, new { @class = "form-control", @maxlength = "100", @placeholder = " Port " })
+                                                @Html.ValidationMessageFor(m => m.SMTP_Port)
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Auto Save Time(Secs) :</strong></label>
+                                                @Html.TextBoxFor(m => m.AutoSaveTime_InSecs, new { @class = "form-control", @maxlength = "4", @placeholder = "Seconds" })
+                                                @Html.ValidationMessageFor(m => m.AutoSaveTime_InSecs)
+                                                
+                                            </div>
+                                        </div>
+                                    </div>*@
+                                    <div class="row">
+                                        <div class="pull-right" style="width: 35%">
+                                            <button type="submit" value="Submit" class="btn btn-flat updatebtn btn-primary btn-sm" name="addLabour" tabindex="10" style="width: 49%" id="Addbtn" onclick="CheckClientIsExist();">Save </button>
+                                            @if (Model.Client_ID == 0)
+                                            {
+                                                @*<button type="submit" value="Submit" class="btn btn-flat updatebtn btn-primary btn-sm" name="addLabour" tabindex="10" style="width: 49%" id="Addbtn" onclick="CheckClientIsExist();">Save </button>*@
+                                                <a href="#" class="btn btn-flat btn-default btn-sm" tabindex="11" style="width:49%" id="Reset" onclick="ResetAll();">Clear</a>
+                                            }
+                                            else
+                                            {
+                                                <a href="#" class="btn btn-flat btn-default btn-sm" tabindex="11" style="width:49%;" id="cancle" onclick="Cancel();">Cancel</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (Model.Client_ID != 0)
+                            {
+                                <div class="panel-footer clearfix">
+                                    <div class="pull-left" style="font-size: x-small;">
+                                        <div>
+                                            <label style="color: #3D81BD !important;">Created By  : &nbsp @Model.Created_By on<span></span> @Model.Created_Date</label>
+
+                                        </div>
+                                    </div>
+                                    <div class="pull-right" style="font-size: x-small;">
+                                        <div>
+                                            <label style="color: #3D81BD !important;">Updated By  : &nbsp @Model.Updated_By on<span></span> @Model.Updated_Date</label>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<script type="text/javascript">
+    $("#Phone, #Mobile, #ZipCode").keypress(function (e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+            return false;
+        }
+    });
+</script>

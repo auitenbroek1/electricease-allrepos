@@ -1,0 +1,170 @@
+﻿@{
+    // ViewBag.Title = "ReportIndex";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+    //Layout = null;
+}
+<script>
+    $(document).ready(function () {
+        $('li').removeClass('active');
+        $("#JobDescriptionReport").addClass('active');
+        GetAssociatedFiles();
+
+    });
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/JobMaster.pdf");
+    })
+    function sendasemail(val) {
+        
+        var report = $('div[id *=ReportViewer1_ctl09]');
+        var formdata = new FormData();
+        formdata.append("report", $(report[0]).html());
+        if (typeof report != 'undefined' && report != null) {
+            var request = new XMLHttpRequest();
+            request.open("POST", "../Job/SendreportEmail");
+            request.send(formdata);
+            //$.ajax({
+            //    url: '../Job/SendreportEmail',
+            //    data: formdata,
+            //    type: 'POST',
+            //    success: function (data) {
+            //    },
+            //    error: function (err) {
+            //        
+            //    }
+            //})
+        }
+    }
+
+    function GetAssociatedFiles()
+    {
+        var jobid = $("#jobid").val();
+        $.ajax({
+            url: '../Reports/GetAssociatedfiles?JobID=' + jobid,
+            type: 'GET',
+            success: function (data) {
+                $("#divfiles").html(data);
+            },
+            error: function () { }
+
+        })
+    }
+    function ViewFileInPopUp(val1,val2) {
+      
+        $.ajax({
+            url: '../Reports/ViewFile?JobID='+val1+'&AttachmentName='+val2,
+            type: "Get",
+            success: function (data) {
+                //$('#divFiledata').html(data);
+                //$("#Filesopenpopup").click();
+            },
+            error: function (err) { }
+
+        });
+    }
+    function PreviewPopUp() {
+        var DescriptionData = $("#Assemblies_Description").val();
+        $("#divPreviewdata").val(DescriptionData);
+        $("#Filesopenpopup").click();
+
+    }
+</script>
+
+@*<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>*@
+@{
+    string data = ViewData["myvar"].ToString();
+    ViewBag.print = "Print";
+}
+<div class="modal-body">
+    <div class="app-body" id="Scroll">
+
+
+        <div class=" box-row  profile-hd">
+            <h7 class="box-heading"><strong> &nbsp Work Orders</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                                                       <img id="arrow" src="../Images/down-arrow.png" alt="" /></span></h7>
+
+        </div>
+        
+        
+        <div class="magic-layoutz">
+
+            <div class="box magic-element width-full">
+                <div id="accordion">
+                         
+                    <div class="row">
+                        @*<div class="col-md-12">*@
+                        @*<div class="panel panel-default">
+                                                <div class="panel-body">*@
+                        <div class="modal-content" style="max-height: 1200px; width: 100%">
+                            <input id="sendemail" type="button" class="btn btn-primary btn-sm pull-right" style="margin: 2px; background-color: #3D81BD !important; border: #3D81BD !important; display: none" value="Send as Email" onclick="sendasemail(this)" />
+                            @*@using (Html.BeginForm("Index", "Reports", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+                            {
+           
+                                
+
+                            }*@
+                             @Html.Partial("JobDescriptionReportView", data);
+                        </div>
+                        @* </div>
+                                            </div>*@
+                        @*  </div>*@
+                    </div>
+                    <div class=" box-row  profile-hd">
+                        <input type="hidden" value="@data" id="jobid" name="jobid" />
+                        <h7 class="box-heading">
+                            <strong>Associated  Files</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                                   <img id="arrow" src="../Images/down-arrow.png" alt="" />  
+                            </span>
+                        </h7>
+                        
+                    </div>
+                    <div class="row">
+                        <div id="divfiles">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#PreviewInPopUp" id="Filesopenpopup" style="display: none">popup</a>
+<div id="PreviewInPopUp" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 70px;">
+        <div class="modal-header" style="background-color: #333333; height: 35px;">
+            <button type="button" class="close" data-dismiss="modal" id="Previewpopupclose" style="color: #fff !important;">&times;</button>
+            <h4 class="modal-title" style="color: #FFF !important;">File Preview</h4>
+        </div>
+        <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+            <div id="divFiledata"></div>
+
+
+                <div class="pull-right">
+                    <button value="Submit" data-dismiss="modal" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" onclick="">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+@*</body>
+</html>*@
+
+@*<a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#DecriptionInPopUp" id="Filesopenpopup" style="display: none">popup</a>
+<div id="FilesInPopUp" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 78%; margin-left: 21%; margin-top: 70px;">
+        <div class="modal-header" style="background-color: #333333; height: 35px;">
+            <button type="button" class="close" data-dismiss="modal" id="FilesPopUpClose" style="color: #fff !important;">&times;</button>
+            <h4 class="modal-title" style="color: #FFF !important;">View</h4>
+        </div>
+        <div class="modal-content" style="overflow: scroll; border-radius: 0; min-height: 185px; max-height: 500px; overflow: scroll">
+            <div id="divFiledata"></div>
+        </div>
+    </div>
+</div>*@

@@ -1,0 +1,142 @@
+﻿@model List<ElectricEase.Models.Assembly_MasterInfoList>
+@using System.Text.RegularExpressions;
+
+
+<script>
+    $(document).ready(function () {
+        $('#Assembliestable thead tr').clone(true).appendTo('#Assembliestable thead');
+        $('#Assembliestable thead tr:eq(1) th').each(function (i) {
+            var title = $(this).text();
+            $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+            $('input', this).on('keyup change', function () {
+                if (table.column(i).search() !== this.value) {
+                    table
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+        var table = $('#Assembliestable').DataTable({
+            aLengthMenu: [[5, 10, 15, 25], [5, 10, 15, 25]],
+            sDom: '<"top"flp>rt<"bottom"pri>',
+            orderCellsTop: true,
+            fixedHeader: true,
+            responsive: true,
+            filterDropDown: {                                       
+                columns: [
+                    {
+                        idx: 2
+                    }
+                ],
+                bootstrap: true
+            }
+        });
+    });
+
+
+
+    function selectall(val) {
+        var selected = $(val).attr('checked');
+        if (val.checked) {
+            $('#Assembliestable').find("input:checkbox").each(function () {
+
+                var value = $(this).attr("data-id");
+                if (value != 0 && value != "undefined") {
+                    this.checked = true;
+                }
+            });
+        }
+        else {
+            $('#Assembliestable').find("input:checkbox").each(function () {
+                this.checked = false;
+            });
+        }
+    }
+</script>
+
+<div class="table-resposive" style="max-height: 500px;overflow-y:auto">
+    <table class="table footer" id="Assembliestable">
+        <thead>
+            <tr>
+                <th style="width: 10%;">
+                    @*<input type="checkbox" value="selectall" id="ASselectall" onchange="selectall(this);" />Select All*@
+                    Select
+                </th>
+                <th>Assemblies Name</th>
+                <th>Assemblies Category</th>
+                <th>Assemblies Description</th>
+                <th>Parts Count</th>
+                <th style="display:none">Action</th>
+
+            </tr>
+        </thead>
+        <tbody id="Showasbody">
+            @foreach (var item in Model)
+            {
+                var rowcolor = "";
+                var disabled = "";
+                var clickmethod = "";
+                if (item.assemblypartsCount == 0)
+                {
+                    rowcolor = "#e74c3c"; disabled = "disabled";
+                    clickmethod = "";
+                }
+                var elementId = Regex.Replace("Id" + item.Assemblies_Name.Trim(), "[^a-zA-Z0-9]", "");
+                var hidId = "hidAssemblie" + elementId;
+                var trId = "trAssemblie" + elementId;
+
+                <tr style="cursor:pointer;color:@rowcolor" id="@trId" onclick="Assemblyselectrow(this)" val="@elementId">
+                    <td>
+                        <input type="hidden" id="@hidId" data-id="@item.Iszero" />
+                        @if (item.isChekced == true)
+                        {
+                            <input type="checkbox" id="@elementId" val="@elementId" data-id="@item.assemblypartsCount" onclick="Assemblyselectrow(this)" value="@item.Assemblies_Name.Replace("\"", "&quot;")" checked="checked" @disabled />
+                        }
+                        else
+                        {
+                            <input type="checkbox" id="@elementId" val="@elementId" data-id="@item.assemblypartsCount" onclick="Assemblyselectrow(this)" value="@item.Assemblies_Name.Replace("\"", "&quot;")" @disabled />
+                        }
+                    </td>
+                    <td>
+                        @item.Assemblies_Name
+                    </td>
+                    <td>
+                        @item.Assemblies_Category
+                    </td>
+                    <td>
+                        @{
+                            string desc = "";
+                            desc = item.Assemblies_Description == null ? "" : item.Assemblies_Description;
+                            if (desc.Length > 100)
+                            {
+                                desc = desc.Substring(0, 50) + "...";
+                            }
+                            <span>@desc</span>
+                        }
+
+
+                    </td>
+
+
+                    <td>
+                        @item.assemblypartsCount
+                    </td>
+                    <td style="display:none"><a href="javascript:void(0);" onclick="viewassembly('@item.Assemblies_Name')">View</a></td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="row" style="margin:1%">
+    <div class="row-fluid">
+
+        <div class="pull-right popup-btn">
+            <button type="button" value="Submit" class="btn btn-flat btn-primary btn-sm" id="submit" onclick="saveAssemblies();" tabindex="10">Submit</button>
+        </div>
+
+    </div>
+</div>

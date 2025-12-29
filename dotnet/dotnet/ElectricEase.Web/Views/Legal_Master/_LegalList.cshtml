@@ -1,0 +1,184 @@
+﻿@model IList<ElectricEase.Models.Legal_DetailsInfoList>
+@{
+    ViewBag.Title = "_LegalList";
+}
+<div id="collapseTwo" class="panel-collapse collapse in">
+    <table id="exampl" class="table table-bordered dataTables" cellspacing="0">
+        <thead style="background-color:#45525F">
+            <tr>
+                <th></th>
+                @if (HttpContext.Current.User.IsInRole("Admin"))
+                {
+                    <th>Company Name</th>
+                }
+
+                <th style="width">Legal Category</th>
+                <th>Legal Detail</th>
+                <th style="width:10%">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>@item.Legal_ID</td>
+                @if (HttpContext.Current.User.IsInRole("Admin"))
+                {
+                    <td>@item.Client_Company</td>
+                }
+                <td>@item.Legal_Category</td>
+                <td>
+                    @{
+                        string desc = "";
+                        desc = item.Legal_Detail == null ? "" : item.Legal_Detail;
+                        if (desc.Length > 200)
+                        {
+                            desc = desc.Substring(0, 20) + "...";
+
+                        }
+                        <span>@desc</span>
+                    }
+
+                </td>
+
+                <td style="width:10%">
+                    <a href="javascript:void(0);" onclick="editLegals('@item.Legal_ID','@item.Client_ID');">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </a>&nbsp;
+                    <a class="confirm" id="alert" href="javascript:void(0)" onclick="deleteLegal('@item.Legal_ID','@item.Client_ID');">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    <div id="divLegBot" tabindex="1"></div>
+</div>
+<style>
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+</style>
+
+<script>
+    //$('#exampl').dataTable({
+    //    "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+    //    "sDom": '<"top"flp>rt<"bottom"pri>',
+    //});
+
+
+    var dropdwn = document.getElementsByName('exampl_length');
+    var pagno = Cookies.get('legaltpageno');
+    if (pagno == null || pagno == "") {
+        pagno = 0;
+    }
+    if (Cookies.get('legaldtpagelen') != null && Cookies.get('legaldtpagelen') != "") {
+        var pagelen = Cookies.get('legaldtpagelen');
+        pagelen = Number(pagelen);
+        var tab = $('#exampl').dataTable({
+            "order": [[0, "desc"]],
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "iDisplayLength": pagelen,
+         //   "sDom": '<"top"flp>rt<"bottom"pri>',
+            "tableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "copy",
+                        "sButtonText": "Copy to clipboard"
+                    },
+                    {
+                        "sExtends": "csv",
+                        "sButtonText": "Save to CSV"
+                    },
+                    {
+                        "sExtends": "xls",
+                        "oSelectorOpts": {
+                            page: 'current'
+                        }
+                    }
+                ]
+            }
+            //"displayStart": 50,
+            //"PageLength": Cookies.get('legaldtpagelen'),
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('legalearch') != null && Cookies.get('legalearch') != "") {
+            tab.fnFilter(Cookies.get('legalearch'));
+        }
+    }
+    else {
+        var tab = $('#exampl').dataTable({
+            "order": [[0, "desc"]],
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+           // "sDom": '<"top"flp>rt<"bottom"pri>',
+            "tableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "copy",
+                        "sButtonText": "Copy to clipboard"
+                    },
+                    {
+                        "sExtends": "csv",
+                        "sButtonText": "Save to CSV"
+                    },
+                    {
+                        "sExtends": "xls",
+                        "oSelectorOpts": {
+                            page: 'current'
+                        }
+                    }
+                ]
+            }
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('legalearch') != null && Cookies.get('legalearch') != "") {
+            tab.fnFilter(Cookies.get('legalearch'));
+        }
+    }
+    //$($('#exampl_length')[0].parentElement).removeClass('col-sm-6');
+    //$($('#exampl_length')[0].parentElement).addClass('col-sm-10');
+    $(dropdwn).change(function () {
+        var len = this.value;
+        Cookies.set('legaldtpagelen', len);
+    });
+    $('#exampl_filter input').on("keyup", function () {
+        Cookies.set('legalearch', $(this).val());
+    });
+    $('#exampl').on('page.dt', function () {
+        var info = this;
+        setTimeout(function () {
+            var ss = $('.paginate_button.active');
+            var pgno = ss[0].innerText;
+            if (pgno != "" && pgno != "0") {
+                pgno = Number(pgno) - Number(1);
+            }
+            Cookies.set('legaltpageno', pgno);
+        }, 1000);
+
+    });
+</script>

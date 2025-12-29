@@ -1,0 +1,148 @@
+﻿<style>
+    .datatables-filters {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin: 0 0 15px 0;
+    }
+
+        .datatables-filters div.dataTables_filter label {
+            float: none;
+        }
+
+        .datatables-filters div.dataTables_length label {
+            float: none;
+        }
+
+    .datatables-pagination {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin: 15px 0 0 0;
+    }
+
+        .datatables-pagination div.dataTables_info {
+            padding: 0;
+        }
+
+        .datatables-pagination .dataTables_paginate .pagination {
+            margin: 0;
+        }
+
+    .without-parts td {
+        color: red;
+    }
+
+</style>
+
+<div class="table table-responsive">
+    <table id="assemblies-datatable" class="table table-bordered datatables" style="width:100%;">
+        <thead>
+            <tr>
+                <th>Assembly Name</th>
+                <th>Assembly Category</th>
+                <th>Assembly Description</th>
+                <th>Parts Count</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="partsbody"></tbody>
+    </table>
+    <div id='bootomNationParts' tabindex='1'></div>
+</div>
+
+<script>
+
+    var pagelen = 5;
+    var tab = $('#assemblies-datatable').DataTable({
+        "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+        "order": [[0, "asc"]],
+        "iDisplayLength": pagelen,
+        "sDom": '<"datatables-filters"fl>rt<"datatables-pagination"ip>',
+        "proccessing": true,
+        "serverSide": true,
+        "ajax": {
+            url: "@Url.Action("AssembliesDatatable", "NationwideAssembly")" ,
+            type: 'POST',
+            contentType: "application/json",
+            data: function (d) {
+                return JSON.stringify(d);
+            },
+            dataSrc: function (json) {
+                $("#Loading").hide();
+                return json.data;
+            }
+        },
+        "columns": [
+            { data: "Assemblies_Name", width: "20%" },
+            { data: "Assemblies_Category", width: "20%" },
+            { data: "Assemblies_Description", width: "30%" },
+            { data: "Parts_Count", width: "6%" },
+            {
+
+                data: function (o) {
+                    var name = encodeURI(o.Assemblies_Name);
+                    //
+                    var actionControls = '<a href="javascript:void(0);" onclick="editassembly(\'' + name + '\',\'' + o.Assemblies_Id +'\')">'
+                        + '<span class="glyphicon glyphicon-pencil"></span></a>';
+
+                    actionControls = actionControls.concat('<a href="javascript:void(0);" onclick="duplicateAssembly(\'' + name + '\',\'' + o.Assemblies_Id + '\')">'
+                        + '<span class="glyphicon glyphicon-file"></span></a>');
+
+                    if (o.IsActive === true) {
+                        actionControls = actionControls.concat('<a href="javascript:void(0);" onclick="deleteAssembly(\'' + name + '\',\'' + o.Assemblies_Id + '\')">'
+                            + '<span class="glyphicon glyphicon-trash"></span></a>');
+                    }
+                    
+                    return actionControls;
+                },
+                orderable: false,
+                width: "9%"
+            }
+        ],
+        "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            if (aData["Parts_Count"] === 0) {
+                $(nRow).addClass('without-parts');
+            }
+        },
+        initComplete: function () {
+            var categoryFilter = $('<select id="datatablesFilterCategories" style="width:360px;"></selct>');
+
+            categoryFilter.append('<option value="">All Categories</option>');
+
+            $.get('/Ajax/GetNationWideAssemliesCategoryList', function (response) {
+                $.each(response, function (index, item) {
+                    var option = $('<option></option>');
+                    option.attr('value', item.Assemblies_Category);
+                    option.text(item.Assemblies_Category);
+                    categoryFilter.append(option);
+                });
+                categoryFilter.select2();
+            });
+
+            $('.datatables-filters').prepend(categoryFilter);
+
+            var api = this.api();
+
+            categoryFilter.on('change', function () {
+                var val = $(this).val();
+                api.column(1)
+                    .search( val ? val : '', false, false )
+                    .draw()
+                ;
+            });
+        }
+    });
+
+</script>
+
+<style>
+
+    #assemblies-datatable_filterWrapper {
+        width: auto;
+        float: left;
+        font-size: 1.0em;
+        margin-right: 25px;
+    }
+
+</style>

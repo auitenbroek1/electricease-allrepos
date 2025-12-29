@@ -1,0 +1,725 @@
+﻿@model ElectricEase.Data.TimeSheetMaster.TimeSheetDTO
+@{
+    ViewBag.Title = "TimeSheetMaster";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+    string endDate = Model.TimeSheetMaster.EndDate.HasValue ? Model.TimeSheetMaster.EndDate.Value.ToShortDateString() : "";
+    string startDate = Model.TimeSheetMaster.StartDate.HasValue ? Model.TimeSheetMaster.StartDate.Value.ToShortDateString() : "";
+    var title = Model.UserDetails.Site_Administrator == true ? "Employee Timesheets" : "Timesheets";
+
+}
+<style>
+    .ui-datepicker-trigger {
+        position: relative;
+        height: 19px;
+        width: 20px;
+        margin-top: -20px;
+        float: right;
+    }
+
+    .cleardata {
+        margin-top: -23px !important;
+        margin-right: 25px !important;
+    }
+
+    .ts-table {
+        font-family: arial;
+    }
+
+        .ts-table table {
+            table-layout: fixed;
+        }
+
+    .headcolor {
+        background-color: #007399 !important;
+        color: white;
+    }
+
+    .ts-table .table-bordered th {
+        font-weight: 400;
+        font-size: 12px !important;
+        line-height: 18px;
+    }
+
+    .ts-table .table-bordered td, .ts-table .table-bordered th {
+        border: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+
+    .bottomcolor {
+        background-color: #ececec;
+    }
+
+    .bottomfirst {
+        background-color: white;
+        color: black;
+        font-size: 11px;
+    }
+
+    .yellowcolor_box {
+        padding: 5px 10px;
+        width: 200px;
+        background-color: yellow;
+        border: 1px solid #dee2e6;
+    }
+
+    .pinkcolor_box {
+        padding: 5px 10px;
+        width: 200px;
+        background-color: #e674ba;
+        border: 1px solid #dee2e6;
+    }
+
+    .greencolor_box {
+        padding: 5px 10px;
+        width: 200px;
+        background-color: #89d859;
+        border: 1px solid #dee2e6;
+    }
+
+    .ts-table input {
+        padding: 0 5px;
+        border: 1px solid #ddd;
+        width: 100%;
+    }
+
+    .ts-table p {
+        margin-bottom: 0px;
+    }
+</style>
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<script>
+    $(document).ready(function () {
+       // $('li').removeClass('active');
+        $('.side-nav li.active').removeClass('active');
+        var from = parseFloat($("#hdnFrom").val()) == 0 ? "employeeTimeSheets" : "employeeTimeCard";
+        $("#" + from).addClass('active');
+
+        $(".content-title").text("@title");
+
+    });
+    //$("#pdfbtn").on("click", function () {
+
+    //    window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/JobMaster.pdf");
+    //})
+
+
+    $(document).ready(function () {
+        BindTables();
+        //$("button").click(function () {
+        //    $("p").slideToggle();
+
+        //});
+    });
+    function BindTables() {
+      
+        var pagno = Cookies.get('gridpageno');
+        if (pagno == null || pagno == "") {
+            pagno = 0;
+        }
+        if (Cookies.get('griddtpagelen') != null && Cookies.get('griddtpagelen') != "") {
+            var pagelen = Cookies.get('griddtpagelen');
+            pagelen = Number(pagelen);
+            var tab = $('#grid').dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "iDisplayLength": pagelen,
+                "order": [[0, "desc"]],
+                "columnDefs": [
+                    {
+                        "targets": [0],
+                        "visible": false,
+                        "searchable": false
+                    }
+                ],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "tableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "copy",
+                            "sButtonText": "Copy to clipboard"
+                        },
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Save to CSV"
+                        },
+                        {
+                            "sExtends": "xls",
+                            "oSelectorOpts": {
+                                page: 'current'
+                            }
+                        }
+                    ]
+                }
+                //"displayStart": 50,
+                //"PageLength": Cookies.get('griddtpagelen'),
+            });
+            pagno = Number(pagno);
+            var total = $('.paginate_button');
+            if (total.length == 3) {
+                pagno = 0;
+            }
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('gridsearch') != null && Cookies.get('gridsearch') != "") {
+                tab.fnFilter(Cookies.get('gridsearch'));
+            }
+        }
+        else {
+            var tab = $('#grid').dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "iDisplayLength": pagelen,
+                "order": [[0, "desc"]],
+                "columnDefs": [
+                    {
+                        "targets": [0],
+                        "visible": false,
+                        "searchable": false
+                    }
+                ],
+                "sDom": '<"top"flp>rt<"bottom"pri>', "tableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "copy",
+                            "sButtonText": "Copy to clipboard"
+                        },
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Save to CSV"
+                        },
+                        {
+                            "sExtends": "xls",
+                            "oSelectorOpts": {
+                                page: 'current'
+                            }
+                        }
+                    ]
+                }
+            });
+            pagno = Number(pagno);
+            var total = $('.paginate_button');
+            if (total.length == 3) {
+                pagno = 0;
+            }
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('gridsearch') != null && Cookies.get('gridsearch') != "") {
+                tab.fnFilter(Cookies.get('gridsearch'));
+            }
+        }
+        var dropdwn = document.getElementsByName('grid_length');
+        $(dropdwn).change(function () {
+            var len = this.value;
+            Cookies.set('griddtpagelen', len);
+        });
+        $('#grid_filter input').on("keyup", function () {
+            Cookies.set('gridsearch', $(this).val());
+        });
+        $('#grid').on('page.dt', function () {
+            var info = this;
+            setTimeout(function () {
+                var ss = $('.paginate_button.active');
+                var pgno = ss[0].innerText;
+                if (pgno != "" && pgno != "0") {
+                    pgno = Number(pgno) - Number(1);
+                }
+                Cookies.set('gridpageno', pgno);
+            }, 1000);
+
+        });
+
+
+
+        //$('.TimeSheet').dataTable({
+        //    "deferRender": true,
+        //    "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+        //    "sDom": '<"top"flp>rt<"bottom"pri>',
+        //    "order": [[0, "desc"]],
+        //    "columnDefs": [
+        //        {
+        //            "targets": [0],
+        //            "visible": false,
+        //            "searchable": false
+        //        }
+        //    ]
+        //});
+        var jobgrid = $('#grid');
+        $(jobgrid[0].parentElement).removeClass('col-md-12');
+        $(jobgrid[0].parentElement).addClass('table-responsive');
+
+        var rjobgrid = $('#remaingrid');
+        $(rjobgrid[0].parentElement).removeClass('col-md-12');
+        $(rjobgrid[0].parentElement).addClass('table-responsive');
+        RemainGrid();
+    }
+
+    function RemainGrid() {
+        var pagno = Cookies.get('remaingridpageno');
+        if (pagno == null || pagno == "") {
+            pagno = 0;
+        }
+        if (Cookies.get('remaingriddtpagelen') != null && Cookies.get('remaingriddtpagelen') != "") {
+            var pagelen = Cookies.get('remaingriddtpagelen');
+            pagelen = Number(pagelen);
+            var tab = $('#remaingrid').dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "iDisplayLength": pagelen,
+                "order": [[0, "desc"]],
+                "columnDefs": [
+                    {
+                        "targets": [0],
+                        "visible": false,
+                        "searchable": false
+                    }
+                ],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "tableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "copy",
+                            "sButtonText": "Copy to clipboard"
+                        },
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Save to CSV"
+                        },
+                        {
+                            "sExtends": "xls",
+                            "oSelectorOpts": {
+                                page: 'current'
+                            }
+                        }
+                    ]
+                }
+                //"displayStart": 50,
+                //"PageLength": Cookies.get('remaingriddtpagelen'),
+            });
+            pagno = Number(pagno);
+            var total = $('.paginate_button');
+            if (total.length == 3) {
+                pagno = 0;
+            }
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('remaingridsearch') != null && Cookies.get('remaingridsearch') != "") {
+                tab.fnFilter(Cookies.get('remaingridsearch'));
+            }
+        }
+        else {
+            var tab = $('#remaingrid').dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "iDisplayLength": pagelen,
+                "order": [[0, "desc"]],
+                "columnDefs": [
+                    {
+                        "targets": [0],
+                        "visible": false,
+                        "searchable": false
+                    }
+                ],
+                "sDom": '<"top"flp>rt<"bottom"pri>', "tableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "copy",
+                            "sButtonText": "Copy to clipboard"
+                        },
+                        {
+                            "sExtends": "csv",
+                            "sButtonText": "Save to CSV"
+                        },
+                        {
+                            "sExtends": "xls",
+                            "oSelectorOpts": {
+                                page: 'current'
+                            }
+                        }
+                    ]
+                }
+            });
+            pagno = Number(pagno);
+            var total = $('.paginate_button');
+            if (total.length == 3) {
+                pagno = 0;
+            }
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('remaingridsearch') != null && Cookies.get('remaingridsearch') != "") {
+                tab.fnFilter(Cookies.get('remaingridsearch'));
+            }
+        }
+        var dropdwn = document.getElementsByName('remaingrid_length');
+        $(dropdwn).change(function () {
+            var len = this.value;
+            Cookies.set('remaingriddtpagelen', len);
+        });
+        $('#remaingrid_filter input').on("keyup", function () {
+            Cookies.set('remaingridsearch', $(this).val());
+        });
+        $('#remaingrid').on('page.dt', function () {
+            var info = this;
+            setTimeout(function () {
+                var ss = $('.paginate_button.active');
+                var pgno = ss[0].innerText;
+                if (pgno != "" && pgno != "0") {
+                    pgno = Number(pgno) - Number(1);
+                }
+                Cookies.set('remaingridpageno', pgno);
+            }, 1000);
+
+        });
+    }
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: #34495e;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 10px;
+    }
+
+    btn btn-primary btn-xs toggle-on {
+        background-color: #2ecc71 !important;
+    }
+
+    .jobid {
+        width: 80px;
+    }
+
+    .jobidhide {
+        display: none;
+    }
+
+    .Address {
+        width: 15%;
+    }
+
+    .jobdesc {
+        width: 20%;
+    }
+
+    .city {
+        width: 10%;
+    }
+
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+
+    div.dataTables_paginate {
+        margin-top: 10px;
+    }
+</style>
+@using (Html.BeginForm("AddTimeSheet", "TimeSheet", FormMethod.Post, new { role = "form", @id = "frmTimeSheet" }))
+{
+    <div class="app-body" id="Scroll">
+
+        <!-- app content here -->
+        <div class="magic-layoutz">
+
+            <div class="box magic-element width-full">
+                <div class="box-row  profile-hd">
+
+                    <h7 class="box-heading">
+                        <strong> &nbsp @title</strong>
+                        <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                            <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                        </span>
+
+                    </h7>
+                </div>
+                <div id="accordion">
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <label style="color:red;display:none" id="lblError"></label>
+                                        <label id="lblSuccess" style="display:none;color:forestgreen"></label>
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <div class="form-group" style="padding-top:5px;height:auto;">
+                                                    <label for="label"><strong> Show Timesheets Between </strong></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group" style="height:auto;">
+                                                    @* <label for="label"><strong> Show Timesheets Between </strong></label>*@
+                                                    @Html.HiddenFor(a => a.StartDate, new { @id = "hdnStartDate" })
+                                                    @Html.HiddenFor(a => a.EndDate, new { @id = "hdnEndDate" })
+                                                    @Html.HiddenFor(a => a.From, new { @id = "hdnFrom" })
+                                                    <input type="text" value="@startDate" id="txtStartDate" class="form-control" onchange="Sdatekeypress();" placeholder="Start Date" readonly="readonly" style="cursor:text !important" />
+                                                    <span class="alert-success pull-right">
+                                                        <button type="button" id="startDateclear" class="close cleardata">×</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group" style="height:auto;">
+                                                    @*  <label for="label"><strong>End Date  <span class="err">*</span> :</strong></label>*@
+                                                    <input type="text" value="@endDate" class="form-control" id="txtEndDate" onchange="Edatekeypress();" placeholder="End Date" readonly="readonly" style="cursor:text !important" />
+                                                    <span class="alert-success pull-right">
+                                                        <button type="button" id="endDateclear" class="close cleardata">×</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group" style="height:auto;">
+                                                    <label for="label">@*<strong>End Date  <span class="err">*</span> :</strong>*@</label>
+                                                    <button style="background:#03a9f4;border:none" type="button" value="Save" class="btn btn-flat btn-primary btn-sm" onclick="FilterData();">Filter</button>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2 pull-right">
+                                                @if (Convert.ToBoolean(HttpContext.Current.Items["JobDescriptionReportRights"]) == true && Model.From == 0)
+                                                {
+                                                    <div class="pull-right">
+                                                        <a href="@Url.Action("NewTimeSheet", "TimeSheet")?from=@Model.From"> <button type="button" class="btn btn-flat btn-primary btn-sm" name="addTimeSheet" style="background:#03a9f4;border:none" tabindex="10" id="btnNewTimeSheet">Add Timesheet</button></a>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="row-fluid" style="display:none;">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="label" style="margin-top:10%"><strong> Show Timesheets Between </strong></label>
+
+                                                </div>
+                                            </div>
+                                            @if (Convert.ToBoolean(HttpContext.Current.Items["JobDescriptionReportRights"]) == true && Model.From == 0)
+                                            {
+                                                <div class="pull-right" style="width: 15%">
+                                                    <a href="@Url.Action("NewTimeSheet", "TimeSheet")?from=@Model.From"> <button type="button" class="btn btn-flat btn-primary btn-sm" name="addTimeSheet" style="width: 80%;background:#03a9f4;border:none" tabindex="10" id="btnNewTimeSheet">Add Timesheet</button></a>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="row-fluid" style="display:none;">
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label for="label">@*<strong> Show Timesheets Between </strong>*@</label>
+                                                    @Html.HiddenFor(a => a.StartDate, new { @id = "hdnStartDate" })
+                                                    @Html.HiddenFor(a => a.EndDate, new { @id = "hdnEndDate" })
+                                                    @Html.HiddenFor(a => a.From, new { @id = "hdnFrom" })
+                                                    <input type="text" value="@startDate" id="txtStartDate" class="form-control" onchange="Sdatekeypress();" placeholder="Start Date" readonly="readonly" style="cursor:text !important" />
+                                                    <span class="alert-success pull-right">
+                                                        <button type="button" id="startDateclear" class="close cleardata">×</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row-fluid" style="display:none;">
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label for="label">@*<strong>End Date  <span class="err">*</span> :</strong>*@</label>
+                                                    <input type="text" value="@endDate" class="form-control" id="txtEndDate" onchange="Edatekeypress();" placeholder="End Date" readonly="readonly" style="cursor:text !important" />
+                                                    <span class="alert-success pull-right">
+                                                        <button type="button" id="endDateclear" class="close cleardata">×</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row-fluid"  style="display:none;">
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label for="label">@*<strong>End Date  <span class="err">*</span> :</strong>*@</label>
+                                                    <button style="margin-top:10%;background:#03a9f4;border:none" type="button" value="Save" class="btn btn-flat btn-primary btn-sm" onclick="FilterData();">Filter</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clear-fix"></div>
+                                    <div id="divTimeSheetMasterDetails">
+                                        @Html.Partial("_TimeSheetMasterDetails", Model)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+<script>
+    $(function () {
+        $("#Loading").hide();
+        if ($("#hdnIsApprovedOrRejected").val() == "True") {
+            $("#lnkCompleted").click();
+        }
+        $("#startDateclear,#endDateclear").hide();
+        $("#hdnStartDate").val($("#txtStartDate").val());
+        $("#hdnEndDate").val($("#txtEndDate").val());
+        $("#txtStartDate").datepicker({
+            showOn: "both",
+            buttonImage: "../AppImges/calender.png",
+            buttonImageOnly: true,
+            buttonText: "Select date",
+            //dateFormat: 'dd-mm-yy'     //...local...
+            dateFormat: 'mm-dd-yy',
+            maxDate: 0,
+            onSelect: function (date) {
+                $("#startDateclear").show();
+                $("#hdnStartDate").val($("#txtStartDate").val());
+                var dt2 = $('#txtEndDate');
+                var startDate = $(this).datepicker('getDate');
+                var minDate = $(this).datepicker('getDate');
+                dt2.datepicker('setDate', minDate);
+                startDate.setDate(startDate.getDate() + 30);
+                //sets dt2 maxDate to the last day of 30 days window
+                //dt2.datepicker('option', 'maxDate', startDate);
+                dt2.datepicker('option', 'minDate', minDate);
+                //$(this).datepicker('option', 'minDate', minDate);
+                $('#txtEndDate').val('');
+            }
+        });
+
+        $("#txtEndDate").datepicker({
+            showOn: "both",
+            buttonImage: "../AppImges/calender.png",
+            buttonImageOnly: true,
+            buttonText: "Select date",
+            dateFormat: 'mm-dd-yy',
+            maxDate:0
+        });
+    });
+
+     $("#startDateclear").click(function () {
+        $("#txtStartDate").val("")
+         $("#startDateclear").hide();
+         var dt2 = $('#txtEndDate');
+         dt2.datepicker('option', 'minDate', new Date(2007, 1 - 1, 1));
+    })
+
+    $("#endDateclear").click(function () {
+        $("#txtEndDate").val("")
+        $("#endDateclear").hide();
+
+    })
+
+    function Sdatekeypress() {
+
+    }
+
+    function Edatekeypress() {
+        $("#endDateclear").show();
+        $("#hdnEndDate").val($("#txtEndDate").val());
+
+    }
+
+    function ValidateFilter() {
+        var valid = true;
+        //$("#lblError").hide();
+        if ($("#txtStartDate").val() == "" && $("#txtEndDate").val() != "") {
+            valid = false;
+            //$("#lblError").show();
+            //$("#lblError").text("Please select “Start Date” and “End Date”!");
+            DisplayNotification("Please select “Start Date” and “End Date”!", "error");
+        }
+        if ($("#txtEndDate").val() == "" && $("#txtStartDate").val() != "") {
+            valid = false;
+            DisplayNotification("Please select “Start Date” and “End Date”!", "error");
+        }
+        return valid;
+    }
+
+    function FilterData() {
+        if (ValidateFilter()) {
+ $("#lblSuccess").hide();
+         $.ajax({
+        url:  "@Url.Action("DateWiseTimeSheets", "TimeSheet")",
+        type: 'POST',
+              data: $("#frmTimeSheet").serialize(),
+        cache: true,
+        success: function (result) {
+            $("#divTimeSheetMasterDetails").empty();
+            $("#divTimeSheetMasterDetails").html(result);
+            BindTables();
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  var msg = '';
+                  if (jqXHR.status === 0) {
+                      msg = 'Not connect.\n Verify Network.';
+                  } else if (jqXHR.status == 404) {
+                      msg = 'Requested page not found. [404]';
+                  } else if (jqXHR.status == 500) {
+                      msg = 'Internal Server Error [500].';
+                  } else if (exception === 'parsererror') {
+                      msg = 'Requested JSON parse failed.';
+                  } else if (exception === 'timeout') {
+                      msg = 'Time out error.';
+                  } else if (exception === 'abort') {
+                      msg = 'Ajax request aborted.';
+                  } else {
+                      msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                  }
+                  console.log(jqXHR.responseText);
+                  //alert(msg);
+              }
+            });
+        }
+
+    }
+
+    function DeleteTimeSheet(timeSheetID, from) {
+        $("#lblSuccess").hide();
+        if (confirm("Are you sure, want to delete?")) {
+ $("#hdnTimeSheetID").val(timeSheetID);
+        $.ajax({
+            url: "@Url.Action("DeleteTimeSheet", "TimeSheet")",
+            type: 'POST',
+            data: $("#frmTimeSheet").serialize(),
+        cache: true,
+        success: function (result) {
+            $("#divTimeSheetMasterDetails").empty();
+            $("#divTimeSheetMasterDetails").html(result);
+            //$("#lblSuccess").show();
+            //$("#lblSuccess").text("Timesheet Deleted Successfully");
+            DisplayNotification("“Timesheet” deleted successfully.", "success");
+            BindTables();
+            if (from == 1) {
+                $("#lnkCompleted").click();
+            }
+            else {
+                $("#lnkPending").click();
+            }
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  var msg = '';
+                  if (jqXHR.status === 0) {
+                      msg = 'Not connect.\n Verify Network.';
+                  } else if (jqXHR.status == 404) {
+                      msg = 'Requested page not found. [404]';
+                  } else if (jqXHR.status == 500) {
+                      msg = 'Internal Server Error [500].';
+                  } else if (exception === 'parsererror') {
+                      msg = 'Requested JSON parse failed.';
+                  } else if (exception === 'timeout') {
+                      msg = 'Time out error.';
+                  } else if (exception === 'abort') {
+                      msg = 'Ajax request aborted.';
+                  } else {
+                      msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                  }
+                  console.log(jqXHR.responseText);
+                 // alert(msg);
+              }
+            });
+        }
+
+    }
+</script>

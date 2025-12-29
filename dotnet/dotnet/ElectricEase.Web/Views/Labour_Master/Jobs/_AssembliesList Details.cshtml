@@ -1,0 +1,414 @@
+﻿@model ElectricEase.Models.Job_MasterInfo
+@{
+    Layout = "";
+    
+    var PartsGrid = new WebGrid(source: Model.PartsListData, canPage: false, canSort: false);
+    var LabourGrid = new WebGrid(source: Model.LabourListData, canPage: false, canSort: false);
+}
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script>
+    //
+    // Updates "Select all" control in a data table
+    //
+
+    $(function () {
+        //alert("lllll");
+        LoadAssebliesNamedropdown('@Model.Assemblies_Name');
+
+     });
+    function updateDataTableSelectAllCtrl(table) {
+        var $table = table.table().node();
+        var $chkbox_all = $('tbody input[type="checkbox"]', $table);
+        var $chkbox_checked = $('tbody input[type="checkbox"]:checked', $table);
+        var chkbox_select_all = $('thead input[name="select_all"]', $table).get(0);
+
+        // If none of the checkboxes are checked
+        if ($chkbox_checked.length === 0) {
+
+            chkbox_select_all.checked = false;
+            if ('indeterminate' in chkbox_select_all) {
+                chkbox_select_all.indeterminate = false;
+            }
+
+            // If all of the checkboxes are checked
+        } else if ($chkbox_checked.length === $chkbox_all.length) {
+            chkbox_select_all.checked = true;
+            if ('indeterminate' in chkbox_select_all) {
+                chkbox_select_all.indeterminate = false;
+            }
+
+            // If some of the checkboxes are checked
+        } else {
+            chkbox_select_all.checked = true;
+            if ('indeterminate' in chkbox_select_all) {
+                chkbox_select_all.indeterminate = true;
+            }
+        }
+    }
+
+    //$(document).ready(function () {
+
+    //    $(".PartsListGrid").dataTable({
+    //        "bPaginate": false,
+    //        "bLengthChange": false,
+    //        "bFilter": false,
+    //        "bInfo": false,
+    //        "bAutoWidth": false,
+    //        stateSave: true
+
+
+    //    });
+    //});
+    //$(document).ready(function () {
+
+    //    $(".AssembliesLabourGridData").dataTable({
+    //        "bPaginate": false,
+    //        "bLengthChange": false,
+    //        "bFilter": false,
+    //        "bInfo": false,
+    //        "bAutoWidth": true,
+    //        stateSave: true
+
+    //    });
+    //});
+   
+   
+</script>
+<style type="text/css">
+    .edit-mode {
+    }
+
+    .edit-user {
+    }
+
+        .edit-user display-mode {
+        }
+
+    .save-user edit-mode {
+    }
+
+    .display-mode {
+    }
+
+    .cancel-user {
+    }
+
+    .webgrid-table {
+        font-family: Arial,Helvetica,sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        width: 650px;
+        display: table;
+        border-collapse: collapse;
+        border: solid px #C5C5C5;
+        background-color: white;
+    }
+
+        .webgrid-table td, th {
+            border: 1px solid #C5C5C5;
+            padding: 3px 7px 2px;
+        }
+
+    .webgrid-header, .webgrid-header a {
+        background-color: #E3E3E3;
+        color: black;
+        text-align: left;
+        text-decoration: none;
+    }
+
+    .webgrid-footer {
+    }
+
+    .webgrid-row-style {
+        padding: 3px 7px 2px;
+    }
+
+    .webgrid-alternating-row {
+        background-color: #F5F5F5;
+        padding: 3px 7px 2px;
+    }
+</style>
+<script type="text/javascript">
+    //$(function () {
+
+    //    $('.edit-user, .cancel-user').on('click', function () {
+    //        var tr = $(this).parents('tr:first');
+    //        tr.find('.edit-mode, .display-mode').toggle();
+    //    });
+
+    //});
+
+    //function modalAssignToRM() {
+
+    //    var AssembliesName = $("#Assemblies_Name").val();
+    //    var Description = $("#Assemblies_Description").val();
+    //    // alert(AssembliesName);
+    //    //alert(Description);
+    //    //var _Partsgriddata = gridTojson();
+    //    // var _LabourGridData = LabourgridTojson();
+    //    LoadContent($("#profileAssignToRM"), "/Jobs/AddNewPartsinAssembliesDetails?AssembliesName=" + AssembliesName + "");
+    //    $('#modalAssignToRM').modal({ backdrop: 'static' });
+    //}
+   // alert("Iam BAck");
+
+    //$(function () {
+
+    //    $("#Assemblies_Name").change(function () {
+    //        // alert("Assemblies_Name");
+    //        var item = $(this);
+    //        var Assemblies_Name = item.val();
+    //        if (Assemblies_Name != null) {
+    //            $("#AssembliesName").val(Assemblies_Name);
+    //            //  alert($("#AssembliesName").val());
+
+    //            LoadContent($("#AssembliesPartsPatialView"), "/Jobs/GetAssembliesPartsDetails?Assemblies_Name=" + Assemblies_Name + "");
+    //            LoadContent($("#AssembliesLabourPatialView"), "/Jobs/GetAssembliesLaLbourDetails?Assemblies_Name=" + Assemblies_Name + "");
+    //            //GetAssembliesList(Assemblies_Name);
+
+    //        }
+    //    });
+    //});
+
+
+
+    function modalAssignToRM() {
+
+        var AssembliesName = $("#Assemblies_Name").val();
+        AssembliesName="Ajith"
+       // alert(AssembliesName);
+        //var Description = $("#Assemblies_Description").val();
+        
+        LoadContent($("#profileAssignToRM"), "/Jobs/AddNewPartsinAssembliesDetails?AssembliesName=" + AssembliesName + "");
+        $('#modalAssignToRM').modal({ backdrop: 'static' });
+    }
+
+    function modalAssignToALD() {
+        //alert("welcome");
+        var AssembliesName = $("#Assemblies_Name").val();
+        var Description = $("#Assemblies_Description").val();
+        // var _Partsgriddata = gridTojson();
+        // var _LabourGridData = LabourgridTojson();
+        // alert(AssembliesName);
+        //alert(Description);
+        // alert(_Partsgriddata);
+        // alert(_LabourGridData);
+        LoadContent($("#profileAssignToALD"), "/Assemblies_Master/AddAssembliesLaborDetails?AssembliesName=" + AssembliesName + "");
+        $('#modalAssignToALD').modal({ backdrop: 'static' });
+    }
+
+
+
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+</head>
+<body>
+    
+    <div class="panel-body">
+                    @*<div class="row-fluid">
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="title"><strong>Assemblies Name: </strong></label>
+                                @Html.DropDownListFor(m => m.Assemblies_Name, Enumerable.Empty<SelectListItem>(), new { Name = "Assemblies_Name", @class = "form-control", data_type = "Other" })
+                                @Html.ValidationMessageFor(m => m.Assemblies_Name)
+
+                            </div>
+                        </div>
+                    </div>*@
+
+
+          <div class=" box-row  profile-hd">
+                    <h7 class="box-heading"><strong> &nbsp - Add Parts Details </strong> <span class="pull-right apse b" style="padding-right:5px;color:#ffffff"">
+                </div>
+                <div class="row">
+
+                    <a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#AssignModal" onclick="modalAssignToRM();"><i class="fa fa-check-square-o"></i><span>Add Parts List</span></a>
+
+                      <input  type="hidden" id=Assemblies_Name name="Assemblies_Name"    value=" @ViewBag.assembliesName"/>
+                      @PartsGrid.GetHtml(
+                           tableStyle: "table table-bordered datatables PartsListGrid",
+                            alternatingRowStyle: "alt",
+                            htmlAttributes: new { id = "grid" },
+                            rowStyle: "webgrid-row-style",
+                           columns: PartsGrid.Columns(
+                          PartsGrid.Column("Part Number", format: @<text><label id="lblPartNumber" class="col-md-11">@item.Part_Number</label> </text>),
+                         PartsGrid.Column("Cost", format: (item) =>
+                         {
+                             var cost = item.Value as ElectricEase.Models.AssembliesParts_DetailsInfoList;
+                             return Html.TextBox("Cost", cost.Part_Cost, new { @class = "col-md-10", @data_value = cost.Part_Cost, @id = "JobCost" });
+                         }),
+                          PartsGrid.Column("Resale", format: (item) =>
+                          {
+                              var resaleCost = item.Value as ElectricEase.Models.AssembliesParts_DetailsInfoList;
+                              return Html.TextBox("Resale", resaleCost.Resale_Cost, new { @class = "col-md-10", @data_value = resaleCost.Resale_Cost, @id = "JobRcost" });
+                          }),
+                          PartsGrid.Column("Est Qty", format: (item) =>
+                          {
+                              var estQty = item.Value as ElectricEase.Models.AssembliesParts_DetailsInfoList;
+                              return Html.TextBox("EstQty", estQty.Estimated_Qty, new { @class = "col-md-10", @data_value = estQty.Estimated_Qty, @id = "EstQty" });
+                          }),
+                          PartsGrid.Column("Act Qty", format: (item) =>
+                          {
+                              var actQty = item.Value as ElectricEase.Models.AssembliesParts_DetailsInfoList;
+                              return Html.TextBox("ActQty", actQty.Actual_Qty, new { @class = "col-md-10", @data_value = actQty.Actual_Qty, @id = "ActQty" });
+                          }),
+                           PartsGrid.Column("Exp Total", format: (item) =>
+                           {
+                               var expTotal = item.Value as ElectricEase.Models.AssembliesParts_DetailsInfoList;
+                               return Html.TextBox("ExpTotal", expTotal.Expected_Total, new { @class = "col-md-10", @data_value = expTotal.Expected_Total, @id = "JobPartExpTotal" });
+                           }),
+                          PartsGrid.Column("Est Total", format: (item) =>
+                          {
+                              var estTotal = item.Value as ElectricEase.Models.AssembliesParts_DetailsInfoList;
+                              return Html.TextBox("EstTotal", estTotal.Estimated_Total, new { @class = "col-md-10", @data_value = estTotal.Estimated_Total, @id = "JobPartEstTotal" });
+
+                          }),
+                          PartsGrid.Column("Act Total", format: (item) =>
+                          {
+                              var actTotal = item.Value as ElectricEase.Models.AssembliesParts_DetailsInfoList;
+                              return Html.TextBox("ActTotal", actTotal.Actual_Total, new { @class = "col-md-10", @data_value = actTotal.Actual_Total, @id = "JobPartActTotal" });
+
+                          })
+                      
+                           )
+                           )
+    <table class="table table-bordered datatables">
+                                <tr class=".webgrid-row-style">
+                                     <td style="padding-right:598px;text-align:right">
+                                        <label id="lblTotal"><strong>Total</strong></label>
+                                    </td>
+                                    <td>
+                                       <input type="text" id="ExpGrandTotal" class = "col-md-10" />
+                                    </td>
+                                    <td>
+                                       <input type="text" id="EstGrandTotal" class = "col-md-10" />
+                                    </td>
+                                    <td>
+                                       <input type="text" id="ActGrandTotal" class = "col-md-10" />
+                                    </td>
+                                </tr>
+                            </table>
+                    <div id="modalAssignToRM" class="modal fade" role="dialog">
+                        <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 40px;">
+                            <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                                <div id="profileAssignToRM"></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+        </div>
+              
+
+                <div class=" box-row  profile-hd">
+                    <h7 class="box-heading"><strong> &nbsp - Add Labour Details </strong> <span class="pull-right apse b" style="padding-right:5px;color:#ffffff"">
+                                                <i class="icon ion-chevron-down"></i></span></h7>
+                </div>
+                <div class="row">
+
+                    <a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#AssignModal" onclick="modalAssignToALD();"><i class="fa fa-check-square-o"></i><span>Add Labour List</span></a>
+                     
+                    @LabourGrid.GetHtml(
+            tableStyle: "table table-bordered datatables AssembliesLabourGridData",
+            alternatingRowStyle: "alt",
+            htmlAttributes: new {id = "grid"},
+            rowStyle: "webgrid-row-style",
+            columns: LabourGrid.Columns(
+           // Grid.Column(columnName: "Select_ID", header: "Delete", format: @<text><input type="checkbox" name="assignChkBx" value="@item.Client_ID,@item.Laborer_Name" id="assignChkBx" /></text> ),
+            LabourGrid.Column("Laborer Name", format: @<text><label id="lblLaborerName" class="edit-mode" style="width:100px" >@item.Laborer_Name</label> </text>),
+            LabourGrid.Column("Cost", format: (item) => {
+            var cost = item.Value as ElectricEase.Models.AssembliesLabourDetailsList;
+            return Html.TextBox("Cost", cost.Cost, new { @class = "col-md-10", @data_value = cost.Cost, @id = "Cost", });
+            }),
+            LabourGrid.Column("Burden", format: (item) => {
+                var burden = item.Value as ElectricEase.Models.AssembliesLabourDetailsList;
+            return Html.TextBox("Burden", burden.Burden, new { @class = "col-md-10", @data_value = burden.Burden, @id = "Burden", });
+            }),
+            LabourGrid.Column("Resale", format: (item) => {
+                var resaleCost = item.Value as ElectricEase.Models.AssembliesLabourDetailsList;
+            return Html.TextBox("Resale", resaleCost.Resale_Cost, new { @class = "col-md-10", @data_value = resaleCost.Resale_Cost, @id = "Rcost" });
+            }),
+            LabourGrid.Column("Est Hours", format: (item) => {
+                var resaleCost = item.Value as ElectricEase.Models.AssembliesLabourDetailsList;
+            return Html.TextBox("EstHours", resaleCost.Estimated_Hour, new { @class = "col-md-10", @data_value = resaleCost.Estimated_Hour, @id = "EstHours" });
+            }),
+            LabourGrid.Column("Act Hours", format: (item) => {
+                var resaleCost = item.Value as ElectricEase.Models.AssembliesLabourDetailsList;
+            return Html.TextBox("ActHours", resaleCost.Actual_Hours, new { @class = "col-md-10", @data_value = resaleCost.Actual_Hours, @id = "ActHours" });
+            }),
+            LabourGrid.Column("Exp Total", format: (item) => {
+                var expTotal = item.Value as ElectricEase.Models.AssembliesLabourDetailsList;
+                return Html.TextBox("ExpTotal", expTotal.Expected_Total, new { @class = "col-md-10", @data_value = expTotal.Expected_Total, @id = "LabExpTotal" });
+            }),
+            LabourGrid.Column("Est Total", format: (item) => {
+                var estTotal = item.Value as ElectricEase.Models.AssembliesLabourDetailsList;
+                return Html.TextBox("EstTotal", estTotal.Estimated_Total, new { @class = "col-md-10", @data_value = estTotal.Estimated_Total, @id = "LabEstTotal" });
+            }),
+            LabourGrid.Column("Act Total", format: (item) => {
+                var actTotal = item.Value as ElectricEase.Models.AssembliesLabourDetailsList;
+                return Html.TextBox("ActTotal", actTotal.Actual_Total, new { @class = "col-md-10", @data_value = actTotal.Actual_Total, @id = "LabActTotal" });
+                
+        })
+            )
+            )
+
+            <!-- app content here -->
+
+
+    <table class="table table-bordered datatables">
+                                <tr class=".webgrid-row-style">
+                                    <td style="padding-right:628px" >
+                                        <label for="label" id="lblTotal"><strong>Total</strong></label>
+                                    </td>
+                                    <td>
+                                       <input type="text" id="ExpLaborGrandTotal" class = "col-md-10" />
+                                    </td>
+                                    <td>
+                                       <input type="text" id="EstLaborGrandTotal" class = "col-md-10" />
+                                    </td>
+                                    <td>
+                                       <input type="text" id="ActLaborGrandTotal" class = "col-md-10" />
+                                    </td>
+                                </tr>
+                            </table>
+                    <div id="modalAssignToALD" class="modal fade" role="dialog">
+                        <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 40px;">
+                            <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                                <div id="profileAssignToALD"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="AssembliesLabourPatialView">
+
+               
+                        </div>
+
+
+                </div>
+                      
+                </div>
+  
+
+             
+
+    
+</body>
+</html>

@@ -1,0 +1,610 @@
+﻿@{
+    ViewBag.Title = "CMindex";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<style>
+    table#ClientTable tr td:nth-child(2) {
+        width: 150px !important;
+    }
+
+    table#ClientTable tr td:nth-child(5) {
+        width: 160px !important;
+    }
+
+    #ClientTable tr td:nth-child(9) {
+        text-align: center;
+    }
+
+    #ClientTable tr td:nth-child(10) {
+        text-align: center;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        Cookies.set('Clientdtpagelen', "");
+        Cookies.set('Clienttpageno', "");
+        Cookies.set('Clientearch', "");
+        $('li').removeClass('active');
+        $("#clientmaster").addClass('active');
+        $(".content-title").text("Client Master");
+        $("#DistributorID").select2();
+        GetClientInfo('0')
+        GetClientList();
+
+    })
+
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/ClientMaster.pdf");
+    })
+    function Cancel() {
+        msg = "Are you sure, do you want to cancel?"
+        if (confirm(msg)) {
+            //GetClientInfo('0')
+            //GetClientList();
+            //$("#title-cont").text("Add Client Details");
+            window.location.href = '../Client_Master/cmindex'
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+    function GetImage(val) {       
+        //var fileUpload = document.getElementById("fileupload");
+        var uploadfiles = document.getElementById('fileupload').files[0];
+        if (uploadfiles != null && uploadfiles != undefined && uploadfiles != "") {
+            $("#firstlogo").hide();
+            if (uploadfiles.size <= 614400) {
+                $("#dvPreview").html("");
+                var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.jpg|.jpeg|.gif|.png|.bmp)$/;
+                if (regex.test($(val).val().toLowerCase())) {
+                    if ($.browser.msie && parseFloat(jQuery.browser.version) <= 9.0) {
+                        $("#dvPreview").show();
+                        $("#dvPreview")[0].filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = $(val).val();
+                    }
+                    else {
+                        if (typeof (FileReader) != "undefined") {
+                            $("#dvPreview").show();
+                            $("#dvPreview").append("<img id='upimg' height='75' width='30%' style='margin-top:-8px'/>").attr({ width: '300px', height: '140px' });
+                            var reader = new FileReader();
+                            reader.onload = function (e) {
+                                $("#dvPreview img").attr("src", e.target.result);
+                            }
+                            reader.readAsDataURL($(val)[0].files[0]);
+                        } else {
+                            alert("This browser does not support FileReader.");
+                        }
+                    }
+                }
+                else {
+                    alert("Please upload JPG,JPEG,GIF,PNG image files only");
+                    $("#fileupload").val("");
+                }
+            } else {
+                $("#fileupload").val('');
+                //document.getElementById("upimg").src = 'null';
+                DisplayNotification("Uploaded image should be less than 600KB.", "error");
+            }
+        }
+        else {
+            $("#fileupload").val('');
+            $("#dvPreview").hide();
+            $("#dvPreview img").attr("src", "");
+        }
+    }
+    //Here to Add  and update client Details
+    function GetClientInfo(val) {
+        $.ajax({
+            url: '../Client_Master/GetClientDetails?ClientID=' + val,
+            type: 'GET',
+            success: function (data) {
+                $("#clientInfoDiv").html(data);
+                $("#DistributorID").select2();
+                if (val != "0" && val != null) {
+                    var s = $("#Reset");
+                    $("#title-cont").text("Edit Client Details");
+                    $("#Addbtn").text("Update");
+                    //    $('div#clientInfoDiv').animate({
+                    //        scrollTop: $("div#clientInfoDiv").offset().top
+                    //    },
+                    //'fast');
+                    var p = $("#clientInfoDiv");
+                    var offset = p.offset();
+                    window.scrollBy(offset.left, offset.top);
+                    $("#DistributorID").focus();
+                    //$("#clientInfoDiv").fadeToggle();
+                    // $("#Reset").hide();
+                    //$("#Addbtn").text("Update")
+                    //$("#Addbtn").addClass("pull-right")
+                }
+                else {
+                    $("#activateStatus").bootstrapToggle('on');
+                }
+            },
+            error: function (err) {
+            }
+        })
+    }
+
+
+    //Here Get ClientListDetails
+    function GetClientList(showBot) {
+        $.ajax({
+            url: '../Client_Master/GetClientListDetails',
+            type: 'GET',
+            success: function (data) {
+                $("#ClientListDiv").html(data);
+                if (showBot == 1) {
+                    $("#bootomClients").focus();
+                }
+            },
+            error: function (err) {
+            }
+        })
+    }
+    //function emailvalidation() {
+    //    var email = $('#Email').val()
+    //    var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+    //    if (!email.match(emailReg)) {
+    //        DisplayNotification("“Email” is invalid!", "error");
+    //        return false;
+    //    }
+    //    else {
+    //        return true;
+    //    }
+    //}
+    //function phonevalidation() {
+    //    var phoneno = $("#Phone").val();
+    //    if (phoneno.length > 0) {
+    //        var characterReg = /^[0-9-]+$/;
+
+    //        if (characterReg.test(phoneno) == false || phoneno.length < 10) {
+    //            DisplayNotification("Invalid “Phone Number”!", "error");
+    //            return false;
+    //        }
+    //        else {
+    //            return true;
+    //        }
+    //    }
+    //    else {
+    //        return true;
+    //    }
+    //}
+    //function mobilevalidate() {
+    //    var characterReg = /^[0-9-]+$/;
+    //    var reg = /^[2-9]\d{2}-\d{3}-\d{4}$/;
+    //    var mobileno = $("#Mobile").val();
+    //    if (mobileno.length > 0) {
+    //        if (characterReg.test(mobileno) == false || mobileno.length < 10) {
+    //            DisplayNotification("Invalid “Mobile Number”!", "error");
+    //            return false;
+    //        }
+    //        else {
+    //            return true;
+    //        }
+    //    }
+    //    else {
+    //        return true;
+    //    }
+    //}
+    function pwdvalidate() {
+        if ($("#Client_ID") == "" && $("#SuperUser").val() == "") {
+            DisplayNotification("Please fill “All” required (*) field.", "error");
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    //function ZipcodeValidate() {
+    //    var intRegex = /^\d+(?:\.\d\d?)?$/;
+    //    var zip = $("#ZipCode").val();
+    //    if (zip != "") {
+    //        if (!zip.match(intRegex)) {
+    //            DisplayNotification("“Zip Code” is invalid!", "error");
+    //            return false;
+    //        }
+    //        else {
+    //            return true;
+
+    //        }
+    //    }
+    //    else {
+    //        return true;
+    //    }
+
+    //}
+    function PasswordValidation() {
+        var activestatus = $("#activateStatus");
+        if (activestatus[0].checked) {//to skip password validation when de activating the user
+            var password = $("#SuperUser_Pwd").val();
+            var exp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@@$%^&*-]).{8,}$"
+            if (!password.match(exp)) {
+                DisplayNotification("For password use 8 or more characters with a mix of letters, numbers & symbols!", "error");
+                return false;
+            }
+            else {
+
+                return true;
+            }
+        }
+        else {
+            return true;
+        }
+    }
+
+    function CheckClientIsExist() {        
+        if ($("#Client_ID").val() != null) {
+            if ($("#SuperUser_Pwd").val() == "") {
+                var pwd = $("#Pwd").val()
+                $("#SuperUser_Pwd").val(pwd)
+            }
+        }
+        //if ($("#Client_Company").val() != "" && $("#Contact_person").val() != "" && $("#Email").val() != "" && $("#Phone").val() != "" && $("#Mobile").val() != "" && $("#SuperUser").val() != "" && $("#SuperUser_Pwd").val() != "" && $("#DistributorID").val() != "" && $("#upimg").attr('src') != "" && $("#upimg").attr('src') != undefined) {
+        if (validateClientDetails()) {
+            //if (document.getElementById('fileupload').files[0] == undefined && isNaN($("#Client_ID").val(), 0)) {
+            //    DisplayNotification("Please fill “All” required (*) field.", "error");
+            //    return false;
+            //}
+
+            //if (PasswordValidation() == true) {
+                var ClientCompany = $("#Client_Company").val()
+                var SuperUser = $("#SuperUser").val()
+
+                $.ajax({
+                    url: '../Client_Master/CheckClientisvalid?ClientCompany=' + ClientCompany + '&SuperUser=' + SuperUser,
+                    type: 'GET',
+                    success: function (data) {
+                        // if (data == "Client Company Is Already Registered,Please Contact your Admistrator"||data =="Client Admin ID is Already Registerd,please change your ID") {
+                        if (data == "Are you sure, do you want to update?") {
+                            //DisplayNotification(data, "error");
+                            //return false;
+                            msg = "ClientCompany is already exist,Are you sure, do you want to update?";
+                            if (confirm(msg)) {
+                                SaveClientDetails();
+                            }
+                            else {
+                                $('#Client_Company').focus();
+                            }
+                        }
+                        else {
+                            var btn = $("#Addbtn").text();
+
+                            if (btn == "Update") {
+                                msg = "Are you sure you want to update this client?";
+                            }
+                            else {
+                                msg = "Are you sure you want to save this client?";
+                            }
+                            if (confirm(msg)) {
+                                SaveClientDetails();
+                            }
+                            //return true;
+                        }
+
+
+                    },
+                    error: function (err) {
+                    }
+                })
+            }
+        //}
+        //else {
+        //    DisplayNotification("Please fill “All” required (*) field.", "error");
+        //}
+    }
+    function validateClientDetails() {
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,6})?$/;
+        var valid = true;
+        $("#spandistributorerror").hide();
+        $("#spanclientcompanyerror").hide();
+        $("#spancontactpersonerror").hide();
+        $("#spanphoneerror").hide();
+        $("#spaninvalidphoneerror").hide();
+        $("#spanmobileerror").hide();
+        $("#spaninvalidmobileerror").hide();
+        $("#spanemailerror").hide();
+        $("#spaninvalidemailerror").hide();
+        $("#spancompanylogoerror").hide();
+        if ($("#DistributorID").val() == null || $("#DistributorID").val() == "") {
+            $("#spandistributorerror").show();
+            valid = false;
+        }
+        if ($("#Client_Company").val() == null || $("#Client_Company").val() == "") {
+            $("#spanclientcompanyerror").show();
+            valid = false;
+        }
+        if ($("#Contact_person").val() == "" || $("#Contact_person").val() == null) {
+            $("#spancontactpersonerror").show();
+            valid = false;
+        }
+        if ($("#Phone").val() == null || $("#Phone").val() == "") {
+            $("#spanphoneerror").show();
+            valid = false;
+        } else if ($("#Phone").val().length < 10) {
+            $("#spanphoneerror").hide();
+            $("#spaninvalidphoneerror").show();
+            valid = false;
+        }
+        if ($("#Mobile").val() == null || $("#Mobile").val() == "") {
+            $("#spanmobileerror").show();
+            valid = false;
+        } else if ($("#Mobile").val().length < 10) {
+            $("#spanmobileerror").hide();
+            $("#spaninvalidmobileerror").show();
+            valid = false;
+        }
+        if ($("#Email").val() == null || $("#Email").val() == "") {
+            $("#spanemailerror").show();
+            valid = false;
+        }
+        else if (!emailReg.test($("#Email").val())) {
+            $("#spaninvalidemailerror").show();
+            $("#spanemailerror").hide();
+            valid = false;
+        }
+        if ($("#upimg").attr('src') == undefined || $("#upimg").attr('src') == "") {
+            $("#spancompanylogoerror").show();
+            valid = false;
+        }
+        if ($("#SuperUser").val() == "" || $("#SuperUser").val() == null) {
+            valid = false;
+        }
+        if ($("#SuperUser_Pwd").val() == "" || $("#SuperUser_Pwd").val() == null) {
+            valid = false;
+        }
+        if (!valid) {
+            DisplayNotification("Please fill “All” required (*) field.", "error");
+        }
+        return valid;
+    }
+
+    var isfirst = true;
+    function change() {
+
+        if (isfirst) {
+            isfirst = false;
+            var activestatus = $("#activateStatus")[0].checked;
+            if (activestatus == true) {
+                msg = "Are you sure you want activate this client?";
+            }
+            else {
+                msg = "Are you sure you want to deactivate this client?";
+            }
+            if (confirm(msg) == true) {
+
+                return false;
+            }
+            else {
+                //$("#activateStatus").bootstrapToggle('off');
+                return false;
+            }
+        }
+        setTimeout(function () { isfirst = true; }, 2000);
+
+    }
+
+
+    function SaveClientDetails() {
+
+        if ($("#Client_ID").val() != null) {
+            if ($("#SuperUser_Pwd").val() == "") {
+                var pwd = $("#Pwd").val()
+                $("#SuperUser_Pwd").val(pwd)
+            }
+
+
+        }
+
+        var img = document.getElementById("upimg");
+
+        //if ($("#Client_Company").val() != "" && $("#Contact_person").val() != "" && $("#Phone").val() != "" && $("#Email").val() != "" && document.getElementById("upimg") != null && $("#SuperUser").val() != "" && $("#SuperUser_Pwd").val() != "")
+        //if ($("#Client_Company").val() != "" && $("#Contact_person").val() != "" && $("#Email").val() != "" && $("#SuperUser").val() != "" && $("#SuperUser_Pwd").val() != "" && $("#DistributorID").val() != "" && $("#Phone").val() != "" && $("#Mobile").val() != "") {
+        if (validateClientDetails()) {
+            //if (PasswordValidation() == true) {
+                var formData = new FormData();
+                var uploadfiles = document.getElementById('fileupload').files[0];
+                // FormData.append("uploadfile", uploadfiles)
+                //if (uploadfiles.size <= 614400) {
+                formData.append("uploadfile", uploadfiles);
+                var activestatus = $("#activateStatus");
+                var Model = {
+                    "Client_ID": $("#Client_ID").val(),
+                    "Client_Company": $("#Client_Company").val(),
+                    "Contact_person": $('#Contact_person').val(),
+                    "Address": $('#Address').val(),
+                    "Address2": $('#Address2').val(),
+                    "Client_State": $('#Client_State').val(),
+                    "City": $('#City').val(),
+                    "ZipCode": $('#ZipCode').val(),
+                    "Phone": $('#Phone').val(),
+                    "Mobile": $('#Mobile').val(),
+                    "Fax": $('#Fax').val(),
+                    "Email": $('#Email').val(),
+                    "DistributorID": $('#DistributorID').val(),
+                    "activateStatus": activestatus[0].checked,
+                    //"UploadedFile": formData.append("UploadedFile", uploadfiles),
+
+                    "SuperUser": $('#SuperUser').val(),
+                    "SuperUser_Pwd": $('#SuperUser_Pwd').val(),
+                    "JobIDPreffix": $('#JobIDPreffix').val(),
+                    "Sender_EmailAddress": $('#Sender_EmailAddress').val(),
+                    "Sender_EmailPassword": $('#Sender_EmailPassword').val(),
+                    "DomainName": $('#DomainName').val(),
+                    "DomainName": $('#DomainName').val(),
+                    "AutoSaveTime_InSecs": $('#AutoSaveTime_InSecs').val()
+                }
+                formData.append('Model', JSON.stringify(Model));
+
+                $.ajax({
+                    url: '../Client_Master/SaveClientDetails',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (data) {
+
+                        if (data == "“Client details” are added successfully." || data == "“Client details” are updated successfully.") {
+                            if (data == "“Client details” are added successfully.") {
+                                Cookies.set('Clientdtpagelen', "");
+                                Cookies.set('Clienttpageno', "");
+                                Cookies.set('Clientearch', "");
+                            }
+                            DisplayNotification(data, "success");
+                            GetClientInfo('0');
+                            GetClientList(1);
+                        }
+                        else {
+                            DisplayNotification(data, "error");
+                        }
+                    },
+                    error: function (err) {
+                    }
+                })
+
+                //}
+                //else
+                //{
+                //    DisplayNotification("Uploaded image should be less then 600 kb", "error");
+                //}
+            //}
+            //else {
+            //    DisplayNotification("Please fill “All” required (*) field.", "error");
+            //}
+        }
+    }
+
+    function ResetAll() {
+        msg = "Are you sure, do you want to reset all fields?"
+        if (confirm(msg)) {
+            $("#Client_Company").val("");
+            $("#Client_Logo").val("");
+            $("#Address").val("");
+            $("#Address2").val("");
+            $("#City").val("");
+            $("#Client_State").val("");
+            $("#ZipCode").val("");
+            $("#Phone").val("");
+            $("#Mobile").val("");
+            $("#Fax").val("");
+            $("#Email").val("");
+            $("#Contact_person").val("");
+            $("#SuperUser").val("");
+            $("#SuperUser_Pwd").val("");
+            $("#fileupload").val("");
+            $("#JobIDPreffix").val("");
+            $("#Sender_EmailAddress").val("");
+            $("#Sender_EmailPassword").val("");
+            $("#DomainName").val("");
+            $("#SMTP_Host").val("")
+            $("#SMTP_Port").val("");
+            $("#AutoSaveTime_InSecs").val("");
+            $("#dvPreview img:last-child").remove()
+            $("#activateStatus").bootstrapToggle('off');
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    function DeleteClientDetails(val, val2) {
+
+        if (val2 == true) {
+            msg = "Are you sure, do you want to Deactivate this Client details?"
+        }
+        else {
+            msg = "Are you sure, do you want to Activate this Client details?"
+        }
+
+        if (confirm(msg)) {
+
+            $.ajax({
+                url: '../Client_Master/DeleteClientDetails?ClientID=' + val,
+                type: 'Get',
+                success: function (data) {
+                    if (data != "Success") {
+                        DisplayNotification(data, "error");
+                    }
+                    else {
+                        DisplayNotification("Client Details Deleted Sucessfully", "success");
+                        GetClientList();
+                        GetClientInfo('0');
+                    }
+                },
+                error: function (err) { }
+
+            });
+        }
+        else {
+            return false;
+        }
+
+    }
+
+
+    function checkIsExist(val) {
+        var clientLoginID = $(val).val();
+        $.ajax({
+            url: '../Client_Master/CheckClientisvalid?SuperUser=' + clientLoginID,
+            type: 'GET',
+            success: function (data) {
+                if (data == "“Client Admin ID” already registered, please change your ID.") {
+                    $("#loginidmsg").text("That Client Admin ID is taken. Try another.");
+                    //msg = "Are you sure,Do you want to update?";
+                    //if (confirm(msg)) {
+                    //    //SaveClientDetails();
+                    //}
+                    //else {
+                    //    $('#Client_Company').focus();
+                    //}
+                }
+                else {
+                    $("#loginidmsg").text(" ");
+                }
+            },
+            error: function (err) {
+            }
+        })
+
+    }
+
+</script>
+
+
+<div class="app-body" id="Scroll">
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full">
+            <div class="box-row  profile-hd">
+                <h7 class="box-heading">
+                    <strong id="title-cont"> &nbsp  Add Client Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                        <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                    </span>
+                </h7>
+
+            </div>
+            <div id="clientInfoDiv">
+
+            </div>
+            <div class="box-row  profile-hd">
+                <h7 class="box-heading">
+                    <strong> &nbsp  Client List </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                        @*<i class="icon ion-chevron-down"></i>*@
+                        <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                    </span>
+                </h7>
+
+            </div>
+            <div id="ClientListDiv">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

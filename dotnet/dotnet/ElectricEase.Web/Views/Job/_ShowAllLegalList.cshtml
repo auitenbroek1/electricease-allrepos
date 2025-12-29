@@ -1,0 +1,87 @@
+﻿@model List<ElectricEase.Models.Legal_DetailsInfoList>
+
+<script>
+    $(document).ready(function () {
+        var rows_selected = [];
+        $("#Legaltable").dataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+        });
+    });
+    function selectall(val) {
+        
+        var selected = $(val).attr('checked');
+        if (val.checked) {
+            legalpopselected = [];
+            $('#Legaltable').find("input:checkbox").each(function () {
+                legalpopselected.push(this.id);
+                this.checked = true;
+            });
+        }
+        else {
+            $('#Legaltable').find("input:checkbox").each(function () {
+                legalpopselected = [];
+                this.checked = false;
+                
+            });
+        }
+    }
+</script>
+
+<div class="table-resposive" style="max-height: 500px;overflow-y:auto">
+    <table class="table" id="Legaltable">
+        <thead>
+            <tr>
+                <th style="width:10%">
+                    <input type="checkbox" value="selectall" id="legalselectall" onchange="selectall(this);" />Select All
+                </th>
+                <th style="width:68%">Legal Detail</th>
+                <th>Legal Catgory </th>
+
+            </tr>
+        </thead>
+        <tbody id="showLegalbody">
+            @foreach (var item in Model)
+            {
+                <tr style="cursor:pointer" onclick="Legalselectrow(this)">
+                    <td>
+                        @if (item.isChekced == true)
+                        {
+                            <input type="checkbox" id="@item.Legal_ID" onclick="Legalselectrow(this)" data-id="@item.Client_ID" value="@item.Legal_ID" checked="checked" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" id="@item.Legal_ID" onclick="Legalselectrow(this)" data-id="@item.Client_ID" value="@item.Legal_ID" />
+                        }
+                    </td>
+                    <td style="width:68%">
+                        @{ string desc = "";
+                             desc = item.Legal_Detail == null ? "" : item.Legal_Detail;
+                            if(desc.Length>100)
+                            {
+                                desc = desc.Substring(0, 50) + "...";
+                            }
+                            <span>@desc</span>
+
+                        }
+                      
+                    </td>
+                    <td>
+                        @item.Legal_Category
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="row" style="margin:1%">
+    <div class="row-fluid">
+
+        <div class="pull-right popup-btn">
+            <button type="button" value="Submit" class="btn btn-flat btn-primary btn-sm" id="submit" onclick="saveLegal('selectedLegal');" tabindex="10">Submit</button>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,391 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script>
+    $(document).ready(function () {
+        Cookies.set('legaldtpagelen', "");
+        Cookies.set('legaltpageno', "");
+        Cookies.set('legalearch', "");
+        $("li").removeClass('active');
+        $("#legalmaster").addClass('active');
+        $(".content-title").text("Legal Master");
+        editLegals('0', '0');
+        getLegalList();
+        $("Submit").click(function () {
+            var Value = $("#Legal_Category option:Selected").vla();
+            Message = "Category Fild is required";
+            if (Value == 0) {
+                $("#CategoryName_Errmsg").html("Required").show();
+                return false;
+            }
+            var value = $("#Legal_Category option:selected").val();
+
+            var LegalCategory = $("#OtherLegal_Category").val();
+            othercatgoryMsg = "\"Other Category\" field is required, If you had selected \"Other\" in category field.";
+            if (value == 1 && (LegalCategory == '' || LegalCategory.toLowerCase() == "other")) {
+                $("#OtherLegal_Category").val('');
+                if (confirm(othercatgoryMsg)) {
+                    $("[name=Other_Category]").focus();
+                    return false;
+
+                }
+            }
+
+
+        });
+
+    });
+    function Cancel() {
+        msg = "Are you sure, do you want to cancel?"
+        if (confirm(msg)) {
+            editLegals('0', '0');
+            getLegalList();
+            $("#title-cont").text("Add Legal Details")
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/LegalMaster.pdf");
+    })
+
+    function ShowOtherCategory(value) {
+        if (value == "other") {
+            $("[name=OtherLegal_Category]").removeAttr("disabled");
+            $("#spnCatError").show();
+        }
+        else {
+            $("OtherCategory").val('');
+            $("[name=OtherLegal_Category]").attr("disabled", "disabled");
+            $("#spnCatError").hide();
+        }
+    }
+
+
+    function GetLegalCatgory(val) {
+
+        var clientid = $(val).val();
+        var legalID = $("#legalid").val();
+        if (clientid == "") {
+            $("#Legal_Category").attr('disabled', 'disabled');
+        }
+        else {
+            $.ajax({
+                url: '../Legal_Master/GetMyLegalCatgory?ClientID=' + clientid + '&legalID=' + legalID,
+                type: 'Get',
+                success: function (data) {
+                    $("#Legal_Category").removeAttr('disabled')
+                    dropdownElement = $("#Legal_Category");
+                    dropdownElement.find('option[value!=""]').remove();
+                    var $laborcatgorylist = $("#Legal_Category");
+                    if (legalID != "0") {
+                        $.each(data.LegalcatgoryList, function (i, catgory) {
+                            $('<option>', {
+                                value: catgory.Legal_Category
+                            }).html(catgory.Legal_Category).appendTo($laborcatgorylist);
+
+                        });
+                        if (data.Legal_Category != "") {
+                            $("#Legal_Category").val(data.Legal_Category);
+                        }
+
+                    }
+                    else {
+                        $.each(data, function (i, catgory) {
+
+                            $('<option>', {
+                                value: catgory.Legal_Category
+                            }).html(catgory.Legal_Category).appendTo($laborcatgorylist);
+
+                        });
+                    }
+
+
+
+                },
+                error: function (err) { }
+
+            });
+        }
+
+
+    }
+    function getLegalList(showBot) {
+        $.ajax({
+            url: '../Legal_Master/LegalListIndex',
+            type: 'Get',
+            success: function (data) {
+
+                $('#divpartslist').html(data);
+                if (showBot == 1) {
+                    $("#divLegBot").focus();
+                }
+
+            },
+            error: function (err) {
+                //DisplayNotification("\"Network Error\" Please try later!", "error");
+            }
+        });
+    }
+    function editLegals(val1, val2) {
+
+        $.ajax({
+            url: '../Legal_Master/EditLegalDetails?LegalID=' + val1 + '&ClientID=' + val2,
+            type: 'GET',
+            success: function (data) {
+                var ddl = $("select[name=Client_ID]");
+                $('#divaddparts').html(data);
+                $("#Client_ID").select2();
+                $("#Legal_Category").select2();
+                if (val2 != "0" && val2 != null) {
+                    //$("#Legal_Detail").attr('disabled','disabled');
+                    var s = $("#Reset");
+                    $("#title-cont").text("Edit Legal Details")
+                    $("#Reset").hide();
+                    if ($("#IsAdmin").val() == "Admin") {
+                        GetLegalCatgory("#Client_ID");
+                    }
+                    //$("#submit").text("Update")
+                    $("#Cancel").show();
+                    //$("#submit").addClass("pull-right")
+                }
+                $("#Legal_Category").focus();
+            },
+            error: function (err) {
+
+                DisplayNotification("\"Network Error\" Please try later!", "error");
+            }
+        });
+    }
+    function ClientNamevalidate() {
+
+        if ($("#IsAdmin").val() == "Admin") {
+            var valueid = $('#Client_ID').val();
+            if ($('#Client_ID').val() == "") {
+                DisplayNotification("“Client Name” is required.", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            $('#Client_ID').val(0);
+            return true;
+        }
+    }
+
+    function CheckIsExistingLegal() {
+
+        if (ClientNamevalidate() == true) {
+            var value = $("#Legal_Category").val();
+            var isvalid = true;
+            if ($("#Legal_Category").val() == "") {
+                isvalid = false;
+                DisplayNotification("“Category” is required!", "error");
+            }
+            if ($("#Legal_Category").val() == "other") {
+
+                if ($('#OtherLegal_Category').val().trim() == "" || $('#OtherLegal_Category').val().trim().toLowerCase() == "other") {
+                    isvalid = false;
+                    $('#OtherLegal_Category').val('');
+                    DisplayNotification("“Other Legal Category” is required!", "error");
+                }
+            }
+            if (isvalid) {
+
+                if ($('#Legal_Detail').val().trim() == "") {
+                    DisplayNotification("“Legal Detail” is required.", "error");
+                }
+                else {
+                    var Model = {
+                        "Client_ID": $("#Client_ID").val(),
+                        "Legal_Category": $("#Legal_Category").val(),
+                        "OtherLegal_Category": $("#OtherLegal_Category ").val(),
+                        "Legal_ID": $("#Legal_ID").val(),
+                        "Legal_Detail": $("#Legal_Detail").val()
+                    }
+                    var clientid = $("#Client_ID").val();
+                    var LegalDetail = $('#Legal_Detail').val();
+                    $.ajax({
+                        url: '../Legal_Master/CheckLegalDetailIsvalid',
+                        data: Model,
+                        type: 'POST',
+                        success: function (data) {
+                            if (data == "Already Exists") {
+                                msg = "Legal detail already exists, would you like to update this legal detail?"
+                                if (confirm(msg)) {
+                                    saveLegals()
+                                }
+                                else {
+                                    $('#Legal_Detail').focus();
+                                }
+
+                            }
+                            else {
+                                saveLegals()
+                            }
+                        },
+                        error: function (err) {
+                        }
+                    })
+                }
+            }
+
+        }
+    }
+    function saveLegals() {
+
+        //alert($("#Legal_Category option:selected").text());
+        if (ClientNamevalidate() == true) {
+            var value = $("#Legal_Category").val();
+            var isvalid = true;
+            if ($("#Legal_Category").val() == "") {
+                isvalid = false;
+                DisplayNotification("“Category” is required!", "error");
+            }
+            if ($("#Legal_Category").val() == "other") {
+
+                if ($('#OtherLegal_Category').val().trim() == "" || $('#OtherLegal_Category').val().trim().toLowerCase() == "other") {
+                    isvalid = false;
+                    $('#OtherLegal_Category').val('');
+                    DisplayNotification("“Other Legal Category” is required!", "error");
+                }
+            }
+            if (isvalid) {
+
+                if ($('#Legal_Detail').val().trim() == "") {
+                    DisplayNotification("“Legal Detail” is required.", "error");
+                }
+                else {
+                    var Model = {
+                        "Client_ID": $("#Client_ID").val(),
+                        "Legal_Category": $("#Legal_Category").val(),
+                        "OtherLegal_Category": $("#OtherLegal_Category ").val(),
+                        "Legal_ID": $("#Legal_ID").val(),
+                        "Legal_Detail": $("#Legal_Detail").val()
+                    }
+                    var btn = $("#submit").text();
+                    if (btn == "Update ") {
+                        msg = "Would you like to update this legal detail?"
+                    }
+                    else {
+                        msg = "Would you like to add this “Legal Detail”?"
+
+                    }
+                    if (confirm(msg)) {
+                        $.ajax({
+                            url: '../Legal_Master/AddLegalDetails',
+                            data: Model,
+                            type: 'POST',
+                            success: function (data) {
+
+                                if (data != "“Legal Details” are added successfully.") {
+                                    DisplayNotification("“Legal Detail” added successfully.", "success");
+                                    $("#title-cont").text("Add Legal Details");
+                                    editLegals('0', '0');
+                                    getLegalList(1);
+
+                                }
+                                else if (data != "Legal Details are updated successfully.") {
+                                    DisplayNotification("Legal details are updated successfully", "success");
+                                    $("#title-cont").text("Add Legal Details");
+                                    editLegals('0', '0');
+                                    getLegalList(1);
+                                }
+                                else {
+
+                                    DisplayNotification(data, "error");
+                                }
+                            },
+
+                            error: function (err) {
+                                return false;
+
+                            }
+                        });
+                    }
+
+                }
+            }
+        }
+    }
+    function deleteLegal(val1, val2) {
+
+        //msg = "Are Sure Want To Delete this Legal?";
+
+        if (confirm("Would you like to delete this legal detail?")) {
+
+            $.ajax({
+                url: '../Legal_Master/DeleteLegalDetails?LegalID=' + val1 + '&ClientID=' + val2,
+                type: 'POST',
+                success: function (data) {
+                    if (data != "“Deleted” successfully.") {
+                        DisplayNotification(data, "error");
+                    }
+                    else {
+                        DisplayNotification("“Legal Detail” deleted successfully.", "success");
+                        editLegals('0', '0');
+                        getLegalList();
+                    }
+                },
+                error: function (err) {
+
+                }
+            });
+
+        }
+
+    }
+    function ResetAll() {
+        msg = "Are you sure, do you want to “Clear” all fields?"
+        if (confirm(msg)) {
+            $("#Client_ID").val("");
+            $("#OtherLegal_Category").val("");
+            $("#Legal_Category").val("");
+            $("#Legal_Detail").val("");
+            if ($("#IsAdmin").val() == "Admin") {
+                $("#Legal_Category").attr('disabled', 'disabled');
+            }
+
+            $("#OtherLegal_Category").attr('disabled', 'disabled');
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+<div class="app-body" id="Scroll">
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full" id="">
+            <fieldset>
+                <div id="accordion">
+                    <div class="box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong id="title-cont"> &nbsp Add Legal Details</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+                    </div>
+                    <div id="divaddparts"></div>
+                    <div class="box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp Legal List  </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+                    </div>
+                    <div id="divpartslist"></div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>

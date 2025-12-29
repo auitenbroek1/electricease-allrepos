@@ -1,0 +1,135 @@
+﻿@{
+    // ViewBag.Title = "ReportIndex";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+        //Layout = null;
+}
+<script>
+    $(document).ready(function () {
+
+		$("#Loading").hide();
+
+        //$("button").click(function () {
+        //    $("p").slideToggle();
+
+        //});
+    });
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/JobMaster.pdf");
+    })
+    function Sendmail()
+    {
+        if ($("#ToMail").val().trim() != "") {
+            var frame = $('#reportfarme').contents().find('#clickbtn');
+            var tomail = $('#reportfarme').contents().find('#MailID');
+            $(tomail).val($("#ToMail").val())
+            var toccmail = $('#reportfarme').contents().find('#CCmailID');
+            $(toccmail).val($("#CCMail").val());
+            var subj = $('#reportfarme').contents().find('#Subject');
+            $(subj).val($("#txtsubject").val())
+            var adas = $("input #clickbtn");
+            $(frame).click();
+            setTimeout(function () {
+                DisplayNotification("“Email” sent successfully.", "success");
+            }, 3000);
+        }
+        else {
+            DisplayNotification("“To” email id is required!", "error");
+        }
+    }
+</script>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+    @{
+        string data = ViewData["myvar"].ToString();
+    }
+    <div class="modal-body">
+        <div class="app-body" id="Scroll">
+
+            <div class="magic-layoutz">
+
+                <div class="box magic-element width-full">
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp  Email</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                                                   <img id="arrow" src="../Images/down-arrow.png" alt="" />  </span></h7>
+
+                    </div>
+                    <div class="row">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="ajax-refresh2">
+                                            <div class="row">
+                                                
+                                                
+                                            <div class="row-fluid">
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label for="title"><strong>To : </strong></label>
+                                                        @Html.TextBox("ToMail", "", new { @class = "form-control" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label for="title"><strong>CC : </strong></label>
+                                                        @Html.TextBox("CCMail", "", new { @class = "form-control" })
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row-fluid">
+                                                
+                                            </div>
+                                            <div class="row-fluid">
+                                                    <div class="col-md-10">
+                                                    <div class="form-group">
+                                                        Subject :
+                                                        <input type="text" id="txtsubject" class="form-control" />
+                                                    </div>
+                                                </div>
+                                                <div class="pull-right">
+                                                    <button value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" id="Addbtn" onclick="Sendmail();">Send</button>
+                                                </div>
+                                                @*<div class="panel-footer clearfix" >
+                                                
+                                            </div>*@
+                                                    </div>
+                                                
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+
+
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp Client Estimation Report</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                                                                     <img id="arrow" src="../Images/down-arrow.png" alt="" /></span></h7>
+
+                    </div>
+                    <div id="accordion">
+                        <div class="row">
+                            <div class="modal-content" style="height: 620px; width: 100%">
+                               @* @using (Html.BeginForm("RSIndex", "Reports", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+                                {
+           
+                                    @Html.Partial("ClientEstimationReportView", data);
+
+                                }*@
+                               @*  @Html.Partial("ClientEstimationReportView", data);*@
+                                 <iframe src="~/ClientEstimationReport.aspx?Jobid=@data" id="reportfarme" width="100%" height="615px">
+                                </iframe>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

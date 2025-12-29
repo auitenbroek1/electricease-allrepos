@@ -1,0 +1,44 @@
+﻿@model List<ElectricEase.Models.Assembly_DescriptionList>
+<script>
+    function ShowDecription(val) {
+        $('#txtpreview').val($('#'+val).text());
+    }
+</script>
+<div style="margin-top: 1%">
+    @{int i = 0;}
+    <div class="list-group" style="width: 47%;margin-left:5px; overflow:auto;max-height:435px;display:inline-block;vertical-align:top;border:1px solid #e2e2e2"">
+        <ul align="center" style="padding-left:5px;padding-right:5px;">
+            @foreach (var item in Model)
+            {
+                if (item.Assemblies_Description != "" && item.Assemblies_Description != null)
+                {
+                    string color = "background-color:#d3d3d3 !important";
+                    i++;
+                    if (i % 2 == 0)
+                    {
+                        color = "background-color:white !important";
+                    }
+                <li class="list-group-item list-group-item-success" onclick="ShowDecription(@i)" style="color:black !important;text-align:left;cursor:pointer;margin:2px;@color">
+                    @if (item.Assemblies_Description.Length > 100)
+                    {
+                        <span>@item.Assemblies_Description.ToString().Substring(0, 100) ....</span>
+                        <textarea id="@i" style="display:none">@item.Assemblies_Description</textarea>
+                    }
+                    else
+                    {
+                        <span>@item.Assemblies_Description.ToString() ....</span>
+                        <textarea id="@i" style="display:none">@item.Assemblies_Description</textarea>
+                    }
+                </li>
+                }
+            }
+        </ul>
+    </div>
+
+    <div class="list-group" style="width: 51%; display: inline-block;">
+        @*<input type="text" aria-multiline="true" id="txtpreview" class="form-control" />*@
+        <textarea id="txtpreview" class=""  rows="@i" style="float:left; width:98%;height:400px; margin-left:10px; outline:none;"></textarea>
+        <button class="btn btn-flat btn-primary btn-sm pull-right" style="margin: 2px; width: 32%" name="addLabour" tabindex="10" id="Clearbtn" onclick="$('#txtpreview').val('');">Clear</button>
+        <button class="btn btn-flat btn-primary btn-sm pull-right" style="margin: 2px; width: 32%" name="addLabour" tabindex="10"  onclick="SaveDescription();">Add</button>
+    </div>
+</div>

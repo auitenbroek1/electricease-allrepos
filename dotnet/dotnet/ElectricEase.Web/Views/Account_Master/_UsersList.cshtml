@@ -1,0 +1,166 @@
+﻿@model  List<ElectricEase.Models.Account_MasterInfoList>
+@{
+    Layout = null;
+}
+
+<style>
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+</style>
+<script>
+    //$(document).ready(function () {
+    //    $('#UserTable').dataTable({
+    //        "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+    //        "sDom": '<"top"flp>rt<"bottom"pri>',
+    //    })
+
+
+    //});
+
+    var dropdwn = document.getElementsByName('UserTable_length');
+    var pagno = Cookies.get('Usertpageno');
+    if (pagno == null || pagno == "") {
+        pagno = 0;
+    }
+    var pagelen = "0";
+
+    if (Cookies.get('Userdtpagelen') != null && Cookies.get('Userdtpagelen') != "") {
+        var pagelen = Cookies.get('Userdtpagelen');
+        pagelen = Number(pagelen);
+        var tab = $('#UserTable').dataTable({
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "iDisplayLength": pagelen,
+            "sDom": '<"top"flp>rt<"bottom"pri>',
+            "order": [[0, "asc"]],
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }]
+            //"displayStart": 50,
+            //"PageLength": Cookies.get('Userdtpagelen'),
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('Userearch') != null && Cookies.get('Userearch') != "") {
+            tab.fnFilter(Cookies.get('Userearch'));
+        }
+    }
+    else {
+        var tab = $('#UserTable').dataTable({
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "sDom": '<"top"flp>rt<"bottom"pri>',
+            "order": [[0, "asc"]],
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }]
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('Userearch') != null && Cookies.get('Userearch') != "") {
+            tab.fnFilter(Cookies.get('Userearch'));
+        }
+    }
+
+    var listdiv = $('#UserTable');
+    $(listdiv[0].parentElement).removeClass("col-sm-12");
+    $(listdiv[0].parentElement).addClass("table-responsive");
+    $(dropdwn).change(function () {
+        var len = this.value;
+        Cookies.set('Userdtpagelen', len);
+    });
+    $('#UserTable_filter input').on("keyup", function () {
+        Cookies.set('Userearch', $(this).val());
+    });
+    $('#UserTable').on('page.dt', function () {
+        var info = this;
+        setTimeout(function () {
+            var ss = $('.paginate_button.active');
+            var pgno = ss[0].innerText;
+            if (pgno != "" && pgno != "0") {
+                pgno = Number(pgno) - Number(1);
+            }
+            Cookies.set('Usertpageno', pgno);
+        }, 1000);
+
+    });
+</script>
+<div id="collapseTwo" class="panel-collapse collapse in">
+    <table id="UserTable" class="table table-bordered datatables" cellspacing="0" width="100%">
+        <thead style="background-color: #45525F">
+            <tr>
+                <th>ID</th>
+                @if (HttpContext.Current.User.IsInRole("Admin"))
+                {
+                    <th>Client Company</th>
+                }
+                <th>User ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="Userlistbody">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ID</td>
+                    @if (HttpContext.Current.User.IsInRole("Admin"))
+                    {
+                        <td style="width: 60px">
+                            @item.Client_Company
+                        </td>
+                    }
+                    <td>
+                        @item.User_ID  &nbsp;&nbsp;
+                        @if (item.UserColor != null)
+                        {
+                            <input type="text" name="UserColor" id="SelectColor" style="background-color:@item.UserColor" class="form-control" disabled />
+                        }
+                    </td>
+                    <td>
+                        @item.First_Name
+                    </td>
+                    <td>
+                        @item.Last_Name
+                    </td>
+                    <td>
+                        @item.Phone
+                    </td>
+                    <td>
+                        @item.E_Mail
+                    </td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="GetUserInfo('@item.Client_ID','@item.User_ID');">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>
+                        &nbsp;&nbsp;&nbsp;
+                        <a class="confirm" id="alert" href="javascript:void(0)" onclick="DeleteUserDetails('@item.Client_ID','@item.User_ID');">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div id='bootomUsers' tabindex='1'></div>
+</div>
+
+

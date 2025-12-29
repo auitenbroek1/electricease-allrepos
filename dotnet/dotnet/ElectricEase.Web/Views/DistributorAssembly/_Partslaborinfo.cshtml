@@ -1,0 +1,139 @@
+﻿@model ElectricEase.Models.AssemblyPartsModel
+<style>
+    th, td {
+        color: black !important;
+    }
+</style>
+<a href="#" class="btn btn-flat btn-default btn-sm" onclick="modalAssignToRM();"><i class="fa fa-check-square-o"></i><span>Add Parts List</span></a>
+<div class="table table-responsive" >
+    <table class="table table-bordered" id="PartsLabortblInfo" style="display:none">
+        <thead>
+            <tr style="background-color: #eeeeee !important">
+                <th style="display:none">
+                    isactiveparts
+                </th>
+                <th class="Head-Align" syle="color:red">Part Number
+                </th>
+                <th class="Head-Align">Part Category
+                </th>
+                <th class="Head-Align">
+                    Part Desc
+                </th>
+                <th class="Head-Align">Cost
+                </th>
+                <th class="Head-Align">Resale Cost
+                </th>
+                <th class="Head-Align">Est.Qty/Hrs
+                </th>
+                <th class="Head-Align">Est.Cost Total
+                </th>
+                <th class="Head-Align">Est.Resal Total
+                </th>
+            </tr>
+        </thead>
+        <tbody id="partstbody">
+            @{ int i = 0;
+               string pid = "";
+               foreach (var item in Model.partslist)
+               {
+                <tr>
+                    <td style="display:none" id="activeparts">
+                       @item.IsActivePartsDetails
+                    </td>
+                    <td id="partnumber">
+                        @item.Part_Number
+                    </td>
+                    <td id="Part_Category">
+                        @item.Part_Category
+                    </td>
+                    <td>
+                        @item.Parts_Description
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_0"; }
+                        <input type="text" class="form-control" value="@item.Part_Cost" onkeyup="   " id="@pid" style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_1"; }
+                        <input type="text" class="form-control"  value="@item.Resale_Cost" onkeyup="calculatecost(this);"  id="@pid" style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_2";
+                          string estimatedqty = item.Estimated_Qty == 0 ? "" : item.Estimated_Qty.ToString(); 
+                          }
+                        <input type="text"  class="form-control" value="@estimatedqty"  onkeyup="calculatecost(this);" id="@pid" style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_3"; }
+                        <input type="text"  class="form-control" value="@item.EstCost_Total" disabled name="EstCost_Total" id="@pid" style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_4"; }
+                        <input type="text" class="form-control"  value="@item.EstResaleCost_Total" disabled id="@pid"  style="text-align: right"/>
+                    </td>
+                </tr>
+                          i++;
+               }
+            }
+        </tbody>
+        <tfoot id="laborDatatbl">
+            <tr>
+                 <th colspan="4">Total</th>
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.Estimated_Qty_Total, new { @class = "form-control" , @readonly = "readonly" ,@dir = "rtl"})
+                </th>
+
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.PartCostTotal, new { @class = "form-control" , @readonly = "readonly" ,@dir = "rtl"})
+                </th>
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.PartResaleTotal, new { @class = "form-control", @readonly = "readonly"  ,@dir = "rtl"})
+                </th>
+            </tr>
+            <tr>
+                <th colspan="2">Labor</th>
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.labor_cost, new { @class = "form-control" , onkeyup = "OnKeypressEvent()" ,@dir = "rtl"})
+                </th>
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.Lobor_Resale, new { @class = "form-control" , onkeyup = "OnKeypressEvent()" ,@dir = "rtl"})
+                </th>
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.Estimated_Hour, new { @class = "form-control" , onkeyup = "OnKeypressEvent()" ,@dir = "rtl"})
+                </th>
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.LaborEst_CostTotal, new { @class = "form-control", @readonly = "readonly" ,@dir = "rtl"})
+                </th>
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.LaborEst_ResaleTotal, new { @class = "form-control", @readonly = "readonly",@dir = "rtl" })
+                </th>
+            </tr>
+            <tr class="Estimate-FooterValue">
+                <th colspan="5">Grand Total</th>
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.GrandCostTotal, new { @class = "form-control",  @readonly = "readonly" ,@dir = "rtl"})
+                </th>
+                <th>
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.GrandResaleTotal, new { @class = "form-control",  @readonly = "readonly" ,@dir = "rtl"})
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="row">
+    <div class="panel-footer clearfix">
+        <div class="pull-right">
+
+            @if (ViewBag.Edit =="EditAS")
+            {
+                 <button type="button" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" onclick="UpdateAssembly();" id="Addbtn">Update <span class="glyphicon glyphicon-plus"></span></button>
+            }
+            else
+            {
+                <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset">Clear <span class="glyphicon glyphicon-remove-circle"></span></a>
+            <button type="button" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" onclick="saveassembly();" id="Addbtn">Add <span class="glyphicon glyphicon-plus"></span></button>
+            }
+        </div>
+    </div>
+</div>

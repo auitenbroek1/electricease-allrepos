@@ -1,0 +1,212 @@
+﻿@model ElectricEase.Models.Labor_DetailsInfoList
+
+@{
+    ViewBag.Title = "LabourListIndex";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+
+
+
+<script type="text/javascript">
+
+
+
+
+    $(document).ready(function () {
+        //alert("jiii");
+        $('li').removeClass('active');
+        $("#labourListmaster").addClass('active');
+        //alert("active");
+        //To change content tittles
+        $(".content-title").text("Labor Master");
+    });
+    $("#Ljob").click(function () {
+        //alert("dsfsdfsdf");
+        $(this).addClass('active').siblings().removeClass('active');
+        $(".content-title").hide();
+        return false;
+    });
+
+    $.ajax({
+
+        url: "/Ajax/GetMyLabourList",
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            var value = $('#loguser').val();
+            if (value == "Admin")
+                assignToAdminEventsColumns(data);
+            else
+                assignToUserEventsColumns(data);
+        }
+    });
+
+
+
+    function assignToAdminEventsColumns(data) {
+
+        var table = $('#example').dataTable({
+            "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+            //"dom": 'C<"clear">lfrtip',
+            "bAutoWidth": false,
+            "aaData": data,
+            //"aaSorting": [],
+            "aoColumnDefs": [
+               {
+                   "aTargets": [0],
+                   //"bSearchable": false,
+                   //"bSortable": false,
+                   //"bSort": false,
+                   "mData": "EventTypeId",
+                   "mRender": function (event) {
+                       //return  '<input class="childCheck" type="checkbox" id="childCheckBoxes" value="' + event + '">';
+
+                       return event;
+                   }
+               },
+
+               {
+                   "aTargets": [1],
+                   "mData": "EventType"
+               }
+
+
+            ], "aoColumns": [
+
+            { "mData": "Client_Company" },
+            { "mData": "Laborer_Name" },
+            { "mData": "Labor_Category" },
+            { "mData": "Cost" },
+            { "mData": "Resale_Cost" },
+
+
+
+            //{
+            //    "mDataProp": function (source, type, val) {
+
+            //        return '<a href="/Labour_Master/EditLabourDetails?LabourName=' + source.Laborer_Name + '"><i class="icon ion-ios7-compose"></i></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Labour_Master/DeleteLabourDetails?LabourName=' + source.Laborer_Name + '"><i class="icon ion-ios7-trash"></i></a>'
+
+
+
+
+            //    }
+            //}
+            ]
+
+        });
+
+    }
+    function assignToUserEventsColumns(data) {
+
+        var table = $('#example').dataTable({
+            "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+            //"dom": 'C<"clear">lfrtip',
+            "bAutoWidth": false,
+            "aaData": data,
+            //"aaSorting": [],
+            "aoColumnDefs": [
+               {
+                   "aTargets": [0],
+                   //"bSearchable": false,
+                   //"bSortable": false,
+                   "bSort": false,
+                   "mData": "EventTypeId",
+                   "mRender": function (event) {
+                       //return  '<input class="childCheck" type="checkbox" id="childCheckBoxes" value="' + event + '">';
+
+                       return event;
+                   }
+               },
+
+               {
+                   "aTargets": [1],
+                   "mData": "EventType"
+               }
+
+            ], "aoColumns": [
+                        { "mData": "Laborer_Name" },
+                        { "mData": "Labor_Category" },
+                        { "mData": "Cost" },
+                        { "mData": "Resale_Cost" },
+
+            //{
+            //    "mDataProp": function (source, type, val) {
+
+            //        return '<a href="/Labour_Master/EditLabourDetails?LabourName=' + source.Laborer_Name + '"><i class="icon ion-ios7-compose"></i></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Labour_Master/DeleteLabourDetails?LabourName=' + source.Laborer_Name + '"><i class="icon ion-ios7-trash"></i></a>'
+            //    }
+            //}
+            ]
+
+        });
+
+    }
+
+    $(function () {
+
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+</script>
+<style>
+    .controls > input,
+    .controls > select,
+    .controls > .row,
+    .controls > .input-group,
+    .controls > .form-group > .input-group {
+        margin-bottom: 15px;
+    }
+
+
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+    .dataTables_filter {
+
+        padding-bottom: 35px;
+    }
+</style>
+
+
+
+
+
+<div class="app-body" id="Scroll">
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+            <fieldset>
+                <div id="accordion">
+
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp Labour Listing </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+                        <table id="example" class="table table-bordered datatables" cellspacing="0" width="100%">
+                           <thead style="background-color:#45525F">
+                                <tr>
+                                     @if (HttpContext.Current.User.IsInRole("Admin"))
+                                     {
+                                          <th>Company Name</th>
+                                     }
+                                    <th>Laborer Name</th>
+                                    <th>Labor Category</th>
+                                    <th>Cost</th>
+                                    <th>Resale</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>

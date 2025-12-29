@@ -1,0 +1,88 @@
+﻿@model List<ElectricEase.Models.Job_MasterInfo>
+@{
+    ViewBag.Title = "JobDescrptionReport";
+    //Layout = "~/Views/Shared/_estimLayout.cshtml";
+    var Grid = new WebGrid(source: Model, canPage: false, canSort: false);
+}
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<script>
+   
+
+    function modalAssignDescriptionReport(selectedJobID) {
+        LoadContent($("#profileAssignToDescriptionReport"), "/Reports/Index?JobID=" + selectedJobID + "");
+        $('#modalAssignDescriptionReport').modal({ backdrop: 'static' });
+    }
+
+    $(document).ready(function () {
+        $('.JobDescription').dataTable({
+            "deferRender": true,
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "sDom": '<"top"flp>rt<"bottom"pri>',
+            "order": [[0, "desc"]]
+        });
+
+        //$(function () {
+
+        //    $(".profile-hd").click(function () {
+        //        //alert("hii");
+        //        $(this).next().slideToggle();
+        //    });
+        //});
+
+        //$("button").click(function () {
+        //    $("p").slideToggle();
+
+        //});
+    });
+
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: #34495e;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 10px;
+    }
+
+    btn btn-primary btn-xs toggle-on {
+        background-color: #2ecc71 !important;
+    }
+</style>
+
+
+        <div class="box magic-element width-full" style="overflow-y: scroll; height:501px">
+            
+
+    <div class="panel-body">
+                          @Grid.GetHtml(
+                           tableStyle: "table table-bordered datatables JobDescription",
+                            alternatingRowStyle: "alt",
+                            htmlAttributes: new { id = "grid" },
+                            rowStyle: "webgrid-row-style",
+                           columns: Grid.Columns(
+                                  //Grid.Column("Job ID", format: @<text> <a href="#" data-toggle="modal" data-target="#AssignModal" onclick="modalAssignDescriptionReport(@item.Job_ID);">@item.Job_ID</a> </text> ),
+                            Grid.Column("Job ID", format: @<text> <a href="/Reports/Index?JobID=@item.Job_ID" >@item.Job_ID</a> </text>),
+                            Grid.Column("Client Name", format: @<text> <a href="/Reports/Index?JobID=@item.Job_ID" >@item.Client_Name</a> </text>),
+                                Grid.Column("Job Number", style: "jobid", format: @<text>  @item.Job_Number </text>),
+                           Grid.Column("Job Status", format: @<text><label id="Status" class="col-md-11">@item.Job_Status</label> </text>)
+                          )
+                          )
+                                        <div id="modalAssignDescriptionReport" class="modal fade" role="dialog">
+                        <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 40px;""  >
+                            <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                                <div id="profileAssignToDescriptionReport"></div>
+                            </div>
+                        </div>
+                    </div>
+                                        </div>
+        
+       
+
+</div>
+     

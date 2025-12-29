@@ -1,0 +1,148 @@
+﻿@model ElectricEase.Models.JobPartsInfo
+
+<script>
+    function calculatepartscost(val) {
+        var partsbody = $('#partstbody tr');
+        var partsgrandexptotal = 0;
+        var partsgrandesttotal = 0;
+        var actualtotal = 0;
+        for (var i = 0; i < partsbody.length; i++) {
+            $('#P_' + i + '_4').val((Number($('#P_' + i + '_0').val()) * Number($('#P_' + i + '_2').val())).toFixed(2));
+            $('#P_' + i + '_5').val((Number($('#P_' + i + '_1').val()) * Number($('#P_' + i + '_2').val())).toFixed(2));
+            $('#P_' + i + '_6').val((Number($('#P_' + i + '_1').val()) * Number($('#P_' + i + '_3').val())).toFixed(2));
+            partsgrandexptotal = Number(partsgrandexptotal) + Number($('#P_' + i + '_4').val());
+            partsgrandesttotal = Number(partsgrandesttotal) + Number($('#P_' + i + '_5').val());
+            actualtotal = Number(actualtotal) + Number($('#P_' + i + '_6').val());
+        }
+        $('#Parts_GrandExpTotal').val(partsgrandexptotal.toFixed(2));
+        $('#Parts_GrandEstTotal').val(partsgrandesttotal.toFixed(2));
+        $('#Parts_GrandActTotal').val(actualtotal);
+        estimatevalues();
+    }
+    $(function () {
+        var PartsGrandExpTotal = $("#Parts_GrandExpTotal").val();
+       // alert(PartsGrandExpTotal);
+        if (PartsGrandExpTotal == 0) {
+            $("#Parts_GrandExpTotal").val("");
+
+        }
+        var PartsGrandEstTotal = $("#Parts_GrandEstTotal").val();
+        // alert(PartsGrandExpTotal);
+        if (PartsGrandEstTotal == 0) {
+            $("#Parts_GrandEstTotal").val("");
+
+        }
+        var PartsGrandActTotal = $("#Parts_GrandActTotal").val();
+        // alert(PartsGrandExpTotal);
+        if (PartsGrandActTotal == 0) {
+            $("#Parts_GrandActTotal").val("");
+
+        }
+
+    });
+</script>
+
+<div class="table table-responsive">
+    <table class="table" id="PartsLabortblInfo">
+        <thead>
+            <tr>
+                <th>Part Number
+                </th>
+                <th style="width:25%">
+                  Description
+                </th>
+                <th>Cost
+                </th>
+                <th>ResaleCost
+                </th>
+                <th>Est.Qty
+                </th>
+                <th hidden>
+                    Act Qty
+                </th>
+                <th>Exp Total
+                </th>
+                <th>Est Total
+                </th>
+                
+                <th hidden>Act Total
+                </th>
+            </tr>
+        </thead>
+        <tbody id="partstbody">
+            @{ int i = 0;
+               string pid = "";
+               foreach (var item in Model.NewPartsListInJob)
+               {
+                <tr>
+                    <td id="partnumber">
+                        @item.Part_Number
+                    </td>
+                    <td id="Description">
+                        @item.Description
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_0"; }
+                        <input type="text" class="form-control" value="@item.Part_Cost" onkeyup="calculatepartscost(this);" id="@pid" style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_1"; }
+                        <input type="text" class="form-control"  value="@item.Resale_Cost" onkeyup="calculatepartscost(this);"  id="@pid" style="text-align: right"/>
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_2";
+                          string estimatedqty = item.Estimated_Qty == 0 ? "" : item.Estimated_Qty.ToString(); 
+                          }
+                        <input type="text"  class="form-control" value="@estimatedqty"  onkeyup="calculatepartscost(this);" id="@pid" style="text-align: right" />
+                    </td>
+                    <td hidden>
+                        @{pid = "P_" + i + "_3";
+                          string Actual_Qty = item.Actual_Qty == 0 ? "" : item.Actual_Qty.ToString(); 
+                          
+                           }
+                        <input type="text" class="form-control"  value="@Actual_Qty" onkeyup="calculatepartscost(this);"  id="@pid" style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_4";
+                          string ExpectedTotal = item.Expected_Total == 0 ? "" : item.Expected_Total.ToString();  
+                          }
+                         
+                        <input type="text"  class="form-control" value="@ExpectedTotal" disabled name="EstCost_Total" id="@pid"  style="text-align: right"/>
+                    </td>
+                    <td>
+                        @{pid = "P_" + i + "_5";
+                          string EstimatedTotal = item.Estimated_Total == 0 ? "" : item.Estimated_Total.ToString();   }
+                        <input type="text" class="form-control"  value="@EstimatedTotal" disabled id="@pid" style="text-align: right" />
+                    </td>
+                    
+                    <td hidden>
+                        @{pid = "P_" + i + "_6";
+                          string ActualTotal = item.Actual_Total == 0 ? "" : item.Actual_Total.ToString(); 
+                          
+                           }
+                        <input type="text" class="form-control"  value="@ActualTotal" disabled id="@pid" style="text-align: right" />
+                    </td>
+                </tr>
+                          i++;
+               }
+            }
+        </tbody>
+        <tfoot id="PartsTotal">
+            <tr>
+                <th colspan="5">Total</th>
+                <th>
+                     
+                    @Html.TextBoxFor(x => x.Parts_GrandExpTotal, new { @class = "form-control" , @readonly = "readonly" ,@dir = "rtl"})
+                </th>
+                <th>
+                    @Html.TextBoxFor(x => x.Parts_GrandEstTotal, new { @class = "form-control", @readonly = "readonly" ,@dir = "rtl" })
+                </th>
+                 <th hidden>
+                    @Html.TextBoxFor(x => x.Parts_GrandActTotal, new { @class = "form-control", @readonly = "readonly" ,@dir = "rtl" })
+                </th>
+            </tr>
+            
+            
+        </tfoot>
+    </table>
+</div>

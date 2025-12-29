@@ -1,0 +1,617 @@
+﻿@model ElectricEase.Models.EditLabor_DetailsInfo
+@{
+
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+
+}
+
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("[name=otherLabor_Category]").attr("disabled", "disabled");
+        $("#Labor_Category").change(function () {
+            var value = $("#Labor_Category option:selected").val();
+            //alert(value);
+            ShowOtherCategory(value);
+        });
+        function ShowOtherCategory(value) {
+
+            if (value == 1) {
+                $("[name=otherLabor_Category]").removeAttr("disabled");
+            }
+            else {
+                $("otherLabor_Category").val('');
+                $("[name=otherLabor_Category]").attr("disabled", "disabled");
+            }
+        }
+        $(function () {
+            LoadClientIDDropdown('@Model.Client_ID');
+
+        });
+        $(function () {
+            var cost = $("#Cost").val();
+            //  alert(cost);
+            if (cost == 0) {
+                $("#Cost").val("");
+            }
+            var rcost = $("#Rcost").val();
+            // alert(rcost);
+            if (cost == 0) {
+                $("#Rcost").val("");
+            }
+            var Burden = $("#Burden").val();
+            // alert(Burden);
+            if (Burden == 0) {
+                $("#Burden").val("");
+            }
+
+        });
+
+        $(function () {
+            $("#fileupload").change(function () {
+                $("#firstlogo").hide();
+                $("#dvPreview").html("");
+                var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.jpg|.jpeg|.gif|.png|.bmp)$/;
+                if (regex.test($(this).val().toLowerCase())) {
+                    if ($.browser.msie && parseFloat(jQuery.browser.version) <= 9.0) {
+                        $("#dvPreview").show();
+                        $("#dvPreview")[0].filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = $(this).val();
+                    }
+                    else {
+                        if (typeof (FileReader) != "undefined") {
+                            $("#dvPreview").show();
+                            $("#dvPreview").append("<img height='88' width='30%'/>").attr({ width: '300px', height: '150px' });
+                            var reader = new FileReader();
+                            reader.onload = function (e) {
+                                $("#dvPreview img").attr("src", e.target.result);
+                            }
+                            reader.readAsDataURL($(this)[0].files[0]);
+                        } else {
+                            alert("This browser does not support FileReader.");
+                        }
+                    }
+                } else {
+                    alert("Please upload a valid image file.");
+                }
+            });
+        });
+        setRegexValidations();
+    });
+        $.ajax({
+
+            url: "/Ajax/GetMyLabourList",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var value = $('#loguser').val();
+                if (value == "Admin")
+                    assignToAdminEventsColumns(data);
+                else
+                    assignToUserEventsColumns(data);
+            }
+        });
+
+
+        function assignToUserEventsColumns(data) {
+
+            var table = $('#example').dataTable({
+                "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+                "dom": 'C<"clear">lfrtip',
+                "bAutoWidth": false,
+                "aaData": data,
+                "aaSorting": [],
+                "aoColumnDefs": [
+                   {
+                       "aTargets": [0],
+                       "bSearchable": false,
+                       "bSortable": false,
+                       "bSort": false,
+                       "mData": "EventTypeId",
+                       "mRender": function (event) {
+                           //return  '<input class="childCheck" type="checkbox" id="childCheckBoxes" value="' + event + '">';
+
+                           return event;
+                       }
+                   },
+
+                   {
+                       "aTargets": [1],
+                       "mData": "EventType"
+                   }
+
+                ], "aoColumns": [
+                { "mData": "Laborer_Name" },
+                { "mData": "Labor_Category" },
+                { "mData": "Resale_Cost" },
+                {
+                    "mDataProp": function (source, type, val) {
+                        return '<a href="/Labour_Master/EditLabourDetails?LabourName=' + source.Laborer_Name + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Labour_Master/DeleteLabourDetails?LabourName=' + source.Laborer_Name + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+                    }
+                }
+                ]
+
+            });
+
+        }
+        function assignToAdminEventsColumns(data) {
+
+            var table = $('#example').dataTable({
+
+                "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+                "dom": 'C<"clear">lfrtip',
+                "bAutoWidth": false,
+                "aaData": data,
+                "aaSorting": [],
+                "aoColumnDefs": [
+                   {
+                       "aTargets": [0],
+                       "bSearchable": false,
+                       "bSortable": false,
+                       "bSort": false,
+                       "mData": "EventTypeId",
+                       "mRender": function (event) {
+                           //return  '<input class="childCheck" type="checkbox" id="childCheckBoxes" value="' + event + '">';
+
+                           return event;
+                       }
+                   },
+
+                   {
+                       "aTargets": [1],
+                       "mData": "EventType"
+                   }
+
+                ], "aoColumns": [
+
+                { "mData": "Client_Company" },
+                { "mData": "Laborer_Name" },
+                { "mData": "Labor_Category" },
+                { "mData": "Resale_Cost" },
+                {
+                    "mDataProp": function (source, type, val) {
+                        return '<a href="/Labour_Master/EditLabourDetails?LabourName=' + source.Laborer_Name + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Labour_Master/DeleteLabourDetails?LabourName=' + source.Laborer_Name + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+                    }
+                }
+                ]
+
+            });
+
+        }
+        $(function () {
+            $("#Reset").click(function () {
+                $("#Client_ID").val("");
+                $("#Laborer_Name").val("");
+                $("#Labor_Category").val("");
+                $("#otherLabor_Category").val("");
+                $("#Burden").val("");
+                $("#fileupload").val("");
+                $("#dvPreview img:last-child").remove()
+                $("#Gender").bootstrapToggle('off');
+                $("#Description").val("");
+                $("#Client_Description").val("");
+                $("#Cost").val("");
+                $("#Resale_Cost").val("");
+
+
+            });
+
+        });
+
+        $(document).on('click', '.confirm', function () {
+            //message = "Are you sure you want to Delete this user?"
+            if (confirm(message))
+                return true;
+            else
+                return false;
+        });
+
+
+        $(document).ready(function () {
+
+            $('li').removeClass('active');
+            $("#labourmaster").addClass('active');
+
+            //To change content tittles
+            $(".content-title").text("Labour Master");
+        });
+        $("#Ljob").click(function () {
+
+            $(this).addClass('active').siblings().removeClass('active');
+            $(".content-title").hide();
+            return false;
+        });
+
+
+        $(function () {
+            //alert("client");
+            LoadLabourCategorydropdown('@Model.Labor_Category');
+
+        });
+
+    $(function () {
+
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+    $(function () {
+
+        $("#submit").click(function () {
+            var value = $("#Labor_Category option:selected").val();
+            var intRegex = /^\d+(?:\.\d\d?)?$/;
+
+            msg = "Labour Category Field is Required";
+            if (value == 0) {
+                if (confirm(msg)) {
+                    return false;
+                }
+                else {
+                    return false;
+                }
+            }
+
+            //var value = $("#Labor_Category option:selected").val();
+            //othercatgoryMsg = "Othercategory field is Required If you have selected 'other' in Category Field";
+            //if (value == 1) {
+            //    if (confirm(othercatgoryMsg)) {
+            //        $("[name=otherLabor_Category]").focus();
+            //        return false;
+
+            //    }
+            //}
+            //Modified by Arunkumar.k on 12/15/2015.
+            var value = $("#Labor_Category option:selected").val();
+            var otherCategory = $("#otherLabor_Category").val();
+            othercatgoryMsg = "\"Other Category\" field is required, If you had selected \"Other\" in category field.";
+            if (value == 1 && otherCategory == '') {
+
+                if (confirm(othercatgoryMsg)) {
+                    $("[name=otherLabor_Category]").focus();
+                    return false;
+
+                }
+            }
+            if (!$("#Cost").val().match(intRegex)) {
+                $("#errmsg").html("Number only").show();
+                return false;
+            }
+
+
+            //if (!$("#Rcost").val().match(intRegex)) {
+            //    $("#RCosterrmsg").html("Number only").show();
+            //    return false;
+            //}
+
+
+
+            if ($("#burden").val() != "") {
+                if (!$("#burden").val().match(intRegex)) {
+                    $("#burdenerrmsg").html("Number only").show();
+                    return false;
+                }
+            }
+            //var Cost = $("#Cost").val();
+            //var ResaleCost = $("#Resale_Cost").val();
+            //costMsg = "Resale should be  Higher than My Cost";
+            //if (parseFloat(ResaleCost) <= parseFloat(Cost))
+            //{
+            //    if (confirm(costMsg)) {
+            //        return false;
+            //        $("#Resale_Cost").focus();
+            //    }
+            //    else {
+            //        return false;
+
+            //    }
+            //}
+            if (parseFloat(Cost) == 0) {
+                CostZero = "Cost should be Higher than 0";
+                var result = confirm(CostZero)
+                if (result == true) {
+                    return false;
+                }
+                else {
+                    return false;
+                }
+            }
+        });
+    });
+</script>
+<style>
+    .controls > input,
+    .controls > select,
+    .controls > .row,
+    .controls > .input-group,
+    .controls > .form-group > .input-group {
+        margin-bottom: 15px;
+    }
+
+    /*th {
+        background-color: #F48D36;
+    }
+    #example tr.alt td {
+        color: #000000;
+        background-color: #34495e;
+    }
+
+    .alt {
+        background-color: #E4E9F5;
+        color: #000;
+    }*/
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+
+
+
+
+
+
+
+<!-- app content here -->
+
+<div class="app-body" id="Scroll">
+
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+
+
+            <fieldset>
+                <div id="accordion">
+
+
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp  Edit Labor Details  </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <i class="icon ion-chevron-down"></i>
+                            </span>
+                        </h7>
+
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <!--div class="col-lg-6">
+                                        <!-- parts details area start -->
+                        @using (Html.BeginForm("UpdateLabourDetails", "Labour_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+                        {
+                            @Html.ValidationSummary(true);
+
+                            <div class="row">
+                                <div class="col-md-20">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="ajax-refresh2">
+
+
+                                                <div class="panel-body">
+
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <input type="hidden" value=" @ViewBag.LoginUser" id="loguser" />
+                                                                <input type="hidden" name="Client_ID" value="@Model.Client_ID" />
+                                                                <label for="label"><strong>Category <span class="err">*</span>:</strong></label>
+                                                                @Html.DropDownListFor(m => m.Labor_Category, Enumerable.Empty<SelectListItem>(), new { Name = "Labor_Category", @class = "form-control selectpicker", data_type = "Other" })
+
+                                                                @Html.ValidationMessageFor(m => m.Labor_Category)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>If Other Category :</strong></label>
+                                                                @Html.TextBoxFor(m => m.otherLabor_Category, new { @class = "form-control", @maxlength = "30", @placeholder = "" })
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+
+                                                                <label for="title"><strong>Gender&nbsp&nbsp :</strong></label>
+                                                                @Html.CheckBoxFor(m => m.Gender, new { data_toggle = "toggle", data_on = "M", data_off = "F", data_size = "mini", data_offstyle = "danger" })
+                                                                @*@Html.CheckBoxFor(m => m.Job_Administrator)*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Labor Name <span class="err">*</span>:</strong></label>
+                                                                @Html.TextBoxFor(m => m.Laborer_Name, new { @class = "form-control", @maxlength = "30", @placeholder = "" })
+                                                                @Html.ValidationMessageFor(m => m.Laborer_Name)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>My Cost  <span class="err">*</span>:</strong></label>
+                                                                @Html.TextBoxFor(m => m.Cost, new { @class = "form-control", @maxlength = "8", @placeholder = "0.00", style = "text-align:right" })
+                                                                <span id="errmsg" class="error"></span>
+                                                                @Html.ValidationMessageFor(m => m.Cost)
+                                                                @*<input type="text" class="form-control" name="MyCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">*@
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Resale<span class="err">*</span>:</strong></label>
+                                                                @Html.TextBoxFor(m => m.Resale_Cost, new { @class = "form-control", @maxlength = "8", @placeholder = "0.00", style = "text-align:right" })
+                                                                <span id="RCosterrmsg" class="error"></span>
+                                                                @*  @Html.ValidationMessageFor(m => m.Resale_Cost)*@
+                                                                @*<input type="text" class="form-control" name="ResaleCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Burden :</strong></label>
+                                                                @Html.TextBoxFor(m => m.burden, new { @class = "form-control", @maxlength = "12", @placeholder = "", style = "text-align:right" })
+                                                                <span id="burdenerrmsg" class="error"></span>
+
+                                                                @*<input type="text" class="form-control" name="ResaleCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+
+                                                                <label for="title"><strong>My Description :</strong></label>
+                                                                @Html.TextAreaFor(m => m.Description, new { @class = "form-control", @style = " resize: none;", @maxlength = "100" })
+                                                                @Html.ValidationMessageFor(m => m.Description)
+                                                                @*<textarea rows="3" class="form-control" name="MYDescription" id="IDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>*@
+
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                    @if (Model.Photo == null)
+                                                    {
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="lable"><strong>Photo:</strong></label>
+                                                                    @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                    @*<input type="file" id="fileupload" name="File" />*@
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group" id="dvPreview"></div>
+                                                        </div>
+                                                    }
+                                                    @if (Model.Photo != null)
+                                                    {
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="lable"><strong>Photo :</strong></label>
+                                                                    @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <div class="form-group" id="dvPreview" style="display: none"></div>
+                                                                <div class="form-group" id="firstlogo">
+                                                                    <img src="data:image;base64,@System.Convert.ToBase64String(Model.Photo)" width="80" height="80" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    }
+                                                    <div class="row-fluid">
+
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="title"><strong>Client Description :</strong></label>
+                                                                    @Html.TextAreaFor(m => m.Client_Description, new { @class = "form-control" })
+                                                                    @Html.ValidationMessageFor(m => m.Client_Description)
+                                                                    @*<textarea rows="3" class="form-control" name="ClientDescription" id="ClientDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>*@
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                        <div class="panel-footer clearfix">
+                                            <div class="pull-right" style="width:35%">
+                                                <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm pull-right" name="addLabour" id="submit" style="width:49%" tabindex="10">Update </button>
+                                                @* <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset">Clear</a>*@
+                                            </div>
+                                        </div>
+                                        <div class="panel-footer clearfix">
+                                            <div class="pull-left" style="color: #ccc; font-size: x-small;">
+                                                <div>
+                                                    <label>Created By  :@Model.Created_By on<span></span> @Model.Created_Date</label>
+                                                    <input type="hidden" value="@Model.Created_By" name="Created_By" id="Created_By" />
+                                                    <input type="hidden" name="Created_Date" value="@Model.Created_Date" />
+                                                </div>
+
+                                            </div>
+
+                                            <div class="pull-right" style="color: #ccc; font-size: x-small;">
+                                                <div>
+                                                    <label>Updated By  :@Model.Updated_By on<span></span> @Model.Updated_Date</label>
+                                                    <input type="hidden" name="Updated_By" value="@Model.Updated_By" />
+                                                    <input type="hidden" name="Updated_Date" value="@Model.Updated_Date" />
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+
+
+                        <!-- parts details area End -->
+                        <!--/div-->
+                    </div>
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp  Labour Listing </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <i class="icon ion-chevron-down"></i>
+                            </span>
+                        </h7>
+
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+                        @* @{ Html.RenderAction("PartsList", "Parts_Master",new ElectricEase.Models.Parts_DetailsInfo());}*@
+                        <table id="example" class="table table-bordered datatables" cellspacing="0" width="100%">
+                            <thead style="background-color:#45525F">
+                                <tr>
+                                    @if (HttpContext.Current.User.IsInRole("Admin"))
+                                    {
+                                        <th>Company Name</th>
+                                    }
+                                    <th>Laborer Name</th>
+                                    <th>Labor Category</th>
+                                    <th>Resale</th>
+                                    <th>Action </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+
+
+
+

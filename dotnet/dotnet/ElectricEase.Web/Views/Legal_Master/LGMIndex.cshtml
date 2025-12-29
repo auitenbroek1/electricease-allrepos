@@ -1,0 +1,131 @@
+﻿@model ElectricEase.Models.Legal_DetailsInfo
+
+@{
+    ViewBag.Title = "LGMIndex";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+
+
+
+    $(document).ready(function () {
+        //alert("jiii");
+        $('li').removeClass('active');
+        //$("#legalmaster").addClass('active');
+        $("#legalmaster").addClass('active');
+        //alert("active");
+        //To change content tittles
+        $(".content-title").text("Legal Master");
+    });
+    $("#Ljob").click(function () {
+        //alert("dsfsdfsdf");
+        $(this).addClass('active').siblings().removeClass('active');
+        $(".content-title").hide();
+        return false;
+    });
+
+    $(function () {
+
+        $("#submit").click(function () {
+
+            var intRegex = /^\d+(?:\.\d\d?)?$/;
+
+            var ClientName = $("#Client_ID option:selected").val();
+            message = "Client Field is Required";
+            if (ClientName == 0) {
+                DisplayNotification("“Client Name” is required.", "error");
+                return false;
+            }
+           
+            if ($("#Legal_Detail").val() == "") {
+                DisplayNotification("“Legal Detail” is required.", "error");
+                return false;
+            }
+           
+
+        });
+    });
+</script>
+<style>
+    .controls > input,
+    .controls > select,
+    .controls > .row,
+    .controls > .input-group,
+    .controls > .form-group > .input-group {
+        margin-bottom: 15px;
+    }
+
+
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+</style>
+
+
+@if (ViewBag.ADDSuccessMsg != null)
+{ 
+     <script>
+         DisplayNotification(" @ViewBag.ADDSuccessMsg", "success");
+                </script>
+}
+@if (ViewBag.DeleteSuccessMsg != null)
+{ 
+    <script>
+        DisplayNotification("@ViewBag.DeleteSuccessMsg", "success");
+                </script>
+}
+@if (ViewBag.UpdateErrorMsg != null)
+{  <script>
+    DisplayNotification("An error occurred while updating “Legal Details”!", "error");
+                </script>
+}
+@if (ViewBag.UpdateSuccessMsg != null)
+{ 
+     <script>
+         DisplayNotification("@ViewBag.UpdateSuccessMsg", "success");
+                </script>
+}
+
+@if (ViewBag.DeleteFailMsg != null)
+{ 
+    <script>
+        DisplayNotification("@ViewBag.DeleteFailMsg", "error");
+                </script>
+}
+
+@if (ViewBag.ADDFailMsg != null)
+{ 
+     <script>
+         DisplayNotification("@ViewBag.ADDFailMsg", "error");
+                </script>
+}
+
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+            @if (ViewBag.Edit == "EditLegalDetails")
+            {
+                <div id="editContent">
+                    Html.RenderAction("EditLegalDetails", "Parts_Master");
+                            @*@Html.Partial("_EditPartsDetails",new ElectricEase.Models.EditParts_DetailsInfo())*@
+                </div>
+            }
+            else
+            {
+                @Html.Partial("_AddLegalDetails", new ElectricEase.Models.Legal_DetailsInfo())
+            }
+
+
+        </div>
+
+    </div>

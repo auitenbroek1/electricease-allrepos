@@ -1,0 +1,2980 @@
+﻿@{
+    ViewBag.Title = "JobsIndex";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<input type="hidden" id="hdnjobid" value="@TempData["jobid"]" />
+<input type="hidden" id="hdnformtimout" value="@FormsAuthentication.Timeout.Duration()" />
+<input type="hidden" id="hdnsessiontimout" value="@Session.Timeout" />
+
+<script src="https://unpkg.com/vue@next"></script>
+
+<script>
+    var allfiles = new Array();
+    var previousid = 0;
+    var legalpopselected = [];
+    var laborpopselected = [];
+    var partsselectedpart = [];
+    var assemblySelectedParts = [];
+    var selectedAssemblies = [];
+    var isloaded = false;
+    $(document).ready(function () {
+
+        $('li').removeClass('active');
+        $("#addjobdetails").addClass('active');
+
+        $(".content-title").text("Create Job");
+
+
+
+        //$(window).unload(function () {
+        //    Cookies.set('Jobsearch', '');
+        //    //Cookies.set("assemfilter", '');
+        //});
+
+        //var partsDeleteList[] = "";
+    });
+
+
+
+    $(function () {
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/JobMaster.pdf");
+    })
+    $(document).ready(function () {
+        //var loc = window.location.search;
+        //if (loc.indexOf('reload') > -1) {
+        //    loc = loc.split('&');
+        //    loc = loc[1].split('=');
+        //    loc = loc[1];
+        //    if (loc == "true" || loc == true) {
+        //        window.location.reload(true);
+        //    }
+        //}
+        $("button").click(function () {
+            $("p").slideToggle();
+
+        });
+        if ($('#hdnjobid').val() != "0" && $('#hdnjobid').val() != "") {
+            $('#JobAddbtn').text('Update');
+            $('#Reset').text('New');
+        }
+        else {
+            $('#JobAddbtn').text('Add');
+        }
+        GetJobInfo($('#hdnjobid').val());
+        //GetAttachmentInfo($('#hdnjobid').val());
+        //saveparts($('#hdnjobid').val());
+        //getassemblyList();
+    });
+
+    function GetJobInfo(val) {
+        $.ajax({
+            url: '../Job/JobInfo?JobID=' + val,
+            type: 'GET',
+            success: function (data) {
+                $('#divJobDetailsinfo').html(data);
+                if (val != "") {
+                    GetJobEventList(val);
+                }
+                GetAssemblies("", $('#hdnjobid').val());
+                saveparts();
+                saveDje();
+                saveLabor();
+                saveLegal();
+                GetAttachmentInfo($('#hdnjobid').val());
+                DJEandVQ();
+                estimatevalues();
+
+            },
+            error: function (err) {
+                //alert("Error");
+            }
+        });
+    }
+    function GetAttachmentInfo(val) {
+        $.ajax({
+            url: '../Job/AttachmentInfo?JobID=' + val,
+            type: 'GET',
+            success: function (data) {
+                $('#divAttachment').html(data);
+            },
+            error: function (err) {
+
+                //alert("Error");
+            }
+        });
+    }
+    function saveDje() {
+
+        var lstpart = "";
+        var JobID = $('#Job_ID').val();
+        var JobDJE = new Array();
+        var DJEtbbody = $('#estimatebody');
+
+        $.ajax({
+            url: '../Job/GetDjeDetails?JobID=' + JobID,
+            type: 'GET',
+            success: function (data) {
+                if (data != null && data.length > 0) {
+                    for (i = 0; i < data.length; i++) {
+
+                        var bindbody = "<tr>";
+                        var expense = data[i].Expense == null ? "" : data[i].Expense;
+                        bindbody += "<td><input type='text' name='Expense' maxlength='100' class='form-control' id='Expense' value='" + expense + "'> </td>";
+                        var VendorName = data[i].Vendor_Name == null ? "" : data[i].Vendor_Name;
+                        bindbody += "<td><input type='text' name='NameOfVendor' maxlength='50' class='form-control' id='Dje_NameOfVendor' value='" + VendorName + "'> </td>";
+                        var cost = data[i].Cost == null ? "0" : data[i].Cost;
+                        bindbody += "<td><input type='text' name='txtDJECost' class='form-control' id='Dje_Cost_" + i + "_0' style='text-align:right' onkeyup='checknum(this);Resaletotal(this)' value='" + Number(cost).toFixed(2) + "'> </td>";
+                        var profit = data[i].Profit == null ? "0" : data[i].Profit;
+                        bindbody += "<td><input type='text' name='txtDJEProfit' class='form-control' id='Dje_Profit_" + i + "_1' style='text-align:right' onkeyup='checknum(this);Resaletotal(this)' value='" + Number(profit).toFixed(2) + "'></td>";
+                        bindbody += "<td style='width: 10%;'><select class='form-control' name='Job_DJE_VQ_Status' id='Dje_Select_" + i + "_2' onchange='Resaletotal()'  ><option value=''>Select</option><option value='DJE'>DJE</option><option value='VQ'>VQ</option></select></td>";
+                        var rcost = data[i].Resale_Total == null ? "0" : data[i].Resale_Total;
+                        bindbody += "<td><input type='text' name='ResaleTotle' class='form-control' id='Dje_ResaleTotal_" + i + "_3' style='text-align:right' value='" + Number(rcost).toFixed(2) + "' disabled> </td>";
+                        bindbody += "<td style='display:none;'><input type=text name='StatusId' id='StatusId' value='" + data[i].Status_ID + "'></td>"
+                        bindbody += "<td><img src='../Images/delete-photo.png' style='cursor:pointer;margin-right:2px' data-row='" + i + "' data-dje='" + data[i].Status_ID + "' title='delete Dje' alt='delete'  onclick='deleteDJEVQ(" + data[i].Status_ID + ");'></td>";
+                        bindbody += "</tr>";
+                        DJEtbbody.append(bindbody);
+                        $('#Dje_Select_' + i + '_2').val(data[i].Job_DJE_VQ_Status);
+                        //   $('#Dje_total').val(data[i].DJE_Total);
+                        // $('#VQ_total').val(data[i].VQ_Total);
+                    }
+                    Resaletotal();
+                    setRegexValidations();
+                }
+            },
+            error: function (err) { }
+        });
+
+
+    }
+
+    function LaborListInPopUp() {
+
+        // alert("popup");
+        laborpopselected = [];
+        var JobID = $('#Job_ID').val();
+        var lstpartnum = "";
+        // var tablRows = $('#Laborbody tr')
+        var tablRows = $('#Laborbody tr')
+        i = 0;
+
+        if (tablRows.length > 0) {
+            ;
+            $('#Laborbody tr ').each(function () {
+                ;
+
+                var customerId = $(this).find("#LaborerName").text();
+                lstpartnum += customerId.trim() + ",";
+                laborpopselected.push(customerId.trim());
+                //alert(lstpartnum);
+
+            });
+        }
+
+        $.ajax({
+            url: '../Job/GetallLaborList?JobID=' + JobID + "&lstparts=" + lstpartnum,
+            type: 'Get',
+            success: function (data) {
+                $('#divLabordata').html(data);
+                $('#Laboropenpopup').click();
+                $('#Labortable').find("input:checkbox").each(function () {
+
+                    if (this.checked == true) {
+                        i++
+                    }
+                    var tablerowlength = $("#LaborBody tr").length;
+                    if (tablerowlength == i) {
+                        document.getElementById("laborselectall").checked = true;
+                    }
+                });
+            },
+            error: function (err) {
+            }
+        });
+    }
+    function PartsListInPopUp() {
+
+        $("#Loading").show();
+        partsselectedpart = [];
+        var JobID = $('#Job_ID').val();
+        var lstpartnum = "";
+        var tablRows = $('#partstbody tr')
+        // var tablRows = $('#partstbody tr')
+        i = 0;
+
+        if (tablRows.length > 0) {
+            $('#partstbody tr ').each(function () {
+                var parno = $(this).find("#partnumber").text();
+                lstpartnum += parno.trim() + ",";
+                partsselectedpart.push(parno.trim());
+                //alert(lstpartnum);
+            });
+        }
+
+        $.ajax({
+            url: '../Job/GetallPartsList',
+            data: { lstparts: lstpartnum, JobID: JobID },
+            type: 'POST',
+            success: function (data) {
+                $("#Loading").show();
+                $('#divpartsdata').html(data);
+                $('#openpopup').click();
+                //if (data != null)
+
+                var rows_selected = [];
+                //
+                //$("#partstable").dataTable();
+
+                //$('#partstable').find("input:checkbox").each(function () {
+
+                //    if (this.checked == true) {
+                //        i++
+                //    }
+                //    var tablerowlength = $("#showpartsbody tr").length;
+                //    if (tablerowlength == i) {
+                //        document.getElementById("partsselectall").checked = true;
+                //    }
+                //});
+            },
+            error: function (err) {
+                $("#Loading").show();
+            }
+        });
+    }
+
+    function getallpartslisthtml(data) {
+        var htmllist = '<div class="table-resposive" style="max-height: 500px;overflow-y:auto">';
+        htmllist += '<table class="table" id="partstable">';
+        htmllist += '<thead><tr>';
+        htmllist += '<th style="width:10%">';
+        htmllist += '<input type="checkbox" value="selectall" id="partsselectall" onchange="selectall(this);" />Select All';
+        htmllist += '</th>';
+        htmllist += '<th>Part Category</th><th style="width:250px">Description</th><th>Part Number</th><th>My Cost</th><th>Resale</th></tr>';
+        htmllist += '</thead>';
+        htmllist += '<tbody id="showpartsbody">';
+        for (var m = 0; m < data.length; m++) {
+            htmllist += '<tr onclick="Partsselectrow(this);" style="cursor:pointer">';
+            htmllist += '<td>';
+            if (data[m].isChekced == true) {
+                htmllist += '<input type="checkbox" id="' + data[m].Part_Number + '" data-id="' + data[m].Client_ID + '" onclick="Partsselectrow(this);" value="' + data[m].Part_Number + '" checked="checked" />';
+            }
+            else {
+                htmllist += '<input type="checkbox" id="' + data[m].Part_Number + '" data-id="' + data[m].Client_ID + '" onclick="Partsselectrow(this);" value="' + data[m].Part_Number + '" />';
+            }
+            htmllist += '</td>';
+            htmllist += '<td>';
+            htmllist += data[m].Part_Category;
+            htmllist += '</td>';
+            htmllist += '<td>';
+            var desc = "";
+            if (data[m].Description == null)
+                desc = "";
+            else
+                desc = data[m].Description;
+            if (desc.Length > 100) {
+                desc = desc.substring(0, 50) + "...";
+            }
+            htmllist += '<span>' + desc + '</span>';
+            htmllist += +'</td>';
+            htmllist += '<td>';
+            htmllist += data[m].Part_Number;
+            htmllist += '</td>';
+            htmllist += '<td>';
+            htmllist += data[m].Cost;
+            htmllist += '</td>';
+            htmllist += '<td>';
+            htmllist += data[m].Resale_Cost;
+            htmllist += '</td>';
+            htmllist += '</tr>';
+        }
+        htmllist += '</tbody>';
+        htmllist += '</table>';
+        htmllist += '</div>';
+        htmllist += '<div class="row" style="margin:1%">';
+        htmllist += '<div class="row-fluid">';
+
+        htmllist += '<div class="pull-right popup-btn">';
+        htmllist += '<button type="button" value="Submit" class="btn btn-flat btn-primary btn-sm" id="submit" onclick="saveparts(\'selected\');" tabindex="10">Submit</button>';
+        htmllist += '</div>';
+        htmllist += '</div>';
+        htmllist += '</div>';
+        return htmllist;
+    }
+    function LegalListInPopUp() {
+
+        var JobID = $('#Job_ID').val();
+        var lstpartnum = "";
+        var tablRows = $('#LegalTable tr')
+        //var tablRows = $('#LegalTable tr')
+        legalpopselected = [];
+        i = 0;
+        if (tablRows.length > 0) {
+
+            $('#LegalTable tr ').each(function () {
+                var legalid = $(this).find("#LegalID").html();
+                if (typeof legalid != 'undefined') {
+                    lstpartnum += legalid.trim() + ",";
+                    legalpopselected.push(legalid.trim());
+                }
+                //alert(lstpartnum);
+
+            });
+        }
+
+        $.ajax({
+            url: '../Job/GetallLegalList?name=' + JobID + "&lstparts=" + lstpartnum,
+            type: 'Get',
+            success: function (data) {
+
+                $('#divLegaldata').html(data);
+                $('#Legalopenpopup').click();
+                $('#Legaltable').find("input:checkbox").each(function () {
+
+                    if (this.checked == true) {
+                        i++
+                    }
+                    var tablerowlength = $("#showLegalbody tr").length;
+                    if (tablerowlength == i) {
+                        document.getElementById("legalselectall").checked = true;
+                    }
+                });
+
+            },
+            error: function (err) {
+            }
+        });
+
+    }
+    var showpreview = "";
+    function PreviewPopUp() {
+        showpreview = "SOW";
+        var SowData = $('#Doing_What').val();
+        $('#sowhead').text("Preview Scope Of Work");
+        $('#divPreviewdata').val(SowData);
+        var s = $('#divPreviewdata');
+        $('#Previewopenpopup').click();
+    }
+    function PreviewSowInPopUp() {
+        showpreview = "SOW";
+        var SowData = $('#Doing_What').val();
+        $.ajax({
+            url: '../Job/GetPreviousSOWInfo',
+            type: "Get",
+            success: function (data) {
+                $('#previoushead').text('Previous Scope of Work');
+                $('#newdivSowPreviousdata').html(data);
+                $('#newSowopenpopup').click();
+                $('#newtxtpreview').val($('#Doing_What').val());
+            },
+            error: function (err) { }
+
+        });
+    }
+    function PreviewKeyUp(val) {
+        if (showpreview == "JobDesc")
+            $('#Job_Description').val($(val).val());
+        else if (showpreview == "SOW")
+            $('#Doing_What').val($(val).val());
+        else if (showpreview == "Direction")
+            $('#Directions_To').val($(val).val());
+    }
+    function SaveSOW() {
+        var SelectedSOW = $("#txtpreview").val();
+        if (showpreview == "JobDesc")
+            $('#Job_Description').val(SelectedSOW);
+        else if (showpreview == "SOW")
+            $('#Doing_What').val(SelectedSOW);
+        else if (showpreview == "Direction")
+            $('#Directions_To').val(SelectedSOW);
+        $("#SowPreviouspopupclose").click();
+
+    }
+    function NewSaveSOW() {
+        $('#Doing_What').val($("#newtxtpreview").val());
+        $("#newSowPreviouspopupclose").click();
+    }
+    function AssembliesListInPopUp() {
+
+        //To clear the existing list
+        selectedAssemblies = [];
+
+        var JobID = $('#Job_ID').val();
+        var lstAsName = "";
+        i = 0;
+        var assembliesest = $('#Assembliesbody tr.accordion-toggle');
+        for (var a = 0; a < assembliesest.length; a++) {
+            var assemblyname = assembliesest[a].cells[0].innerText.trim();
+            assemblyname = assemblyname.replaceAll(",", "{{{comma}}}")
+            assemblyname = assemblyname.replaceAll("#", "{{{hash}}}");
+            console.log('412', assemblyname);
+            lstAsName += assemblyname.trim() + ",";
+        }
+
+        $.ajax({
+            url: '../Job/GetallAssembliesList?name=' + JobID + "&lstAsName=" + encodeURI(lstAsName),
+            type: 'Get',
+            success: function (data) {
+
+                $('#divAssembliesdata').html(data);
+                $('#Assembliesopenpopup').click();
+
+            },
+            error: function (err) {
+            }
+        });
+    }
+
+    //here saveparts in partstable
+    function saveparts(val) {
+        var lstpart = "";
+        var selectedStatus = "";
+        selectedStatus = val;
+        var JobID = $('#Job_ID').val();
+
+        if (partsselectedpart != null && partsselectedpart.length > 0) {
+            for (var p = 0; p < partsselectedpart.length; p++) {
+                if (lstpart == "")
+                    lstpart += partsselectedpart[p];
+                else
+                    lstpart += "," + partsselectedpart[p];
+            }
+        }
+
+        var partstblRows = $('#partstbody tr');
+        var oldPartsData = new Array();
+        if (partstblRows.length > 0) {
+
+            var txtLaborUnit = $(partstblRows).find("[name='txtLaborUnit']");
+
+            for (var i = 0; i < partstblRows.length; i++) {
+                oldPartsData.push({
+                    'Part_Number': $(partstblRows[i]).find('#partnumber').text().trim(),
+                    'Description': $(partstblRows[i]).find('#Description').text().trim(),
+                    'Part_Cost': $(partstblRows).find('#' + "P_" + i + "_0").val(),
+                    'Resale_Cost': $(partstblRows).find('#' + "P_" + i + "_1").val(),
+                    'Estimated_Qty': $(partstblRows).find('#' + "P_" + i + "_2").val(),
+                    'Actual_Qty': $(partstblRows).find('#' + "P_" + i + "_3").val(),
+                    'Expected_Total': $(partstblRows).find('#' + "P_" + i + "_4").val(),
+                    'Estimated_Total': $(partstblRows).find('#' + "P_" + i + "_5").val(),
+                    'Actual_Total': $(partstblRows).find('#' + "P_" + i + "_6").val(),
+                    'LaborUnit': $(partstblRows).find('#' + "P_" + i + "_102").val()
+                });
+
+            }
+        }
+        $.ajax({
+            url: '../Job/SelectedPartsInfo',
+            data: { lstparts: lstpart, JobID: JobID, SelectedPartsStatus: selectedStatus },
+            type: 'POST',
+            success: function (data) {
+                var keyupid = "";
+                var partsGrandcost = 0.00;
+                var partsGrandResale = 0.00;
+                var partsGrandActual = 0.00;
+                var partsGrandEstCost = 0.00;
+                if (data.NewPartsListInJob != null && data.NewPartsListInJob.length > 0) {
+                    var partsbody = "";
+                    var isoldpart = 0;
+
+                    for (var i = 0; i < data.NewPartsListInJob.length; i++) {
+                        isoldpart = 0;
+                        for (var j = 0; j < oldPartsData.length; j++) {
+                            if (data.NewPartsListInJob[i].Part_Number == oldPartsData[j].Part_Number) {
+
+                                partsbody += '<tr>';
+                                partsbody += '<td id="partnumber">';
+                                partsbody += '';
+                                partsbody += oldPartsData[j].Part_Number;
+                                partsbody += '</td>';
+                                partsbody += '<td id="Description">';
+                                partsbody += oldPartsData[j].Description;
+                                partsbody += '</td><td>';
+
+                                //Cost
+                                pid = "P_" + i + "_0";
+                                partsbody += '<input type="text" name="txtJobPartsCost" class="form-control" value="' + oldPartsData[j].Part_Cost + '" onkeyup="checknum(this);calculatepartscost(this);" id="' + pid + '" style="text-align: right" />';
+                                partsbody += '</td><td>';
+
+                                //ResaleCost
+                                pid = "P_" + i + "_1";
+                                partsbody += '<input type="text" name="txtJobPartsResaleCost" class="form-control"  value="' + oldPartsData[j].Resale_Cost + '" onkeyup="checknum(this);calculatepartscost(this);"  id="' + pid + '" style="text-align: right"/>';
+                                partsbody += '</td><td>';
+
+                                //LaborUnit
+                                pid = "P_" + i + "_102";
+                                partsbody += '<input type="text" name="txtJobPartsLaborUnit" class="form-control"  value="' + oldPartsData[j].LaborUnit + '" onkeyup="checknum(this);calculatepartscost(this);"  id="' + pid + '" style="text-align: right"/>';
+                                partsbody += '</td><td>';
+
+                                //Est.Qty
+                                pid = "P_" + i + "_2";
+                                partsbody += '<input type="text" name="txtJobPartsEstQty" class="form-control" value="' + oldPartsData[j].Estimated_Qty + '"  onkeyup="checknum(this);calculatepartscost(this);" id="' + pid + '" style="text-align: right" />';
+                                partsbody += '</td><td>';
+
+                                //Actual.Qty
+                                pid = "P_" + i + "_3";
+                                keyupid = pid;
+                                var Actual_Qty = oldPartsData[j].Actual_Qty == 0 ? "" : oldPartsData[j].Actual_Qty;
+                                partsbody += '<input type="text" name="txtJobPartsActualQty" class="form-control"  value="' + Actual_Qty + '" onkeyup="checknum(this);calculatepartscost(this);"  id="' + pid + '" style="text-align: right" />';
+                                partsbody += '</td><td>';
+
+                                pid = "P_" + i + "_4";
+                                var ExpectedTotal = oldPartsData[j].Expected_Total == 0 ? "" : oldPartsData[j].Expected_Total;
+                                if (oldPartsData[j].Expected_Total == null)
+                                    ExpectedTotal = "";
+                                partsGrandcost = Number(partsGrandcost) + Number(ExpectedTotal);
+                                partsbody += '<input type="text"  class="form-control" value="' + ExpectedTotal + '" disabled name="EstCost_Total" id="' + pid + '"  style="text-align: right"/>';
+                                partsbody += '</td><td>';
+                                pid = "P_" + i + "_5";
+                                var EstimatedTotal = oldPartsData[j].Estimated_Total == 0 ? "" : oldPartsData[j].Estimated_Total;
+                                if (oldPartsData[j].Estimated_Total == null)
+                                    EstimatedTotal = "";
+                                partsGrandResale = Number(partsGrandResale) + Number(EstimatedTotal);
+
+                                //Estimate Resale Cost Total
+                                partsbody += '<input type="text" class="form-control"  value="' + EstimatedTotal + '" disabled id="' + pid + '" name="EstResaleCost" style="text-align: right" />';
+                                //if (JobID == "" || JobID == "0")
+                                //    partsbody += '</td><td hidden>';
+                                //else
+                                //    partsbody += '</td><td>';
+                                partsbody += '</td><td>';
+                                pid = "P_" + i + "_6";
+                                var ActualTotal = oldPartsData[j].Actual_Total == 0 ? oldPartsData[j].Estimated_Total : oldPartsData[j].Actual_Total;
+                                if (oldPartsData[j].Actual_Total == null)
+                                    ActualTotal = "";
+                                partsGrandActual = Number(partsGrandResale) + Number(ActualTotal);
+                                partsbody += '<input type="text" class="form-control"  value="' + ActualTotal + '" disabled id="' + pid + '" style="text-align: right" />';
+                                if (JobID == "" || JobID == "0")
+                                    partsbody += '</td><td hidden>';
+                                else
+                                    partsbody += '</td><td>';
+                                pid = "P_" + i + "_7";
+                                var difftotal = EstimatedTotal - ActualTotal;
+                                partsbody += '<input type="text" class="form-control diff-color"  value="' + difftotal + '" disabled id="' + pid + '" style="text-align: right" />';
+                                pid = "P_" + i + "_8";
+                                var estcost = Number(oldPartsData[j].Part_Cost) * Number(oldPartsData[j].Estimated_Qty)
+                                partsGrandEstCost = Number(partsGrandEstCost) + Number(estcost);
+                                partsbody += '</td><td hidden><input type="text" class="form-control diff-color"  value="' + estcost + '" disabled id="' + pid + '" style="text-align: right" /></td>';
+                                partsbody += '<td><img src="../Images/delete-photo.png" style="cursor:pointer;margin-right:2px"  data-parts="' + oldPartsData[j].Part_Number + '"  title="delete parts" alt="delete" onclick="deletepart(\'' + oldPartsData[j].Part_Number + '\',this)" /></td>'
+                                partsbody += '</tr>';
+                                isoldpart = Number(isoldpart) + Number(1);
+                            }
+                        }
+                        if (isoldpart == 0) {
+
+                            partsbody += '<tr>';
+                            partsbody += '<td id="partnumber">';
+                            partsbody += '';
+                            partsbody += data.NewPartsListInJob[i].Part_Number;
+                            partsbody += '</td>';
+                            partsbody += '<td id="Description">';
+                            if (data.NewPartsListInJob[i].Description == null) {
+                                partsbody += "";
+                            }
+                            else {
+                                partsbody += data.NewPartsListInJob[i].Description;
+                            }
+
+                            partsbody += '</td><td>';
+
+                            //Cost
+                            pid = "P_" + i + "_0";
+                            partsbody += '<input type="text" name="txtJobPartsCost" class="form-control" value="' + data.NewPartsListInJob[i].Part_Cost + '" onkeyup="calculatepartscost(this);" id="' + pid + '" style="text-align: right" />';
+                            partsbody += '</td><td>';
+
+                            //Resale Cost
+                            pid = "P_" + i + "_1";
+                            partsbody += '<input type="text" name="txtJobPartsResaleCost" class="form-control"  value="' + data.NewPartsListInJob[i].Resale_Cost + '" onkeyup="calculatepartscost(this);"  id="' + pid + '" style="text-align: right"/>';
+                            partsbody += '</td><td>';
+
+                            //LaborUnit
+                            pid = "P_" + i + "_102";
+                            partsbody += '<input type="text" name="txtJobPartsLaborUnit" class="form-control"  value="' + data.NewPartsListInJob[i].LaborUnit + '" onkeyup="calculatepartscost(this);"  id="' + pid + '" style="text-align: right"/>';
+                            partsbody += '</td><td>';
+
+                            //Est.Qty
+                            pid = "P_" + i + "_2";
+                            partsbody += '<input type="text" name="txtJobPartsEstQty" class="form-control" value="' + data.NewPartsListInJob[i].Estimated_Qty + '" onkeyup="calculatepartscost(this);" id="' + pid + '" style="text-align: right" />';
+                            partsbody += '</td><td>';
+
+                            //Actual Qty
+                            pid = "P_" + i + "_3";
+                            keyupid = pid;
+                            var Actual_Qty = data.NewPartsListInJob[i].Actual_Qty == 0 ? "" : data.NewPartsListInJob[i].Actual_Qty;
+                            partsbody += '<input type="text" name="txtJobPartsActualQty" class="form-control"  value="' + Actual_Qty + '" onkeyup="calculatepartscost(this);"  id="' + pid + '" style="text-align: right" />';
+                            partsbody += '</td><td>';
+
+                            pid = "P_" + i + "_4";
+                            var ExpectedTotal = data.NewPartsListInJob[i].Expected_Total == 0 ? "" : data.NewPartsListInJob[i].Expected_Total;
+                            if (data.NewPartsListInJob[i].Expected_Total == null)
+                                ExpectedTotal = "";
+                            partsGrandcost = Number(partsGrandcost) + Number(ExpectedTotal);
+                            partsbody += '<input type="text"  class="form-control " value="' + ExpectedTotal + '" disabled name="EstCost_Total" id="' + pid + '"  style="text-align: right"/>';
+                            partsbody += '</td><td>';
+                            pid = "P_" + i + "_5";
+
+                            //Estimate Resale Cost Total
+                            var EstimatedTotal = data.NewPartsListInJob[i].Estimated_Total == 0 ? "" : data.NewPartsListInJob[i].Estimated_Total;
+                            if (data.NewPartsListInJob[i].Estimated_Total == null)
+                                EstimatedTotal = "";
+                            partsGrandResale = Number(partsGrandResale) + Number(EstimatedTotal);
+                            partsbody += '<input type="text" class="form-control "  value="' + EstimatedTotal + '" disabled id="' + pid + '" name="EstResaleCost" style="text-align: right" />';
+                            //if (JobID == "" || JobID == "0")
+                            //    partsbody += '</td><td hidden>';
+                            //else
+                            //    partsbody += '</td><td>';
+                            partsbody += '</td><td>';
+                            pid = "P_" + i + "_6";
+                            var ActualTotal = data.NewPartsListInJob[i].Actual_Total == 0 ? data.NewPartsListInJob[i].Estimated_Total : data.NewPartsListInJob[i].Actual_Total;
+                            if (data.NewPartsListInJob[i].Actual_Total == null)
+                                ActualTotal = "";
+                            partsGrandActual = Number(partsGrandResale) + Number(ActualTotal);
+                            partsbody += '<input type="text" class="form-control "  value="' + ActualTotal + '" disabled id="' + pid + '" style="text-align: right" />';
+                            if (JobID == "" || JobID == "0")
+                                partsbody += '</td><td hidden>';
+                            else
+                                partsbody += '</td><td>';
+                            pid = "P_" + i + "_7";
+                            var difftotal = EstimatedTotal - ActualTotal;
+                            partsbody += '<input type="text" class="form-control diff-color"  value="' + difftotal + '" disabled id="' + pid + '" style="text-align: right" />';
+                            pid = "P_" + i + "_8";
+                            var estcost = Number(data.NewPartsListInJob[i].Part_Cost) * Number(data.NewPartsListInJob[i].Estimated_Qty)
+                            partsGrandEstCost = Number(partsGrandEstCost) + Number(estcost);
+                            partsbody += '</td><td hidden><input type="text" class="form-control diff-color"  value="' + estcost + '" disabled id="' + pid + '" style="text-align: right" /></td>';
+                            partsbody += '<td><img src="../Images/delete-photo.png" style="cursor:pointer;margin-right:2px"  data-parts="' + data.NewPartsListInJob[i].Part_Number + '"  title="delete parts" alt="delete" onclick="deletepart(\'' + data.NewPartsListInJob[i].Part_Number + '\',this)" /></td>'
+                            partsbody += '</tr>';
+                        }
+                    }
+                }
+                else {
+
+                    partsbody = "";
+                    $('#NormalPartsTotal').html("");
+                }
+
+                $('#partstbody').html(partsbody);
+                if (data.NewPartsListInJob.length > 0) {
+
+                    var newpartstotal = "<tr>";
+                    newpartstotal += '<th colspan="7" class="Estimate-Footer"> Grand Total';
+                    //if (JobID == "" || JobID == "0")
+                    //    newpartstotal += '</th><th hidden>';
+                    //else
+                    //    newpartstotal += '</th><th>';
+
+                    newpartstotal += '</th><th>';
+                    newpartstotal += '<input type="text" id="Parts_GrandExpTotal" class = "form-control Estimate-FooterValue" value="' + (partsGrandcost.toFixed(2)) + '" disabled style="text-align:right" />';
+                    newpartstotal += '</th><th>';
+                    newpartstotal += '<input type="text" id="Parts_GrandEstTotal" class = "form-control Estimate-FooterValue" value="' + (partsGrandResale.toFixed(2)) + '" disabled style="text-align:right" />';
+                    //if (JobID == "" || JobID == "0")
+                    //    newpartstotal += '</th><th hidden>';
+                    //else
+                    //    newpartstotal += '</th><th>';
+                    newpartstotal += '</th><th>';
+                    newpartstotal += '<input type="text" id="Parts_GrandActTotal" class = "form-control Estimate-FooterValue" value="' + (partsGrandActual.toFixed(2)) + '" disabled style="text-align:right" />';
+                    newpartstotal += '</th><th hidden><input type="text" id="Parts_GrandEstCostTotal" class = "form-control Estimate-FooterValue" value="' + (partsGrandEstCost.toFixed(2)) + '" disabled style="text-align:right" />';
+                    newpartstotal += '</th></tr>';
+                    $('#NormalPartsTotal').html(newpartstotal);
+                    if (keyupid != "") {
+                        $('#' + keyupid).keyup();
+                    }
+                }
+                //$('#popupclose').click();
+
+
+                PartsTotal();
+                CalculateEstimateONE();
+                CalculateEstimateTWO();
+                estimatevalues();
+                setRegexValidations();
+            },
+            error: function (err) {
+                //alert("Error");
+            }
+        });
+    }
+    function deletepart(partsid, val) {
+        if (confirm("Are you sure, do you want to remove this part?")) {
+            if (partsselectedpart != null && partsselectedpart.length > 0) {
+                if (partsselectedpart.indexOf(partsid) > -1) {
+                    partsselectedpart.splice(partsselectedpart.indexOf(partsid), 1);
+                }
+            }
+            if ($('#Job_ID').val() != "0") {
+                var partstblRows = $('#JobPartsBody tr');
+                var oldPartsData = new Array();
+                if (partstblRows.length > 0) {
+                    for (var i = 0; i < partstblRows.length; i++) {
+                        if ($(partstblRows[i]).find('#partnumber').text().trim() != partsid) {
+                            oldPartsData.push({
+                                'Part_Number': $(partstblRows[i]).find('#partnumber').text().trim(),
+                                'Description': $(partstblRows[i]).find('#Description').text().trim(),
+                                'Part_Cost': $(partstblRows).find('#' + "P_" + i + "_0").val(),
+                                'Resale_Cost': $(partstblRows).find('#' + "P_" + i + "_1").val(),
+                                'Estimated_Qty': $(partstblRows).find('#' + "P_" + i + "_2").val(),
+                                'Actual_Qty': $(partstblRows).find('#' + "P_" + i + "_3").val(),
+                                'Expected_Total': $(partstblRows).find('#' + "P_" + i + "_4").val(),
+                                'Estimated_Total': $(partstblRows).find('#' + "P_" + i + "_5").val(),
+                                'Actual_Total': $(partstblRows).find('#' + "P_" + i + "_6").val(),
+                            });
+                        }
+                    }
+                }
+                $.ajax({
+                    url: '../Job/deletejobparts?JobId=' + $('#Job_ID').val() + "&PartId=" + partsid,
+                    type: 'GET',
+                    success: function (data) {
+                        if (data == "success") {
+                            DisplayNotification("“Part” has been removed successfully.", "success");
+                            //$($($(val)[0].parentElement)[0].parentElement).remove();
+                            saveparts();
+                        }
+                        else
+                            DisplayNotification(data, "error");
+                    },
+                    error: function (err) {
+                    }
+                });
+            }
+            else {
+                //$($($(val)[0].parentElement)[0].parentElement).remove();
+                saveparts();
+            }
+        }
+    }
+    var selectedrow = "";
+    function saveassemblyparts(assemblyname) {
+        var lstpart = "";
+        var JobID = $('#Job_ID').val();
+
+        //$('#partstable').find("input:checkbox").each(function () {
+        //    if (this.checked == true && this.disabled == false) {
+        //        if (lstpart == "")
+        //            lstpart += this.id;
+        //        else
+        //            lstpart += "," + this.id;
+        //    }
+        //});
+
+        //To get all the selected parts in single string variable
+        if (assemblySelectedParts != null && assemblySelectedParts.length > 0) {
+            for (var p = 0; p < assemblySelectedParts.length; p++) {
+                if (lstpart == "")
+                    lstpart += assemblySelectedParts[p];
+                else
+                    lstpart += "," + assemblySelectedParts[p];
+            }
+        }
+
+
+
+        var nullpartsAsemblyname = $("#nullpartsassemblyname").val();
+
+        var assemblynameid = assemblyname;
+        if (assemblyname.indexOf(' ') > -1) {
+            assemblynameid = assemblynameid.replace(/ /g, "_");
+        }
+        var oldassemblyparts = new Array();
+        var assempartsrow = $('#' + selectedrow + ' #' + assemblynameid + "_partstbodyassem tr ");
+        var txtLaborUnit = $(assempartsrow).find("[name='txtLaborUnit']");
+
+
+        if (assempartsrow.length > 0) {
+            for (var p = 0; p < assempartsrow.length; p++) {
+                try {
+                    oldassemblyparts.push({
+                        'Part_Number': assempartsrow[p].cells[0].innerText.trim(),
+                        'Part_Category': assempartsrow[p].cells[1].innerText.trim(),
+                        'Part_Cost': assempartsrow[p].cells[2].children[0].value,
+                        'Resale_Cost': assempartsrow[p].cells[3].children[0].value,
+                        'Estimated_Qty': assempartsrow[p].cells[4].children[0].value,
+                        'LaborUnit': $(txtLaborUnit[p]).val(),
+                        'EstCost_Total': assempartsrow[p].cells[6].children[0].value,
+                        'EstResaleCost_Total': assempartsrow[p].cells[7].children[0].value,
+                        'Actual_Qty': assempartsrow[p].cells[8].children[0].value,
+                        'Actual_Total': assempartsrow[p].cells[9].children[0].value
+                    });
+                }
+                catch
+                {
+
+                }
+            }
+        }
+        $.ajax({
+            url: '../Job/SelectedAssemblyPartsInfo',
+            data: { lstparts: lstpart, JobID: JobID },
+            type: 'POST',
+            success: function (data) {
+
+                var tbody = $('#' + selectedrow + ' #' + assemblynameid + "_partstbody tr");
+                var newpartsrow = "";
+                var id = Number(tbody.length);
+                var partsarray = [];
+                $('#' + selectedrow + ' #' + assemblynameid + "_partstbody tr").find('#partnumber').each(function () {
+                    partsarray.push(this.innerText);
+                });
+                for (var i = 0; i < data.length; i++) {
+                    if (partsarray.indexOf(data[i].Part_Number) == -1) {
+                        var isoldassemparts = 0;
+                        for (var j = 0; j < oldassemblyparts.length; j++) {
+                            if (data[i].Part_Number == oldassemblyparts[j].Part_Number) {
+                                newpartsrow += '<tr>';
+                                newpartsrow += '<td id="partnumber">' + oldassemblyparts[j].Part_Number + '</td>';
+                                newpartsrow += '<td id="Part_Category">' + oldassemblyparts[j].Part_Category + '</td>';
+                                var itemid = assemblynameid + '_' + id + '_0';
+                                newpartsrow += '<td><input type="text" class="form-control" value="' + oldassemblyparts[j].Part_Cost + '" onkeyup="checknum(this);CalculateV2(this);" id="' + itemid + '" name="txtPartsCost" style="text-align: right"></td>';
+                                itemid = assemblynameid + '_' + id + '_1';
+                                newpartsrow += '<td><input type="text" class="form-control" value="' + oldassemblyparts[j].Resale_Cost + '" onkeyup="checknum(this);CalculateV2(this);" id="' + itemid + '" name="txtPartsResaleCost" style="text-align: right"></td>';
+                                itemid = assemblynameid + '_' + id + '_2';
+                                //Estimate Quantity
+                                newpartsrow += '<td><input type="text" name="TxtEstQty" class="form-control" onkeyup="checknum(this);ChangeActualV2(this);CalculateV2(this);" value="' + oldassemblyparts[j].Estimated_Qty + '"  id="' + itemid + '" style="text-align: right"></td>';
+
+                                //Labor Unit
+                                newpartsrow += '<td>'
+                                newpartsrow += '<input type="text" name="txtLaborUnit" class="form-control" value="' + oldassemblyparts[j].LaborUnit + '" onkeyup="CalculateV2(this);" style="text-align:right" />';
+                                //Calc Labor Unit
+                                newpartsrow += '<input type="hidden" name="txtCalcLaborUnit" class="form-control" />';
+                                newpartsrow += '<input type="hidden" name="hdnAssemblyName" class="form-control" value="' + assemblyname + '" />';
+                                newpartsrow += '</td>';
+
+                                itemid = assemblynameid + '_' + id + '_3';
+                                newpartsrow += '<td><input type="text" class="form-control" disabled name="EstCost_Total" value="' + oldassemblyparts[j].EstCost_Total + '"   id="' + itemid + '"  style="text-align: right"></td>';
+
+                                //Estimate Resale Cost Total
+                                itemid = assemblynameid + '_' + id + '_4';
+                                newpartsrow += '<td><input type="text" class="form-control" disabled="" value="' + oldassemblyparts[j].EstResaleCost_Total + '"   id="' + itemid + '" name="EstResaleCost" style="text-align: right"></td>';
+
+                                itemid = assemblynameid + '_' + id + '_5';
+
+                                newpartsrow += '<td>';
+                                newpartsrow += '<input type="text" class="form-control" readonly="true" onkeyup="checknum(this);CalculateV2(this);" value="' + oldassemblyparts[j].Actual_Qty + '"  id="' + itemid + '" name="txtActualQty" style="text-align: right"></td>';
+                                itemid = assemblynameid + '_' + id + '_6';
+                                //if (JobID == "" || JobID == "0")
+                                //    newpartsrow += '<td hidden>';
+                                //else
+                                //    newpartsrow += '<td>';
+                                newpartsrow += '<td>';
+                                newpartsrow += '<input type="text" class="form-control"  onkeyup="checknum(this);CalculateV2(this);" value="' + oldassemblyparts[j].Actual_Total + '"  disabled="" id="' + itemid + '" name="txtActualTotal" style="text-align: right"></td>';
+                                //Delete Icon
+                                newpartsrow += '<td><a href="#" class="remove-part"><span class="glyphicon glyphicon-trash"></span></a></td>';
+                                newpartsrow += '</tr>';
+                                isoldassemparts = Number(isoldassemparts) + Number(1);
+                            }
+                        }
+                        if (isoldassemparts == 0) {
+                            newpartsrow += '<tr>';
+                            newpartsrow += '<td id="partnumber">' + data[i].Part_Number + '</td>';
+                            newpartsrow += '<td id="PartDescription">' + data[i].PartDescription + '</td>';
+                            //newpartsrow += '<td id="Part_Category">' + data[i].Part_Category + '</td>';
+                            var itemid = assemblynameid + '_' + id + '_0';
+                            newpartsrow += '<td><input type="text" class="form-control" value="' + data[i].Part_Cost + '" onkeyup="checknum(this);CalculateV2(this);" id="' + itemid + '" name="txtPartsCost" style="text-align: right"></td>';
+                            itemid = assemblynameid + '_' + id + '_1';
+                            newpartsrow += '<td><input type="text" class="form-control" value="' + data[i].Resale_Cost + '" onkeyup="checknum(this);CalculateV2(this);" id="' + itemid + '" name="txtPartsResaleCost" style="text-align: right"></td>';
+                            itemid = assemblynameid + '_' + id + '_2';
+                            //Estimate Quantity
+                            newpartsrow += '<td><input type="text" name="TxtEstQty" class="form-control" onkeyup="checknum(this);ChangeActualV2(this);CalculateV2(this);"  id="' + itemid + '" style="text-align: right"></td>';
+
+                            //Labor Unit
+                            newpartsrow += '<td><input type="text" name="txtLaborUnit" class="form-control" value="' + data[i].LaborUnit + '" onkeyup="CalculateV2(this);" style="text-align:right" />';
+
+                            //Calc Labor Unit
+                            newpartsrow += '<input type="hidden" name="txtCalcLaborUnit" class="form-control" />';
+                            newpartsrow += '<input type="hidden" name="hdnAssemblyName" class="form-control" value="' + assemblyname + '" />';
+                            newpartsrow += '</td>';
+
+                            itemid = assemblynameid + '_' + id + '_3';
+                            newpartsrow += '<td><input type="text" class="form-control" disabled name="EstCost_Total" id="' + itemid + '" style="text-align: right"></td>';
+                            itemid = assemblynameid + '_' + id + '_4';
+
+                            //Estimate Resale Cost Total
+                            newpartsrow += '<td><input type="text" class="form-control" disabled="" id="' + itemid + '" name="EstResaleCost" style="text-align: right"></td>';
+                            itemid = assemblynameid + '_' + id + '_5';
+                            //if (JobID == "" || JobID == "0")
+                            //    newpartsrow += '<td hidden>';
+                            //else
+                            //    newpartsrow += '<td>';
+                            newpartsrow += '<td>';
+                            newpartsrow += '<input type="text" class="form-control" readonly="true"  onkeyup="checknum(this);CalculateV2(this);" id="' + itemid + '" name="txtActualQty" style="text-align: right"></td>';
+                            itemid = assemblynameid + '_' + id + '_6';
+                            //if (JobID == "" || JobID == "0")
+                            //    newpartsrow += '<td hidden>';
+                            //else
+                            //    newpartsrow += '<td>';
+                            newpartsrow += '<td>';
+                            newpartsrow += '<input type="text" class="form-control"  onkeyup="checknum(this);CalculateV2(this);" disabled="" id="' + itemid + '" name="txtActualTotal" style="text-align: right"></td>';
+                            newpartsrow += '<td><a href="#" class="remove-part"><span class="glyphicon glyphicon-trash"></span></a></td>';
+                            newpartsrow += '</tr>';
+                        }
+                        id = Number(id) + Number(1);
+                    }
+                }
+                $('#' + selectedrow + ' #' + assemblynameid + "_partstbodyassem").html(newpartsrow);
+                //calculatecost(assemblyname);
+                CalculateV2(assemblyname);
+                $('#JobAssemblyPartsPopupClose').click();
+
+                setRegexValidations();
+            },
+            error: function (err) {
+                // alert("Error");
+            }
+        });
+    }
+
+    function changeactual(val) {
+        if (val.value != "") {
+            var id = val.id.split("_");
+            var actID = "";
+            for (var i = 0; i < id.length - 1; i++) {
+                actID += id[i] + "_";
+            }
+            actID += "5";
+            $('#' + actID).val(val.value);
+        }
+        else {
+            $('#' + actID).val(0);
+        }
+    }
+    function saveLabor(val) {
+        var lstpart = "";
+
+        var JobID = $('#Job_ID').val();
+        var SelectedLaborStatus = "";
+        SelectedLaborStatus = val;
+        //
+        var selectedCount = 0;
+        //$('#Labortable').find("input:checkbox").each(function () {
+        //    if (this.checked == true) {
+        //        selectedCount++;
+        //        if (lstpart == "")
+        //            lstpart += this.id;
+        //        else
+        //            lstpart += "," + this.id;
+        //    }
+        //});
+
+        if (laborpopselected != null && laborpopselected.length > 0) {
+            for (var p = 0; p < laborpopselected.length; p++) {
+                if (lstpart == "")
+                    lstpart += laborpopselected[p];
+                else
+                    lstpart += "," + laborpopselected[p];
+            }
+        }
+        var labourtblRows = $('#Laborbody tr');
+        var oldlabour = null;
+        var oldLaborData = new Array();
+        if (labourtblRows.length > 0) {
+            for (var i = 0; i < labourtblRows.length; i++) {
+                oldLaborData.push({
+                    'Laborer_Name': $(labourtblRows[i]).find('#LaborerName').text().trim(),
+                    'Cost': $(labourtblRows).find('#' + "L_" + i + "_0").val(),
+                    'Resale_Cost': $(labourtblRows).find('#' + "L_" + i + "_1").val(),
+                    'Estimated_Hour': $(labourtblRows).find('#' + "L_" + i + "_2").val(),
+                    'Actual_Hours': $(labourtblRows).find('#' + "L_" + i + "_3").val(),
+                    'Expected_Total': $(labourtblRows).find('#' + "L_" + i + "_4").val(),
+                    'Estimated_Total': $(labourtblRows).find('#' + "L_" + i + "_4").val(),
+                    'Actual_Total': $(labourtblRows).find('#' + "L_" + i + "_4").val(),
+                });
+
+            }
+        }
+        $.ajax({
+            url: '../Job/SelectedLaborInfo',
+            data: { lstparts: lstpart, JobID: JobID, SelectedLaborStatus: SelectedLaborStatus },
+            type: 'POST',
+            success: function (data) {
+                if (data != null) {
+
+                    var labourGrandExpTotal = 0.00;
+                    var labourGrandEstTotal = 0.00;
+                    var labourGrandActTotal = 0.00;
+                    var labourGrandEstCostTotal = 0.00;
+                    var joblabour = "";
+                    var j = $('#Laborbody tr').length;
+                    for (var i = 0; i < data.NewLabourListInJob.length; i++) {
+
+                        var isavailable = 0;
+                        for (var j = 0; j < oldLaborData.length; j++) {
+                            if (data.NewLabourListInJob[i].Laborer_Name == oldLaborData[j].Laborer_Name) {
+                                joblabour += '<tr>';
+                                joblabour += ' <td id="LaborerName">';
+                                joblabour += '<img src="../Images/delete-photo.png" style="cursor:pointer;margin-right:2px"  data-parts="' + oldLaborData[j].Laborer_Name + '"  title="delete labour" alt="delete" onclick="deletelabour(\'' + oldLaborData[j].Laborer_Name + '\',this)" />';
+                                joblabour += oldLaborData[j].Laborer_Name;
+                                joblabour += '</td><td>';
+                                var pid = "L_" + i + "_0";
+                                joblabour += '<input type="text" name="txtLaborCost" class="form-control" value="' + oldLaborData[j].Cost + '" onkeyup="checknum(this);calculatelaborscost(this);" id="' + pid + '" style="text-align: right" />';
+                                joblabour += '</td><td>';
+                                pid = "L_" + i + "_1";
+                                joblabour += '<input type="text" name="txtLaborResaleCost" class="form-control"  value="' + oldLaborData[j].Resale_Cost + '" onkeyup="checknum(this);calculatelaborscost(this);"  id="' + pid + '" style="text-align: right" />';
+                                joblabour += '</td><td>';
+                                pid = "L_" + i + "_2";
+                                var EstimatedHour = oldLaborData[j].Estimated_Hour == 0 ? "" : oldLaborData[j].Estimated_Hour;
+                                joblabour += '<input type="text"  name="txtLaborEstimatedHours" class="form-control" value="' + EstimatedHour + '"  onkeyup="checknum(this);calculatelaborscost(this);" id="' + pid + '" style="text-align: right"/>';
+                                //if (JobID == "" || JobID == "0")
+                                //    joblabour += '</td><td hidden>';
+                                //else
+                                //    joblabour += '</td><td>';
+                                joblabour += '</td><td>';
+                                pid = "L_" + i + "_3";
+                                //var actualhrs = oldLaborData[j].Actual_Hours == 0 ? oldLaborData[j].Estimated_Hour : oldLaborData[j].Actual_Hours;
+                                var actualhrs = oldLaborData[j].Actual_Hours == 0 ? oldLaborData[j].Actual_Hours : oldLaborData[j].Actual_Hours;
+                                if (actualhrs == null)
+                                    actualhrs = "";
+                                joblabour += '<input type="text" name="txtLaborActualHours" class="form-control" value="' + actualhrs + '" onkeyup="checknum(this);calculatelaborscost(this);" name="Act_Hrs" id="' + pid + '"style="text-align: right" />';
+                                joblabour += '</td><td>';
+                                pid = "L_" + i + "_4";
+                                var ExpectedTotal = 0;
+                                ExpectedTotal = oldLaborData[j].Expected_Total;
+                                if (ExpectedTotal == null)
+                                    ExpectedTotal = "";
+                                labourGrandExpTotal = Number(labourGrandExpTotal) + Number(ExpectedTotal);
+                                joblabour += '<input type="text"  class="form-control" value="' + Number(ExpectedTotal).toFixed(2) + '" disabled name="EstCost_Total" id="' + pid + '" style="text-align: right" />';
+                                joblabour += '</td><td>';
+                                pid = "L_" + i + "_5";
+
+                                //Estimate Resale Cost Total
+                                var EstimatedTotal = oldLaborData[j].Estimated_Total == 0 ? "" : oldLaborData[j].Estimated_Total;
+                                if (EstimatedTotal == null)
+                                    EstimatedTotal = "";
+                                labourGrandEstTotal = Number(labourGrandEstTotal) + Number(EstimatedTotal);
+                                joblabour += '<input type="text" class="form-control"  value="' + EstimatedTotal + '" disabled id="' + pid + '" name="EstResaleCost" style="text-align: right" />';
+                                //if (JobID == "" || JobID == "0")
+                                //    joblabour += '</td><td hidden>';
+                                //else
+                                //    joblabour += '</td><td>';
+                                joblabour += '</td><td>';
+                                pid = "L_" + i + "_6";
+                                var ActualTotal = oldLaborData[j].Actual_Total == 0 ? oldLaborData[j].Estimated_Total : oldLaborData[j].Actual_Total;
+                                if (ActualTotal == null)
+                                    ActualTotal = EstimatedTotal;
+                                labourGrandActTotal = Number(labourGrandActTotal) + Number(ActualTotal);
+                                joblabour += '<input type="text" class="form-control"  value="' + Number(ActualTotal).toFixed + '" disabled id="' + pid + '" style="text-align: right" />';
+                                if (JobID == "" || JobID == "0")
+                                    joblabour += '</td><td hidden>';
+                                else
+                                    joblabour += '</td><td>';
+                                pid = "L_" + i + "_7";
+                                var difftotal = EstimatedTotal - ActualTotal;
+                                joblabour += '<input type="text" class="form-control diff-color"  value="' + difftotal + '" disabled id="' + pid + '" style="text-align: right" />';
+                                pid = "L_" + i + "_8";
+                                var estcost = Number(oldLaborData[j].Cost) * Number(oldLaborData[j].Estimated_Hour);
+                                joblabour += '</td><td hidden><input type="text" class="form-control diff-color"  value="' + estcost + '" disabled id="' + pid + '" style="text-align: right" />';
+                                joblabour += '</td></tr>';
+                                labourGrandEstCostTotal = Number(labourGrandEstCostTotal) + Number(estcost);
+                                isavailable = Number(j) + Number(1);
+                            }
+                        }
+                        if (isavailable == 0) {
+                            joblabour += '<tr>';
+                            joblabour += ' <td id="LaborerName">';
+                            joblabour += '<img src="../Images/delete-photo.png" style="cursor:pointer;margin-right:2px"  data-parts="' + data.NewLabourListInJob[i].Laborer_Name + '"  title="delete labour" alt="delete" onclick="deletelabour(\'' + data.NewLabourListInJob[i].Laborer_Name + '\',this)" />';
+                            joblabour += data.NewLabourListInJob[i].Laborer_Name;
+                            joblabour += '</td><td>';
+                            var pid = "L_" + i + "_0";
+                            joblabour += '<input type="text" name="txtLaborCost" class="form-control" value="' + data.NewLabourListInJob[i].Cost + '" onkeyup="checknum(this);calculatelaborscost(this);" id="' + pid + '" style="text-align: right" />';
+                            joblabour += '</td><td>';
+                            pid = "L_" + i + "_1";
+                            joblabour += '<input type="text" name="txtLaborResaleCost" class="form-control"  value="' + data.NewLabourListInJob[i].Resale_Cost + '" onkeyup="checknum(this);calculatelaborscost(this);"  id="' + pid + '" style="text-align: right" />';
+                            joblabour += '</td><td>';
+                            pid = "L_" + i + "_2";
+                            //var EstimatedHour = data.NewLabourListInJob[i].Estimated_Hour == 0 ? "0" : data.NewLabourListInJob[i].Estimated_Hour;
+                            joblabour += '<input type="text" name="txtLaborEstimatedHours" class="form-control" value="' + data.NewLabourListInJob[i].Estimated_Hour + '"  onkeyup="checknum(this);calculatelaborscost(this);" id="' + pid + '" style="text-align: right"/>';
+                            //if (JobID == "" || JobID == "0")
+                            //    joblabour += '</td><td hidden>';
+                            //else
+                            //    joblabour += '</td><td>';
+                            joblabour += '</td><td>';
+                            pid = "L_" + i + "_3";
+                            // var actualhrs = data.NewLabourListInJob[i].Actual_Hours == 0 ? oldLaborData[j].Estimated_Hour : data.NewLabourListInJob[i].Actual_Hours;
+                            var actualhrs = data.NewLabourListInJob[i].Actual_Hours == 0 ? 0 : data.NewLabourListInJob[i].Actual_Hours;
+                            if (actualhrs == null)
+                                var actualhrs = "";
+                            joblabour += '<input type="text" name="txtLaborActualHours" class="form-control" value="' + actualhrs + '" onkeyup="checknum(this);calculatelaborscost(this);" name="Act_Hrs" id="' + pid + '"style="text-align: right" />';
+                            joblabour += '</td><td>';
+                            pid = "L_" + i + "_4";
+                            var ExpectedTotal = data.NewLabourListInJob[i].Expected_Total == 0 ? "0.00" : Number(data.NewLabourListInJob[i].Expected_Total).toFixed(2);
+                            if (ExpectedTotal == null)
+                                ExpectedTotal = "";
+                            labourGrandExpTotal = Number(labourGrandExpTotal) + Number(ExpectedTotal);
+                            joblabour += '<input type="text"  class="form-control" value="' + Number(ExpectedTotal).toFixed(2) + '" disabled name="EstCost_Total" id="' + pid + '" style="text-align: right" />';
+                            joblabour += '</td><td>';
+                            pid = "L_" + i + "_5";
+
+                            //Estimate Resale Cost Total
+                            var EstimatedTotal = data.NewLabourListInJob[i].Estimated_Total == 0 ? "" : data.NewLabourListInJob[i].Estimated_Total;
+                            if (EstimatedTotal == null)
+                                EstimatedTotal = "";
+                            labourGrandEstTotal = Number(labourGrandEstTotal) + Number(EstimatedTotal);
+                            joblabour += '<input type="text" class="form-control"  value="' + Number(EstimatedTotal).toFixed(2) + '" disabled id="' + pid + '"  name="EstResaleCost" style="text-align: right" />';
+                            //if (JobID == "" || JobID == "0")
+                            //    joblabour += '</td><td hidden>';
+                            //else
+                            //    joblabour += '</td><td>';
+                            joblabour += '</td><td>';
+                            pid = "L_" + i + "_6";
+                            var ActualTotal = data.NewLabourListInJob[i].Actual_Total == 0 ? data.NewLabourListInJob[i].Estimated_Total : data.NewLabourListInJob[i].Actual_Total;
+                            if (ActualTotal == null)
+                                ActualTotal = EstimatedTotal;
+                            labourGrandActTotal = Number(labourGrandActTotal) + Number(ActualTotal);
+                            joblabour += '<input type="text" class="form-control"  value="' + Number(ActualTotal).toFixed(2) + '" disabled id="' + pid + '" style="text-align: right" />';
+                            if (JobID == "" || JobID == "0")
+                                joblabour += '</td><td hidden>';
+                            else
+                                joblabour += '</td><td>';
+                            pid = "L_" + i + "_7";
+                            var difftotal = EstimatedTotal - ActualTotal;
+                            joblabour += '<input type="text" class="form-control diff-color"  value="' + difftotal + '" disabled id="' + pid + '" style="text-align: right" />';
+                            pid = "L_" + i + "_8";
+                            var estcost = Number(data.NewLabourListInJob[i].Cost) * Number(data.NewLabourListInJob[i].Estimated_Hour);
+                            joblabour += '</td><td hidden><input type="text" class="form-control diff-color"  value="' + estcost + '" disabled id="' + pid + '" style="text-align: right" />';
+                            joblabour += '</td></tr>';
+                            labourGrandEstCostTotal = Number(labourGrandEstCostTotal) + Number(estcost);
+                        }
+                    }
+                    $('#Laborbody').html(joblabour);
+                    if (data.NewLabourListInJob.length > 0) {
+                        var labourfooter = '<tr>';
+                        labourfooter += '<th colspan="5" class="Estimate-Footer">Grand Total</th>';
+                        //if (JobID == "" || JobID == "0")
+                        //    labourfooter += '<th hidden></th>';
+                        //else
+                        //    labourfooter += '<th></th>';
+
+                        labourfooter += '<th>';
+                        labourfooter += '<input type="text" class="form-control Estimate-FooterValue" disabled style="text-align:right" id="Labor_GrandExpTotal" value="' + labourGrandExpTotal + '" />';
+                        labourfooter += '</th><th>';
+                        labourfooter += '<input type="text" class="form-control Estimate-FooterValue" disabled style="text-align:right" id="Labor_GrandEstTotal" value="' + labourGrandEstTotal + '" />';
+                        //if (JobID == "" || JobID == "0")
+                        //    labourfooter += '</th><th hidden>';
+                        //else
+                        //    labourfooter += '</th><th>';
+                        labourfooter += '</th><th>';
+                        labourfooter += '<input type="text" class="form-control Estimate-FooterValue" disabled style="text-align:right" id="Labor_GrandActTotal" value="' + labourGrandActTotal + '" />';
+                        labourfooter += '</th><th hidden><input type="text" class="form-control Estimate-FooterValue" disabled style="text-align:right" id="Labor_GrandEstCostTotal" value="' + labourGrandEstCostTotal + '" />';
+                        labourfooter += '</th></tr>';
+                        $('#LaborTotal').html(labourfooter);
+                    }
+                    calculatelaborscost();
+                }
+                $('#Laborpopupclose').click();
+                LaborTotal();
+                CalculateEstimateONE();
+                CalculateEstimateTWO();
+                estimatevalues();
+
+                //To implement the validation for the Labor fields
+                $("[name = 'txtLaborCost']").limitkeypress({ rexp: /^(\d{1,4})?(\.)?(\.\d{1,2})?$/ });
+                $("[name = 'txtLaborResaleCost']").limitkeypress({ rexp: /^(\d{1,4})?(\.)?(\.\d{1,2})?$/ });
+                $("[name = 'txtLaborEstimatedHours']").limitkeypress({ rexp: /^(\d{1,4})?(\.)?(\.\d{1,2})?$/ });
+                $("[name = 'txtLaborActualHours']").limitkeypress({ rexp: /^(\d{1,4})?(\.)?(\.\d{1,2})?$/ });
+            },
+            error: function (err) {
+                // alert("Error");
+            }
+        });
+    }
+    function saveLegal(val) {
+
+        var lstpart = "";
+        var selectedLegalstatus = "";
+        selectedLegalstatus = val;
+        i = 0;
+        var JobID = $('#Job_ID').val();
+        if (JobID == "" || typeof JobID == 'undefined') {
+            JobID = $('#hdnjobid').val();
+        }
+        //
+        //$('#Legaltable').find("input:checkbox").each(function () {
+        //    if (this.checked == true) {
+        //            lstpart += "," + this.id;
+        //        i++;
+        //        var tablelength = $("#LaborBody tr").length;
+        //    }
+        //});
+        if (legalpopselected != null && legalpopselected.length > 0) {
+            for (var p = 0; p < legalpopselected.length; p++) {
+                if (lstpart == "")
+                    lstpart += legalpopselected[p];
+                else
+                    lstpart += "," + legalpopselected[p];
+            }
+        }
+        $.ajax({
+            url: '../Job/SelectedLegalInfo',
+            data: { lstparts: lstpart, JobID: JobID, selectedLegalstatus: selectedLegalstatus },
+            type: 'POST',
+            success: function (data) {
+
+                $('#divLegalInfo').html(data);
+                $('#Legalpopupclose').click();
+
+            },
+            error: function (err) {
+
+                //alert("Error");
+            }
+        });
+    }
+    function deletelabour(labourname, val) {
+        if (confirm("Are you sure, do you want to remove this labour?")) {
+            if (laborpopselected != null && laborpopselected.length > 0) {
+                if (laborpopselected.indexOf(labourname) > -1) {
+                    laborpopselected.splice(laborpopselected.indexOf(labourname), 1);
+                }
+            }
+            if ($('#Job_ID').val() != "0") {
+
+                $.ajax({
+                    url: '../Job/deletejoblabour?JobId=' + $('#Job_ID').val() + "&LabourName=" + labourname,
+                    type: 'GET',
+                    success: function (data) {
+                        if (data == "success") {
+                            DisplayNotification("“Labor” has been removed successfully.", "success");
+                            //$($($(val)[0].parentElement)[0].parentElement).remove();
+                            saveLabor();
+                        }
+                        else
+                            DisplayNotification(data, "error");
+                    },
+                    error: function (err) {
+                    }
+                });
+            }
+            else {
+                //$($($(val)[0].parentElement)[0].parentElement).remove();
+                saveLabor();
+            }
+        }
+    }
+    function CalculateEstimateValues(data, oldasparts, oldaslabor) {
+
+        var AssemblyPartsTotal = 0.00;
+        var AssemblyLaborTotal = 0.00;
+        var datalength = data.length;
+        if (data.length > 0) {
+            for (var i = 0; i < data.length; i++) {
+                AssemblyLaborTotal += data[i].LaborEst_ResaleTotal;
+                var ll = data[i].PartsListData.length;
+                for (var j = 0; j < data[i].PartsListData.length; j++) {
+
+                    AssemblyPartsTotal += data[i].PartsListData[j].EstResaleCost_Total;
+                }
+            }
+        }
+        if ($("#Estimate1_LaborTotal").val() != "") {
+            AssemblyLaborTotal += Number($("#Estimate1_LaborTotal").val());
+        }
+        if ($("#Estimate1_PartsTotal").val() != "") {
+            AssemblyPartsTotal += Number($("#Estimate1_PartsTotal").val());
+        }
+        $("#Estimate1_LaborTotal").val(AssemblyLaborTotal.toFixed(2));
+        $("#Estimate2_LaborTotal").val(AssemblyLaborTotal.toFixed(2));
+        $("#Estimate1_PartsTotal").val(AssemblyPartsTotal.toFixed(2));
+        $("#Estimate2_PartsTotal").val(AssemblyPartsTotal.toFixed(2));
+
+    }
+    function checkpartscost(val, val2) {
+        $.ajax({
+            url: '../Job/Checkparscosts?Client_ID=' + val + '&Assemblies_Name=' + val2,
+            type: 'GET',
+            success: function (data) {
+            },
+            error: function (err) {
+
+            }
+        });
+    }
+
+    function saveAssemblies() {
+        var lstpart = "";
+        var JobID = $('#hdnjobid').val();
+        //$('#Assembliestable').find("input:checkbox").each(function () {
+        //    if (this.checked == true) {
+        //        if (lstpart == "")
+        //            lstpart += this.value;
+        //        else
+        //            lstpart += "," + this.value;
+        //    }
+        //});
+
+        //To get all the selected assemblies in single string variable
+        if (selectedAssemblies != null && selectedAssemblies.length > 0) {
+            for (var p = 0; p < selectedAssemblies.length; p++) {
+                var selectedAssemblyName = selectedAssemblies[p];
+                selectedAssemblyName = selectedAssemblyName.replaceAll(",", "{{{comma}}}");
+                selectedAssemblyName = selectedAssemblyName.replaceAll("#", "{{{hash}}}");
+                console.log(selectedAssemblyName);
+                if (lstpart == "")
+                    lstpart += selectedAssemblyName;
+                else
+                    lstpart += "," + selectedAssemblyName;
+            }
+        }
+
+        if (lstpart == "") {
+            DisplayNotification("Select at least one assembly.", "error");
+            return false;
+        }
+        GetAssemblies(lstpart, JobID);
+    }
+
+    function CheckAssemblie(assembly) {
+        var assembliesest = $('#Assembliesbody tr.accordion-toggle');
+        if (assembliesest.length > 0) {
+            for (var a = 0; a < assembliesest.length; a++) {
+                if (assembliesest[a].cells[0].innerText.trim() === assembly.trim()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function GetAssemblies(lstpart, JobID) {
+        $.ajax({
+            url: '../Job/SelectedAssembliesInfo',
+            data: { lstparts: encodeURI(lstpart), JobID: JobID },
+            type: 'POST',
+            success: function (data) {
+                var s = $('#Assembliesbody tr');
+                var assembliesest = $('#Assembliesbody tr.accordion-toggle');
+                var lstassemblyinfo = new Array();
+                var totalestcost = 0.00;
+                var totalresaleestcost = 0.00;
+                var totalactualcost = 0.00;
+                var GrandtotalCost = 0.00;
+                var GrandtotalresaleCost = 0.00;
+                var totalEstCostTotal = 0.00;
+
+                if (assembliesest.length > 0) {
+                    for (var a = 0; a < assembliesest.length; a++) {
+                        lstassemblyinfo.push({
+                            Assemblies_Name: assembliesest[a].cells[0].innerText.trim(),
+                            Assemblies_Category: assembliesest[a].cells[1].innerText.trim(),
+                            Multiplier: assembliesest[a].cells[2].children[0].value.trim(),
+                            JobAssembly_Id: assembliesest[a].cells[2].children[1].value.trim(),
+                            Estimated_Qty_Total: assembliesest[a].cells[5].children[0].value.trim(),
+                            Est_Cost_Total: assembliesest[a].cells[7].children[0].value.trim(),
+                            //GrandCostTotal: assembliesest[a].cells[6].children[1].value.trim(),
+                            GrandCostTotal: assembliesest[a].cells[3].children[0].value.trim(),
+                            Est_Resale_Total: assembliesest[a].cells[8].children[0].value.trim(),
+                            //GrandResaleTotal: assembliesest[a].cells[7].children[1].value.trim(),
+                            GrandResaleTotal: assembliesest[a].cells[4].children[0].value.trim(),
+                            Actual_Qty: assembliesest[a].cells[6].children[0].value.trim(),
+                            Actual_Total: assembliesest[a].cells[9].children[0].value.trim(),
+                            GrandActualTotal: assembliesest[a].cells[9].children[1].value.trim(),
+
+
+                        });
+
+                        totalestcost = Number(totalestcost) + (Number(assembliesest[a].cells[3].children[0].value.trim()) * Number(assembliesest[a].cells[6].children[0].value.trim()));
+                        ///alert(assembliesest[a].cells[8].children[0].value.trim());
+                        totalresaleestcost = Number(totalresaleestcost) + Number(assembliesest[a].cells[8].children[0].value.trim());
+                        totalactualcost = Number(totalactualcost) + Number(assembliesest[a].cells[9].children[0].value.trim());
+                        totalEstCostTotal = Number(totalEstCostTotal) + Number(assembliesest[a].cells[10].children[0].value.trim());
+                        //alert(assembliesest[a].cells[9].children[0].value.trim());
+
+                        //var assemblyname = assembliesest[a].cells[0].innerText.trim();
+                        //if (assemblyname.indexOf(' ') > -1) {
+                        //    assemblyname = assemblyname.replace(/ /g, "_");
+                        //}
+                        //var Est_AsPartsresaletotal = $('#Toggle' + a + ' #' + assemblyname + '_total_1').val();
+                        //oldASPartstotal += Number(Est_AsPartsresaletotal);
+                        //var labvalue = $('#Toggle' + a + ' #' + assemblyname + '_labour_4').val();
+                        //oldassemblylabortotal += Number(labvalue);
+
+                    }
+
+                }
+
+
+                // CalculateEstimateValues(data);
+                var assempartstbody = '';
+                var j = 0;
+                if (lstassemblyinfo.length > 0) {
+
+                    GrandtotalCost = 0.00;
+                    GrandtotalresaleCost = 0.00;
+                    //totalEstCostTotal = 0.00;
+                    j = lstassemblyinfo.length;
+
+                }
+                for (var i = 0; i < data.length; i++) {
+                    //
+                    var newAssemblyId = 'Id' + data[i].Assemblies_Name.replace(/[\W]+/g, '');
+                    console.log( newAssemblyId );
+                    //
+                    var data_parts_cost_total = Number(data[i].PartCostTotal).toFixed(2);
+                    var data_labor_hours = Number(data[i].labor_EstimatedHours).toFixed(4);
+
+                    var data_attributes = [];
+                    data_attributes.push('data-index="' + i + '"');
+                    data_attributes.push('data-assembly-item');
+                    data_attributes.push('data-parts-cost-total="' + data_parts_cost_total + '"');
+                    data_attributes.push('data-labor-hours="' + data_labor_hours + '"');
+                    data_attributes = data_attributes.join(' ');
+                    //
+                    assempartstbody += '<tr name="trJobAssembly" ' + data_attributes + '" data-toggle="collapse" data-target="#demo1" class="accordion-toggle">';
+                    var rowid = newAssemblyId;
+                    if (rowid.indexOf(' ') > -1) {
+                        rowid = rowid.replace(/ /g, '_');
+                    }
+                    rowid += "-" + j;
+                    assempartstbody += '<td id="' + rowid + '" data-row="' + j + '">';
+                    var Eid = "E_" + j + "_0"; var Did = "Toggle" + j;
+                    var newAssemblyName = data[i].Assemblies_Name.replace( /\"/g, '&quot;' );
+                    assempartstbody += '<input type="hidden" id="bodyassemblyids" value="' + newAssemblyName + '" />';
+                    assempartstbody += '<input type="hidden" name="AssemblyIndex" value="' + j + '" />';
+                    assempartstbody += '<img src="../AppImges/plus.png"  data-toggle="collapse" data-row="' + j + '" data-assemblyid="' + data[i].JobAssembly_Id + '" data-target="#' + Did + '" data-assembly="' + newAssemblyName + '" class="clickable _index_" style="width:7%; margin-right:2px;cursor:pointer" id="' + Eid + '" onclick="ExpandTable(this);">';
+                    assempartstbody += '<img src="../Images/delete-photo.png" style="cursor:pointer;margin-right:2px"  data-row="' + j + '" data-assembly="' + newAssemblyName + '"  title="delete assembly" alt="delete" onclick="deleteassembly(' + data[i].JobAssembly_Id + ',\'' + rowid + '\',this)" />';
+                    assempartstbody += data[i].Assemblies_Name + "</td>";
+                    assempartstbody += '<td id="AsCategory">' + data[i].Assemblies_Category + '</td><td>';
+                    var multiplierid = "A_" + j + "_7";
+                    var Multipier = data[i].Multiplier == 0 ? "" : data[i].Multiplier;
+                    assempartstbody += '<input type="text" id="' + multiplierid + '" class="form-control" name="txtAssemblyMultiplier" value="' + Multipier + '" calculatemultiplier(\'' + newAssemblyId + '\',' + j + ',this);" style="text-align:right" />';
+                    assempartstbody += '<input type="hidden" id="jobassemblyid" value="' + data[i].JobAssembly_Id + '" />';
+                    assempartstbody += '</td><td>';
+                    //estqty is here
+                    //var pid = "A_" + i + "_0";
+                    //var EstQty = data[i].Estimated_Qty_Total == 0 ? "1" : data[i].Estimated_Qty_Total;
+                    //assempartstbody += '<input type="text" class="form-control" value="' + EstQty + '"  onkeyup="Overallcalculatemultiplier(\'' + newAssemblyId + '\',' + i + ');" id="' + pid + '" style="text-align: right" />';
+                    //assempartstbody += '</td><td>';
+                    //Here Calculating Estimate Cost Total.....
+                    var EstCostTotal = 0;
+                    //if (data[i].assemblypartsCount != 0) {
+                    //    EstCostTotal = data[i].Est_Cost_Total == 0 ? "" : data[i].Est_Cost_Total;
+                    //    totalestcost = Number(totalestcost) + Number(data[i].Est_Cost_Total);
+                    //}
+                    //else {
+                    //    EstCostTotal = data[i].LaborEst_CostTotal == 0 ? "" : data[i].LaborEst_CostTotal
+                    //    totalestcost = Number(totalestcost) + Number(EstCostTotal);
+                    //    data[i].GrandCostTotal = EstCostTotal;
+                    //}
+                    //if (JobID != 0) {
+                    //    //EstCostTotal = data[i].Est_Cost_Total == 0 ? "" : data[i].Est_Cost_Total;
+                    //    totalestcost = Number(totalestcost) + Number(data[i].Est_Cost_Total);
+                    //}
+                    pid = "A_" + j + "_10";
+                    if (data[i].GrandCostTotal == 0) {
+                        alert(data[i].Assemblies_Name);
+                    }
+                    var costtotal = (data[i].GrandCostTotal == 0 ? 1 : data[i].GrandCostTotal).toFixed(2);
+                    assempartstbody += '<input type="text" class="form-control"  value="' + (data[i].GrandCostTotal == 0 ? 1 : data[i].GrandCostTotal).toFixed(2) + '" disabled onkeyup="checknum(this);CalculateV2(this);"  id="' + pid + '"  style="text-align: right"/>';
+                    assempartstbody += '</td><td>';
+                    //Here calculating Estimate Resale Cost of Assembly......
+                    var EstResaleTotal = 0;
+                    //if (data[i].assemblypartsCount != 0) {
+                    //   // EstResaleTotal = data[i].Est_Resale_Total == 0 ? "" : data[i].Est_Resale_Total;
+                    //   // totalresaleestcost = Number(totalresaleestcost) + Number(data[i].Est_Resale_Total);
+                    //}
+                    //else {
+                    //    //EstResaleTotal = data[i].LaborEst_ResaleTotal == 0 ? "" : data[i].LaborEst_ResaleTotal;
+                    //   // totalresaleestcost = Number(totalresaleestcost) + Number(EstResaleTotal);
+                    //    //data[i].GrandResaleTotal = totalresaleestcost;
+                    //}
+                    //if (JobID != 0) {
+                    //    //EstResaleTotal = data[i].Est_Resale_Total == 0 ? "" : data[i].Est_Resale_Total;
+                    //
+                    //        totalresaleestcost = Number(totalresaleestcost) + Number(data[i].Est_Resale_Total);
+                    //}
+                    pid = "A_" + j + "_11";
+                    assempartstbody += '<input type="text" class="form-control"  value="' + (data[i].GrandResaleTotal == 0 ? 1 : data[i].GrandResaleTotal).toFixed(2) + '" disabled onkeyup="checknum(this);CalculateV2(this);"  id="' + pid + '"  style="text-align: right"/>';
+                    assempartstbody += '</td><td>';
+
+                    //Assembly Est.Qty
+                    var pid = "A_" + j + "_0";
+                    assempartstbody += '<input name="txtAssmEstQty" type="text" class="form-control" value="' + data[i].Estimated_Qty_Total + '"  onkeyup="calculatemultiplier(\'' + newAssemblyId + '\',' + j + ',this);" id="' + pid + '" style="text-align: right" />';
+                    assempartstbody += '</td><td>';
+
+                    //Assembly Actual Qty
+                    pid = "A_" + j + "_3";
+                    var ActQty = data[i].Actual_Qty == 0 ? data[i].Actual_Qty : data[i].Actual_Qty;
+                    assempartstbody += '<input type="text" name="txtAssmActualQty" class="form-control" value="' + ActQty + '" onkeyup="calculatemultiplier(\'' + newAssemblyId + '\',' + j + ',this);" id="' + pid + '"  style="text-align: right"/>';
+                    assempartstbody += '</td><td>';
+
+                    pid = "A_" + j + "_1";
+                    var exptotal = 0;
+
+                    exptotal = Number(Multipier) * Number(ActQty) * Number(data[i].GrandCostTotal);
+                    if (JobID != 0) {
+                        //EstCostTotal = data[i].Est_Cost_Total == 0 ? "" : data[i].Est_Cost_Total;
+                        totalestcost = Number(totalestcost) + exptotal;
+                    }
+                    assempartstbody += '<input type="text" class="form-control"  value="' + exptotal.toFixed(2) + '" disabled onkeyup="checknum(this);CalculateV2(this);"  id="' + pid + '" name="EstResaleCost" style="text-align: right"/>';
+                    var hdnid = "A_" + j + "_5";
+                    assempartstbody += '<input type="hidden" class="form-control"  value="' + (data[i].GrandCostTotal == 0 ? "1" : data[i].GrandCostTotal) + '" disabled onkeyup="checknum(this);CalculateV2(this);"  id="' + hdnid + '"  style="text-align: right"/>';
+                    assempartstbody += '</td><td>';
+                    pid = "A_" + j + "_2";
+                    var estTotal = 0;
+                    estTotal = Number(Multipier) * Number(data[i].Estimated_Qty_Total) * Number(data[i].GrandResaleTotal);
+                    if (JobID != 0) {
+                        //EstResaleTotal = data[i].Est_Resale_Total == 0 ? "" : data[i].Est_Resale_Total;
+
+                        totalresaleestcost = Number(totalresaleestcost) + Number(estTotal);
+                    }
+                    assempartstbody += '<input type="text"  class="form-control" value="' + estTotal.toFixed(2) + '" disabled  onkeyup="checknum(this);CalculateV2(this);" id="' + pid + '" style="text-align: right" />';
+                    hdnid = "A_" + j + "_6";
+                    assempartstbody += '<input type="hidden" class="form-control"  value="' + (data[i].GrandResaleTotal == 0 ? "1" : data[i].GrandResaleTotal) + '" disabled onkeyup="checknum(this);CalculateV2(this);"  id="' + hdnid + '"  style="text-align: right"/>';
+
+                    //if (JobID == "" || JobID == "0") {
+                    //    assempartstbody += '</td><td hidden>';
+                    //}
+                    //else
+                    //    assempartstbody += '</td><td>';
+                    assempartstbody += '</td><td>';
+                    pid = "A_" + j + "_4";
+                    var ActualTotal;
+                    ActualTotal = Number(Multipier) * Number(ActQty) * Number(data[i].GrandResaleTotal);
+
+                    totalactualcost = Number(totalactualcost) + Number(ActualTotal);
+                    // alert(totalactualcost);
+                    assempartstbody += '<input type="text" class="form-control"  value="' + ActualTotal.toFixed(2) + '" disabled id="' + pid + '" style="text-align: right" />';
+                    hdnid = "A_" + j + "_8";
+                    // assempartstbody += '<input type="hidden" class="form-control"  value="' + (data[i].GrandActualTotal == 0 ? "1" : data[i].GrandActualTotal) + '" disabled onkeyup="calculatecost(this);"  id="' + hdnid + '"  style="text-align: right"/>';
+                    assempartstbody += '<input type="hidden" class="form-control"  value="' + (data[i].GrandActualTotal == 0 ? ActualTotal : data[i].GrandActualTotal) + '" disabled onkeyup="checknum(this);CalculateV2(this);"  id="' + hdnid + '"  style="text-align: right"/>';
+                    if (JobID == "" || JobID == "0") {
+                        assempartstbody += '</td><td hidden>';
+                    }
+                    else
+                        assempartstbody += '</td><td>';
+                    pid = "A_" + j + "_12";
+                    //Here Calculating Difference of Estimate Total......
+
+                    var act = ActQty * data[i].GrandResaleTotal * Multipier;
+                    var estcosttotal = Number(data[i].Estimated_Qty_Total) * Multipier * costtotal;
+                    totalEstCostTotal = totalEstCostTotal + estcosttotal;
+                    // alert(act);
+                    //  var estimatetotal = data[i].GrandResaleTotal == 0 ? "1" : data[i].GrandResaleTotal;
+                    //  alert(EstResaleTotal);
+                    var difftotal = estTotal - ActualTotal;
+                    assempartstbody += '<input type="text" class="form-control diff-color"  value="' + difftotal.toFixed(2) + '" disabled id="' + pid + '" style="text-align: right" />';
+                    pid = "A_" + j + "_13";
+                    assempartstbody += '</td><td hidden><input type="text" class="form-control diff-color"  value="' + estcosttotal.toFixed(2) + '" disabled id="' + pid + '" style="text-align: right" />';
+                    assempartstbody += '</td></tr>';
+                    assempartstbody += '<tr data-index="' + i + '" data-assembly-parts><td colspan="12" class="hiddenRow"><div class="accordian-body collapse" id="' + Did + '">';
+                    assempartstbody += '<span>Loading...</span></div></td></tr>';
+                    j = Number(j) + Number(1);
+
+                }
+
+                $('#Assembliesbody').append(assempartstbody);
+                assempartstbody = '<tr data-assemeblies-summary>';
+                //if (JobID == "" || JobID == "0")
+                //    assempartstbody += '<th colspan="5">';
+                //else
+                //    assempartstbody += '<th colspan="6">';
+                assempartstbody += '<th colspan="7" class="Estimate-Footer">';
+                assempartstbody += 'Grand Total</th><th style="text-align: right">';
+                //Here Binding GrandCost Total.....
+                assempartstbody += '<input type="text" id="Assembly_GrandExpTotal" class = "form-control Estimate-FooterValue _jobs-index_" value="' + totalestcost.toFixed(2) + '" disabled style="text-align:right" />';
+                //assempartstbody += totalestcost.toFixed(2);
+                // assempartstbody += GrandtotalCost.toFixed(2);
+                assempartstbody += '</th><th style="text-align: right">';
+                //Here Binding GrandCost Total.....
+                assempartstbody += '<input type="text" id="Assembly_GrandEstTotal" class = "form-control Estimate-FooterValue" value="' + totalresaleestcost.toFixed(2) + '" disabled style="text-align:right" />';
+                // assempartstbody += totalresaleestcost.toFixed(2);
+
+                //assempartstbody += GrandtotalresaleCost.toFixed(2);
+                //if (JobID == "" || JobID == "0")
+                //    assempartstbody += '</th><td hidden></td><th style="text-align: right" hidden>';
+                //else
+                //    assempartstbody += '</th><th style="text-align: right" >';
+                assempartstbody += '</th><th style="text-align: right" >';
+                // alert(totalactualcost);
+                assempartstbody += '<input type="text" id="Assembly_GrandActualTotal" class = "form-control Estimate-FooterValue" value="' + totalactualcost.toFixed(2) + '" disabled style="text-align:right" />';
+                // assempartstbody+=totalactualcost.toFixed(2);
+                assempartstbody += '</th><th hidden><input type="hidden" id="Assembly_totalestcost" value="' + totalEstCostTotal + '" /></th></tr>';
+                $('#PartsTotal').html(assempartstbody);
+                $('#Assembliespopupclose').click();
+                if ($('#Assembliesbody tr').length > 0) {
+                    $('#divjobparts').show();
+                    //$('#popjobparts').show();
+                    $('#divjoblabor').show();
+                    //$('#popjoblabor').show();
+                }
+                else {
+                    $('#divjobparts').show();
+                    // $('#popjobparts').show();
+                    $('#divjoblabor').show();
+                    //$('#popjoblabor').show();
+                }
+                estimatevalues();
+                AssemblyTotal();
+                LaborTotal();
+                PartsTotal();
+                setRegexValidations();
+
+            },
+            error: function (err) {
+                //alert("Error");
+            }
+        });
+    }
+
+    function ClientNameValidate() {
+        var Category = $('#Client_Name').val();
+        if (Category != "") {
+            var otherCategory = $("#Other_ClientName").val();
+            otherClientMsg = "“New Client” field is mandatory, if you have selected “New Client” in client name field.";
+            if (Category == "New Client" && otherCategory == '') {
+                DisplayNotification(otherClientMsg, "error");
+                return false;
+
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("“Client Name” is required.", "error");
+            return false;
+
+        }
+    }
+    function LocationValidate() {
+        var Location = $("#Previous_Location").val();
+        if (Location == "") {
+            return true;
+        }
+        else {
+
+            var otherLocation = $("#Other_Previous_Location").val();
+            otherLocationMsg = "“New Location” field is mandatory, if you have selected “New Location” in previous location field.";
+            if (Location == "New Location" && otherLocation == "") {
+                DisplayNotification(otherLocationMsg, "error");
+                return false;
+
+            }
+            else {
+                return true;
+            }
+
+
+        }
+    }
+    function CostValidate() {
+        if ($("#Client_ZipCode").val() != "") {
+            var intRegex = /^\d+(?:\.\d\d?)?$/;
+            if (!$("#Cost").val().match(intRegex)) {
+                DisplayNotification("Zip code is invalid", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("“Cost” is required.", "error");
+            return false;
+        }
+
+    }
+
+    function SelectedEstimation() {
+        if ($("#estimate1").prop("checked") == true || $("#estimate2").prop("checked") == true || $("#estimate3").prop("checked") == true) {
+            return true;
+        }
+        else {
+            if (confirm("Are you sure, do you want to add a Job without selecting a Job estimation type?")) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+    function DJEVQvalidate() {
+
+        var DJEtbbody = $('#estimatebody tr');
+        var emptystatus = 1;
+        if (DJEtbbody.length > 0) {
+
+            for (var i = 0; i < DJEtbbody.length; i++) {
+                if (DJEtbbody[i].cells[0].children[0].value == "" || DJEtbbody[i].cells[1].children[0].value == "" || DJEtbbody[i].cells[2].children[0].value == "" || DJEtbbody[i].cells[3].children[0].value == "" || DJEtbbody[i].cells[4].children[0].value == "") {
+                    emptystatus = 0;
+
+                    if (DJEtbbody[i].cells[4].children[0].value == "") {
+                        DisplayNotification("“DJE/VQ” selection should not be empty value!", "error");
+                        return false;
+                    }
+                    else {
+                        DisplayNotification("“DJE/VQ” should not be empty value!", "error");
+                        return false;
+                    }
+
+                }
+                else {
+                    emptystatus = 1;
+                }
+            }
+            if (emptystatus != 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+
+        }
+        else {
+
+            return true;
+        }
+
+    }
+    function SaveJobDetails() {
+
+        var formData = new FormData();
+        if ($('#Client_Name').val() != "" && $("#Client_Email").val() != "" && $("#Client_Phone").val() != "" && $("#Client_City").val() != "" && $("#Client_ZipCode").val() != "") {
+            if (ClientNameValidate() == true && isEmail() == true && phonevalidation() == true && Mobilevalidation() == true && LocationValidate() == true && DJEVQvalidate() == true) {
+                $('#JobAddbtn').hide();
+                $('#Reset').hide();
+                var SelectedAssembliesLength = $("#AssembliestblInfo >tbody >tr").length;
+                var SelectedPartsListLegth = $("#partstbody tr").length;
+                var SelectedLaborListLength = $("#LabortblInfo >tbody >tr").length;
+                //if (SelectedAssembliesLength != 0 || SelectedPartsListLegth != 0 || SelectedLaborListLength != 0) {
+                var isvalid = true;
+                var errormsg = "";
+
+                var Model = new Array();
+                var partslist = new Array();
+                var LaborwithPartTotalList = new Array();
+                var LegalList = new Array();
+                var JobDJE = new Array();
+                var LaborList = new Array();
+                var Assemblylist = new Array();
+                var FileAttachmentList = new Array();
+                var partsCostTotal = 0;
+                var partsResaleTotal = 0;
+                var laborCost = 0;
+                var laboresale = 0;
+                var EstHours = 0;
+                var laborCostTotal = 0;
+                var laborResaleTotal = 0;
+                var grandCostTotal = 0;
+                var grandResaleTotal = 0;
+                var isvalid = true;
+                var errmsg = "";
+                var Job_Estimation1 = new Array();
+                var PartsGrandExpTotal = 0;
+                var PartsGrandEstTotal = 0;
+                var PartsGrandActTotal = 0;
+                var SelectedEstimatetype = "";
+                LaborGrandExpTotal = 0;
+                LaborGrandEstTotal = 0;
+                LaborGrandActTotal = 0;
+
+                //Here Get  selected Legal Table Values
+                var legaltablRows = $('#Legalbody tr')
+                if (legaltablRows.length > 0) {
+                    var legaltablRows = $('#Legalbody tr')
+                    for (i = 0; i < legaltablRows.length; i++) {
+
+                        LegalList.push({
+
+                            'Legal_ID': $(legaltablRows[i]).find('#LegalID').text(),
+                            'Legal_Detail': $(legaltablRows[i]).find('#LegalDetail').text()
+
+                        });
+                    }
+                }
+                var DJEtbbody = $('#estimatebody tr');
+                for (var i = 0; i < DJEtbbody.length; i++) {
+
+                    JobDJE.push({
+                        'Expense': DJEtbbody[i].cells[0].children[0].value.trim(),
+                        'Vendor_Name': DJEtbbody[i].cells[1].children[0].value.trim(),
+                        'Cost': DJEtbbody[i].cells[2].children[0].value,
+                        'Profit': DJEtbbody[i].cells[3].children[0].value,
+                        'Job_DJE_VQ_Status': DJEtbbody[i].cells[4].children[0].value.trim(),
+                        'Resale_Total': DJEtbbody[i].cells[5].children[0].value,
+                        'Job_DJETotal': $('#Dje_total').val(),
+                        'Job_VQTotal': $('#VQ_total').val(),
+
+                    });
+                }
+
+
+                var NewJobAssemblyList = new Array();
+                var newmultiplerarray = new Array();
+
+                var assembliesest = $('#Assembliesbody tr.accordion-toggle');
+
+
+                for (var a = 0; a < assembliesest.length; a++) {
+
+                    var assemblyname = assembliesest[a].cells[0].innerText.trim();
+                    var categoryname = assembliesest[a].cells[1].innerText.trim();
+                    var Multiplier = assembliesest[a].cells[2].children[0].value.trim();
+                    var Jobassemblyid = assembliesest[a].cells[2].children[1].value.trim();
+                    var estqty = assembliesest[a].cells[5].children[0].value.trim();
+                    var estcosttotal = assembliesest[a].cells[7].children[0].value.trim();
+                    var estResaletotal = assembliesest[a].cells[8].children[0].value.trim();
+                    var actqty = assembliesest[a].cells[6].children[0].value.trim();
+                    var acttotal = assembliesest[a].cells[9].children[0].value.trim();
+                    var grandcosttotal = assembliesest[a].cells[3].children[0].value.trim();
+                    var grandresalecosttotal = assembliesest[a].cells[4].children[0].value.trim();
+                    // var grandActualTotal = assembliesest[a].cells[9].children[1].value.trim();
+                    //var grandcosttotal = assembliesest[a].cells[9].children[0].value.trim();
+                    // var grandresalecosttotal = assembliesest[a].cells[9].children[0].value.trim();
+
+                    //
+
+                    var $assembly_item = $(assembliesest[a]);
+                    var data_labor_hours = $assembly_item.attr('data-labor-hours');
+
+                    //
+
+                    // To check requied for multipler and assembly quatity
+                    if ((Multiplier.trim() == "0" || Multiplier.trim() == "") && (estqty.trim() == "0" || estqty.trim() == "")) {
+                        isvalid = false;
+                        errormsg = "For \"" + assemblyname + "\" assembly, \"Multiplier\" value can't be \"0\" and  \"Est.Qty\" value can't be \"0\".";// " Please check the Assemblies, Field Multipler and Assembly Qty are required and 0 is not allowed (Assembly - " + assemblyname + " )";
+                        break;
+                    }
+                    if ((Multiplier.trim() == "0" || Multiplier.trim() == "")) {
+                        isvalid = false;
+                        errormsg = "For \"" + assemblyname + "\" assembly, \"Multiplier\" value can't be \"0\".";
+                        break;
+                    }
+
+                    //To validate the 0 in Est.Qty and warn the user
+                    if (estqty.trim() == "0" || estqty.trim() == "") {
+                        if (!confirm('“Est.Qty” is “0” in the Assembly - ' + assemblyname + '. Press OK to continue.')) {
+                            errormsg = "User cancelled the operation!"
+                            isvalid = false;
+                            break;
+                        }
+                    }
+
+                    // To check the repeated Multipler validation
+                    if (newmultiplerarray != null) {
+                        if (newmultiplerarray.length > 0) {
+                            var isrepeated = false;
+                            for (var i = 0; i < newmultiplerarray.length; i++) {
+                                if (newmultiplerarray[i].assemblyname == assemblyname) {
+                                    if (Number(newmultiplerarray[i].Multiplier) == Number(Multiplier)) {
+                                        isrepeated = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (isrepeated) {
+                        isvalid = false;
+                        // errormsg = " Please check the Assemblies, Multipler values are repeated, Multipler value should be unique for same assemblies. (Assembly - " + assemblyname + " )";
+                        errormsg = "For \"" + assemblyname + "\" assemblies, \"Multiplier\" value can't be unique.";
+                        break;
+                    }
+                    newmultiplerarray.push({
+                        'assemblyname': assemblyname,
+                        'Multiplier': Multiplier
+                    });
+                    var assemblynameid = assemblyname;
+                    if (assemblyname.indexOf(' ') > -1) {
+                        // assemblynameid = assemblynameid.replace(/ /g, "_");
+                        assemblynameid = 'Id' + assemblynameid.replace(/[\W]+/g, '');
+                    }
+                    var partsbodyid = assemblynameid + '_partstbody';
+                    var togg = 'Toggle' + a;
+                    var tapbody = $('#' + togg + ' #' + partsbodyid + ' tr');
+                    var jobassemblyparts = new Array();
+
+                    for (var p = 0; p < tapbody.length; p++) {
+                        try {
+                            if (isZeroOrNaN(tapbody[p].cells[2].children[0].value) ||
+                                //tapbody[p].cells[3].children[0].value.trim() == "0" || tapbody[p].cells[3].children[0].value.trim() == "0.00" ||
+                                tapbody[p].cells[3].children[0].value.trim() == "" ||
+                                //tapbody[p].cells[4].children[0].value.trim() == "0" || tapbody[p].cells[4].children[0].value.trim() == "0.00" ||
+                                tapbody[p].cells[4].children[0].value.trim() == "") {
+                                //|| tapbody[p].cells[7].children[0].value.trim() == "0" || tapbody[p].cells[7].children[0].value.trim() == "0.00" || tapbody[p].cells[7].children[0].value.trim() == ""
+                                isvalid = false;
+
+                                errormsg = "Please check all the fields in the Assembly - '" + assemblyname + "' and its Part Number - '" + tapbody[p].cells[0].innerText.trim() + "'! </br> Note: Please check all other assemblies too!";
+                            }
+
+                            if (Number(tapbody[p].cells[2].children[0].value.trim()) > Number(tapbody[p].cells[3].children[0].value.trim())) {
+                                if (!confirm('“Cost” is greater than the “Resale Cost” in the Assembly - ' + assemblyname + ' and PartNumber ' + tapbody[p].cells[0].innerText.trim() + '. Press OK to continue.')) {
+                                    isvalid = false;
+                                    errormsg = "User cancelled the operation!"
+                                }
+                            }
+
+                            if (tapbody[p].cells[4].children[0].value.trim() == "0" || tapbody[p].cells[4].children[0].value.trim() == "0.00"
+                                || tapbody[p].cells[4].children[0].value.trim() == "") {
+                                if (!confirm('“Est.Qty/Hrs” is “0” in the Assembly - ' + assemblyname + ' and PartNumber ' + tapbody[p].cells[0].innerText.trim() + '. Press OK to continue.')) {
+                                    isvalid = false;
+                                    errormsg = "User cancelled the operation!"
+                                }
+                            }
+
+
+
+                            jobassemblyparts.push({
+                                'Assemblies_Name': assemblyname,
+                                'Assemblies_Category': categoryname,
+                                'Part_Number': tapbody[p].cells[0].innerText.trim(),
+                                'Part_Category': tapbody[p].cells[1].innerText.trim(),
+                                'Part_Cost': tapbody[p].cells[2].children[0].value,
+                                'Resale_Cost': tapbody[p].cells[3].children[0].value,
+                                'Estimated_Qty': tapbody[p].cells[4].children[0].value,
+                                'LaborUnit': tapbody[p].cells[5].children[0].value,
+                                'EstCost_Total': tapbody[p].cells[6].children[0].value,
+                                'EstResaleCost_Total': tapbody[p].cells[7].children[0].value,
+                                'Actual_Qty': tapbody[p].cells[8].children[0].value,
+                                'Actual_Total': tapbody[p].cells[9].children[0].value,
+                                //Still you have to add other values for parts
+                            });
+                        }
+                        catch{
+                            //to handle the blank tr ... this blank tr implemented to handle the firefox ui issue on grid
+                        }
+                    }
+
+                    partsbodyid = assemblynameid + '_partstbodyassem';
+                    tapbody = $('#' + togg + ' #' + partsbodyid + ' tr');
+                    for (p = 0; p < tapbody.length; p++) {
+                        try {
+                            if (//tapbody[p].cells[2].children[0].value.trim() == "0" || tapbody[p].cells[2].children[0].value.trim() == "0.00" ||
+                                tapbody[p].cells[2].children[0].value.trim() == "" ||
+                                //tapbody[p].cells[3].children[0].value.trim() == "0" || tapbody[p].cells[3].children[0].value.trim() == "0.00" ||
+                                tapbody[p].cells[3].children[0].value.trim() == "" ||
+                                //tapbody[p].cells[4].children[0].value.trim() == "0" || tapbody[p].cells[4].children[0].value.trim() == "0.00" ||
+                                tapbody[p].cells[4].children[0].value.trim() == "") {
+                                //|| tapbody[p].cells[7].children[0].value.trim() == "0" || tapbody[p].cells[7].children[0].value.trim() == "0.00" || tapbody[p].cells[7].children[0].value.trim() == ""
+                                isvalid = false;
+                                errormsg = "Please check the Assembly Parts, All fields are required!";
+                            }
+                            if (Number(tapbody[p].cells[2].children[0].value.trim()) > Number(tapbody[p].cells[3].children[0].value.trim())) {
+                                //isvalid = false;
+                                //errormsg = "Please check the Assembly Parts, “Cost” should not be greater than “Resale Cost”!, check Assembly (" + assemblyname + ") and PartNumber (" + tapbody[p].cells[0].innerText.trim() + ")";
+                                if (!confirm('“Cost” is greater than the “Resale Cost” in the Assembly - ' + assemblyname + ' and PartNumber ' + tapbody[p].cells[0].innerText.trim())) {
+                                    isvalid = false;
+                                    errormsg = "User cancelled the operation!"
+                                }
+                            }
+                            if (tapbody[p].cells[3].children[0].value.trim() == "0" || tapbody[p].cells[3].children[0].value.trim() == "0.00") {
+                                if (!confirm('“Est.Qty/Hrs” is “0” in the Assembly - ' + assemblyname + ' and PartNumber ' + tapbody[p].cells[0].innerText.trim() + '. Press OK to continue.')) {
+                                    isvalid = false;
+                                    errormsg = "User cancelled the operation!"
+                                }
+                            }
+
+                            jobassemblyparts.push({
+                                'Assemblies_Name': assemblyname,
+                                'Assemblies_Category': categoryname,
+                                'Part_Number': tapbody[p].cells[0].innerText.trim(),
+                                'Part_Category': tapbody[p].cells[1].innerText.trim(),
+                                'Part_Cost': tapbody[p].cells[2].children[0].value,
+                                'Resale_Cost': tapbody[p].cells[3].children[0].value,
+                                'Estimated_Qty': tapbody[p].cells[4].children[0].value,
+                                'LaborUnit': tapbody[p].cells[5].children[0].value,
+                                'EstCost_Total': tapbody[p].cells[6].children[0].value,
+                                'EstResaleCost_Total': tapbody[p].cells[7].children[0].value,
+                                'Actual_Qty': tapbody[p].cells[8].children[0].value,
+                                'Actual_Total': tapbody[p].cells[9].children[0].value,
+                                //Still you have to add other values for parts
+                            });
+
+                        }
+                        catch{
+                            //to handle the blank tr ... this blank tr implemented to handle the firefox ui issue on grid
+                        }
+                    }
+
+                    var totalcosttotal = $('#' + togg + ' #' + assemblynameid + "_total_0").val();
+                    var totalresaletotal = $('#' + togg + ' #' + assemblynameid + "_total_1").val();
+                    var laborcost = $('#' + togg + ' #' + assemblynameid + "_labour_0").val();
+                    var laborresalecost = $('#' + togg + ' #' + assemblynameid + "_labour_1").val();
+                    var laborEstCostTot = $('#' + togg + ' #' + assemblynameid + "_labour_3").val();
+                    var laborEstResaleTot = $('#' + togg + ' #' + assemblynameid + "_labour_4").val();
+                    var laborActQty = $('#' + togg + ' #' + assemblynameid + "_labour_5").val();
+                    var laborActTot = $('#' + togg + ' #' + assemblynameid + "_labour_6").val();
+
+                    //Still you have to add other values for labour
+                    //var grandcosttotal = $('#' + togg + ' #' + assemblynameid + "_grandtotal_0").val();
+                    // var grandresalecosttotal = $('#' + togg + ' #' + assemblynameid + "_grandtotal_1").val();
+
+                    NewJobAssemblyList.push({
+                        'Assemblies_Name': assemblyname,
+                        'Assemblies_Category': categoryname,
+                        'JobAssembly_Id': Jobassemblyid,
+                        'Multiplier': Multiplier,
+                        'Estimated_Qty': estqty,
+                        'Est_Cost_Total': estcosttotal,
+                        'Est_Resale_Total': estResaletotal,
+                        'Actual_Qty': actqty,
+                        'Actual_Total': acttotal,
+                        'PartCostTotal': totalcosttotal,
+                        'PartResaleTotal': totalresaletotal,
+                        'GrandCostTotal': grandcosttotal,
+                        'GrandResaleTotal': grandresalecosttotal,
+                        'Jobsassemblyparts': jobassemblyparts,
+                        'Labor_Cost': laborcost,
+                        'Lobor_Resale': laborresalecost,
+                        'Estimated_Hour': data_labor_hours,
+                        'LaborEst_CostTotal': laborEstCostTot,
+                        'LaborEst_ResaleTotal': laborEstResaleTot,
+                        'labour_actual_total': laborActTot,
+                        'Labor_Actual_Qty': laborActQty,
+                        'PartsActualTotal': $('#' + assemblynameid + "_total_2").val(),
+                        // 'GrandActualTotal': $('#' + assemblynameid + "_grandtotal_2").val()
+                        'GrandActualTotal': acttotal,
+                    });
+                }
+                if (isvalid == true) {
+                    var PartstablRows = $('#partstbody tr')
+                    if (PartstablRows.length > 0) {
+                        var PartstablRows = $('#partstbody tr')
+                        for (i = 0; i < PartstablRows.length; i++) {
+                            if ($(PartstablRows).find('#' + "P_" + i + "_0").val().trim() == "0" || $(PartstablRows).find('#' + "P_" + i + "_0").val().trim() == "0.00" || $(PartstablRows).find('#' + "P_" + i + "_0").val().trim() == "" || $(PartstablRows).find('#' + "P_" + i + "_1").val().trim() == "0" || $(PartstablRows).find('#' + "P_" + i + "_1").val().trim() == "0.00" || $(PartstablRows).find('#' + "P_" + i + "_1").val().trim() == "")
+                            //|| $(PartstablRows).find('#' + "P_" + i + "_2").val().trim() == "0" || $(PartstablRows).find('#' + "P_" + i + "_2").val().trim() == "0.00" || $(PartstablRows).find('#' + "P_" + i + "_2").val().trim() == "")
+                            //|| $(PartstablRows).find('#' + "P_" + i + "_3").val().trim() == "0" || $(PartstablRows).find('#' + "P_" + i + "_3").val().trim() == "0.00" || $(PartstablRows).find('#' + "P_" + i + "_3").val().trim() == ""
+                            {
+                                isvalid = false;
+                                errormsg = "Please check the Parts, All fields are required!";
+                            }
+                            if (Number($(PartstablRows).find('#' + "P_" + i + "_0").val().trim()) >= Number($(PartstablRows).find('#' + "P_" + i + "_1").val().trim())) {
+                                if (!confirm('“Cost” is greater than the “Resale Cost” in the Parts - ' + $(PartstablRows[i]).find('#partnumber').text().trim() + '. Press OK to continue.')) {
+                                    isvalid = false;
+                                    errormsg = "User cancelled the operation!"
+                                }
+                            }
+                            if ($(PartstablRows).find('#' + "P_" + i + "_2").val().trim() == "0" || $(PartstablRows).find('#' + "P_" + i + "_2").val().trim() == "0.00" || $(PartstablRows).find('#' + "P_" + i + "_2").val().trim() == "") {
+                                if (!confirm('“Est.Qty” is “0” in the Parts - ' + $(PartstablRows[i]).find('#partnumber').text().trim() + '. Press OK to continue.')) {
+                                    isvalid = false;
+                                    errormsg = "User cancelled the operation!"
+                                }
+                            }
+
+                            partslist.push({
+
+                                'Part_Number': $(PartstablRows[i]).find('#partnumber').text().trim(),
+
+                                'Part_Cost': $(PartstablRows).find('#' + "P_" + i + "_0").val(),
+                                'Resale_Cost': $(PartstablRows).find('#' + "P_" + i + "_1").val(),
+                                'LaborUnit': $(PartstablRows).find('#' + "P_" + i + "_102").val(),
+                                'Estimated_Qty': $(PartstablRows).find('#' + "P_" + i + "_2").val(),
+                                'Actual_Qty': $(PartstablRows).find('#' + "P_" + i + "_3").val(),
+                                'Expected_Total': $(PartstablRows).find('#' + "P_" + i + "_4").val(),
+                                'Estimated_Total': $(PartstablRows).find('#' + "P_" + i + "_5").val(),
+                                'Actual_Total': $(PartstablRows).find('#' + "P_" + i + "_6").val()
+                            });
+
+                        }
+
+                    }
+
+                    var PartsTotaltablRows = $('#PartsTotal tr')
+                    if (PartsTotaltablRows.length > 0) {
+                        $(PartsTotaltablRows).each(function (index, row) {
+
+                            PartsGrandExpTotal = $(PartsTotaltablRows).find('#Parts_GrandExpTotal').val();
+                            PartsGrandEstTotal = $(PartsTotaltablRows).find('#Parts_GrandEstTotal').val();
+                            PartsGrandActTotal = $(PartsTotaltablRows).find("#Parts_GrandActTotal").val();
+
+                        });
+
+                    }
+
+                    if (isvalid == true) {
+                        var LabortablRows = $('#Laborbody tr')
+                        if (LabortablRows.length > 0) {
+                            for (i = 0; i < LabortablRows.length; i++) {
+                                if ($(LabortablRows).find('#' + "L_" + i + "_0").val().trim() == "0" || $(LabortablRows).find('#' + "L_" + i + "_0").val().trim() == "0.00" || $(LabortablRows).find('#' + "L_" + i + "_0").val().trim() == "" || $(LabortablRows).find('#' + "L_" + i + "_1").val().trim() == "0" || $(LabortablRows).find('#' + "L_" + i + "_1").val().trim() == "0.00" || $(LabortablRows).find('#' + "L_" + i + "_1").val().trim() == "" || $(LabortablRows).find('#' + "L_" + i + "_2").val().trim() == "0" || $(LabortablRows).find('#' + "L_" + i + "_2").val().trim() == "0.00" || $(LabortablRows).find('#' + "L_" + i + "_2").val().trim() == "") {
+                                    if (!confirm('“Est.Qty” is “0” in the Labor - ' + $(LabortablRows[i]).find('#LaborerName').text().trim() + '. Press OK to continue.')) {
+                                        isvalid = false;
+                                        errormsg = "User cancelled the operation!"
+                                    }
+                                }
+                                else {
+                                    if (Number($(LabortablRows).find('#' + "L_" + i + "_0").val()) >= Number($(LabortablRows).find('#' + "L_" + i + "_1").val())) {
+                                        if (!confirm('“Cost” is greater than the “Resale Cost” in the Labor - ' + $(LabortablRows[i]).find('#LaborerName').text().trim() + '. Press OK to continue.')) {
+                                            isvalid = false;
+                                            errormsg = "User cancelled the operation!"
+                                        }
+                                    }
+                                }
+                                LaborList.push({
+                                    'Laborer_Name': $(LabortablRows[i]).find('#LaborerName').text().trim(),
+                                    'Cost': $(LabortablRows).find('#' + "L_" + i + "_0").val(),
+                                    'Resale_Cost': $(LabortablRows).find('#' + "L_" + i + "_1").val(),
+                                    'Estimated_Hour': $(LabortablRows).find('#' + "L_" + i + "_2").val(),
+                                    'Actual_Hours': $(LabortablRows).find('#' + "L_" + i + "_3").val(),
+                                    'Expected_Total': $(LabortablRows).find('#' + "L_" + i + "_4").val(),
+                                    'Estimated_Total': $(LabortablRows).find('#' + "L_" + i + "_5").val(),
+                                    'Actual_Total': $(LabortablRows).find('#' + "L_" + i + "_6").val()
+                                });
+                            }
+                        }
+                        var LaborTotaltablRows = $('#LaborTotal tr')
+                        if (LaborTotaltablRows.length > 0) {
+                            $(LaborTotaltablRows).each(function (index, row) {
+
+                                LaborGrandExpTotal = $(LaborTotaltablRows).find('#Labor_GrandExpTotal').val();
+                                LaborGrandEstTotal = $(LaborTotaltablRows).find('#Labor_GrandEstTotal').val();
+                                LaborGrandActTotal = $(LaborTotaltablRows).find("#Labor_GrandActTotal").val();
+
+                            });
+                        }
+                        if ($("#estimate1").prop("checked") == true) {
+                            SelectedEstimatetype = "1";
+                        }
+                        if ($("#estimate2").prop("checked") == true) {
+                            SelectedEstimatetype = "2";
+                        }
+                        if ($("#estimate3").prop("checked") == true) {
+                            SelectedEstimatetype = "3";
+                        }
+                        if (isvalid == true) {
+
+                            var estimation = {
+                                'Selected_Estimation_Type': SelectedEstimatetype,
+                                'Job_AssemblyTotal': $('#Estimate1_AssemblyTotal').val(),
+                                'Estimation1_AssemblyTax': $('#Estimate1_AssemblyTax').val(),
+                                'Estimation1_AssemblyTotal': $('#Estimate1_Assembly').val(),
+
+                                'Estimation2_AssemblyProfit': $('#Estimate2_AssemblyProfit').val(),
+                                'Estimation2_AssemblySubTotal': $('#Estimate2_AssemblySubtotal').val(),
+                                'Estimation2_AssemblyTax': $('#Estimate2_AssemblyTax').val(),
+                                'Estimation2_AssemblyTotal': $('#Estimate2_Assembly').val(),
+
+                                'Job_LaborTotal': $('#Estimate1_LaborTotal').val(),
+                                'Estimation1_LaborTax': $('#Estimate1_LaborTax').val(),
+                                'Estimation1_laborTotal': $('#Estimate1_Labor').val(),
+
+                                'Estimation2_LaborProft': $('#Estimate2_LaborProfit').val(),
+                                'Estimate2_LaborSubTotal': $('#Estimate2_LaborSubtotal').val(),
+                                'Estimate2_LaborTax': $('#Estimate2_LaborTax').val(),
+                                'Estimate2_LaborTotal': $('#Estimate2_Labor').val(),
+
+                                'Job_PartsTotal': $('#Estimate1_PartsTotal').val(),
+                                'Estimation1_PartsTax': $('#Estimate1_PartsTax').val(),
+                                'Estimation1_PartsTotal': $('#Estimate1_Parts').val(),
+
+                                'Estimation2_PartsProfit': $('#Estimate2_PartsProfit').val(),
+                                'Estimation2_PartsSubTotal': $('#Estimate2_PartsSubtotal').val(),
+                                'Estimation2_PartsTax': $('#Estimate2_PartsTax').val(),
+                                'Estimation2_PartsTotal': $('#Estimate2_Parts').val(),
+
+                                'Job_DJETotal': $('#Estimate1_DJETotal').val(),
+                                'Estimation1_DJETax': $('#Estimate1_DJETax').val(),
+                                'Estimation1_DJETotal': $('#Estimate1_DJE').val(),
+
+                                'Estimation2_DJEProfit': $('#Estimate2_DJEProfit').val(),
+                                'Estimation2_DJESubTotal': $('#Estimate2_DJESubtotal').val(),
+                                'Estimation2_DJETax': $('#Estimate2_DJETax').val(),
+                                'Estimation2_DJETotal': $('#Estimate2_DJE').val(),
+
+                                'Job_VQTotal': $('#Estimate1_VQTotal').val(),
+                                'Estimation1_VQTax': $('#Estimate1_VQTax').val(),
+                                'Estimation1_VQTotal': $('#Estimate1_VQ').val(),
+
+                                'Estimation2_VQProfit': $('#Estimate2_VQProfit').val(),
+                                'Estimation2_VQSubtotal': $('#Estimate2_VQSubtotal').val(),
+                                'Estimation2_VQTax': $('#Estimate2_VQTax').val(),
+                                'Estimation2_VQTotal': $('#Estimate2_VQ').val(),
+
+                                'Estimation1_GrandTotal': $('#Estimate1_GrandTotal').val(),
+                                'Estimation1_Total': $('#Estimate1_GrandTotalvalue').val(),
+
+                                'Estimation2_GrandTotal': $('#Estimate2_GrandTotal').val(),
+                                'Estimation2_SubTotal': $('#Estimate2_GrandSubtotal').val(),
+                                'Estimation2_Total': $('#Estimate2Total').val(),
+                                'Estimate3_Override': $('#Estimation3_Override').val(),
+                                'IsActive': true
+
+                            };
+
+                            //
+
+                            var $estimate4_subtotal = $('#estimate4-subtotal');
+                            var $estimate4_tax = $('#estimate4-tax');
+                            var $estimate4_total = $('#estimate4-total');
+
+                            if (
+                                $estimate4_subtotal.length
+                                && $estimate4_tax.length
+                                && $estimate4_total.length
+                            ) {
+                                function parse_number(input) {
+                                    if (input) {
+                                        input = input.replace(/\,/g, '');
+                                        input = Number(input);
+                                    }
+                                    return input;
+                                }
+
+                                var estimate4_subtotal = parse_number($estimate4_subtotal.find('input[type="text"]').val());
+                                var estimate4_tax = parse_number($estimate4_tax.find('input[type="text"]').val());
+                                var estimate4_total = parse_number($estimate4_total.find('input[type="text"]').val());
+
+                                if ($estimate4_tax.find('input[type="checkbox"]:checked').length === 0) {
+                                    estimate4_subtotal = estimate4_total;
+                                    estimate4_tax = 0;
+                                }
+
+                                estimation['Selected_Estimation_Type'] = 4;
+
+                                estimation['Estimate4_Subtotal'] = estimate4_subtotal;
+                                estimation['Estimate4_Tax'] = estimate4_tax;
+                                estimation['Estimate4_Total'] = estimate4_total;
+
+                                estimation['Estimate4_Data'] = JSON.stringify(window.bid_summary_ref.state);
+                            }
+
+                            //
+
+                            if (isvalid == true) {
+                                var jobid = 0;
+                                if ($('#Job_ID').val() != "0") {
+                                    jobid = $('#Job_ID').val();
+                                }
+                                Tempole = $("#TempPole");
+                                var Model = {
+                                    'Job_Status': $('#Job_Status').val(),
+                                    'Start_Date': $('#Start_Date').val(),
+                                    'End_Date': $('#End_Date').val(),
+                                    'TempPole': Tempole[0].checked,
+                                    'Job_Description': $('#Job_Description').val().trim(),
+                                    'Client_Name': $('#Client_Name').val(),
+                                    'Other_ClientName': $('#Other_ClientName').val(),
+                                    'Job_ID': jobid,
+                                    'JobDisplayId': $('#JobDisplayId'),
+                                    'Job_AssignedUser': $("#Job_AssignedUser").val(),
+                                    'Client_ContactPerson': $('#Client_ContactPerson').val(),
+                                    'Client_Address': $('#Client_Address').val(),
+                                    'Client_Address2': $('#Client_Address2').val(),
+                                    'Client_City': $('#Client_City').val(),
+                                    'Client_State': $('#Client_State').val(),
+                                    'Client_ZipCode': $('#Client_ZipCode').val(),
+                                    'Client_Fax': $('#Client_Fax').val(),
+                                    'Client_Email': $('#Client_Email').val(),
+                                    'Client_Phone': $('#Client_Phone').val(),
+                                    'Client_Mobile': $('#Client_Mobile').val(),
+                                    'Previous_Location': $('#Previous_Location').val(),
+                                    'Other_Previous_Location': $('#Other_Previous_Location').val(),
+                                    'Work_Address': $('#Work_Address').val(),
+                                    'Work_Address2': $('#Work_Address2').val(),
+                                    'Work_City': $('#Work_City').val(),
+                                    'Work_State': $('#Work_State ').val(),
+                                    'Work_ZipCode': $('#Work_ZipCode').val(),
+                                    'Directions_To': $('#Directions_To').val().trim(),
+                                    'Doing_What': $('#Doing_What').val().trim(),
+                                    'Job_Mileage_Estimated': $('#Estimated').val(),
+                                    'Job_Mileage_Actual': $('#ActualCost').val(),
+                                    'Job_Mileage_Cost': $('#MileageCost').val(),
+                                    'Job_Mileage_ExpTotal': $('#MileExpTotal').val(),
+                                    'Job_Mileage_EstTotal': $('#MileEstTotal').val(),
+                                    'Job_Mileage_ActTotal': $('#MileActTotal').val(),
+                                    'EstimateValue_SubTotal': $('#SubEstTotal').val(),
+                                    'EstimateValue_Overhead_ExpTotal': $('#OverExpTotal').val(),
+                                    'EstimateValue_ExpTotal': $('#EstimateExpTotal').val(),
+                                    'EstimateValue_Profit_Percentage': $('#ProfitPercentage').val(),
+                                    'EstimateValue_Profit_EstTotal': $('#ProfitEstTotal').val(),
+                                    'Estimate_Override': $('#EstimateOverride').val(),
+                                    'EstimateValue_Profit_Percentage': $('#ProfitPercentage').val(),
+                                    'EstimateValue_ExpTotal': $('#EstimateExpTotal').val(),
+                                    'SalesTax_Perc': $('#SalesPercentage').val(),
+                                    'SalesTax': $('#SalesEstTotal').val(),
+                                    'Job_ExpenseTotal': $('#JobExpensesTotal').val(),
+                                    'Job_EstimatedTotal': $('#EstimateTotal').val(),
+                                    'Job_ActualTotal': $('#ActualTotal').val(),
+                                    'Profit_Loss_Total': $('#ProfitLossTotal').val(),
+                                    'NewJobAssemblyList': NewJobAssemblyList,
+                                    'NewPartsListInJob': partslist,
+                                    'Parts_GrandExpTotal': PartsGrandExpTotal,
+                                    'Parts_GrandEstTotal': PartsGrandEstTotal,
+                                    'Parts_GrandActTotal': PartsGrandActTotal,
+                                    'NewLabourListInJob': LaborList,
+                                    'Labor_GrandExpTotal': LaborGrandExpTotal,
+                                    'Labor_GrandEstTotal': LaborGrandEstTotal,
+                                    'Labor_GrandActTotal': LaborGrandActTotal,
+                                    'NewLegalListInJob': LegalList,
+                                    'DJEVQDetails': JobDJE,
+                                    'Job_EstimationDetails': estimation,
+                                    'Job_Number': $("#Job_Number").val()
+
+                                };
+
+                                //
+
+                                if (estimation['Selected_Estimation_Type'] == 4) {
+                                    Model['Job_EstimatedTotal'] = estimate4_subtotal;
+                                }
+
+                                //
+
+                                previousid = jobid;
+                                Model = JSON.stringify(Model);
+                                ///formData.append('Model', JSON.stringify(Model));
+
+                                var jobbtn = $("#JobAddbtn").text();
+                                if (jobbtn == "Add") {
+                                    msg = "Would you like to save this job?"
+                                }
+                                else {
+                                    msg = "Would you like to update this job?"
+                                }
+
+                                if (confirm(msg)) {
+                                    $.ajax({
+                                        url: '../Job/SaveNewJobDetails',
+                                        data: Model,
+                                        type: 'POST',
+                                        cache: false,
+                                        contentType: 'application/json',
+                                        // processData: false,
+                                        //contentType: false,
+                                        success: function (data) {
+                                            var formdata = new FormData();
+                                            formdata.append("JobId", data);
+                                            if (document.getElementById('multiUpload') != null) {
+                                                var totalfiles = document.getElementById('multiUpload').files;
+                                                for (var f = 0; f < allfiles.length; f++) {
+                                                    formdata.append('file' + f, allfiles[f]);
+                                                }
+                                                var request = new XMLHttpRequest();
+
+                                                request.open("POST", "../Job/Upload");
+                                                request.send(formdata);
+                                                request.onload = function (dataa) {
+                                                    if (request.readyState === request.DONE) {
+                                                        if (request.status === 200) {
+                                                            if (previousid == "0")
+                                                                DisplayNotification("“Jobs” saved successfully.", "success");
+                                                            else
+                                                                DisplayNotification("“Jobs updated” successfully.", "success");
+                                                            console.log(request.response);
+                                                            console.log(request.responseText);
+                                                            setTimeout(function () {
+                                                                window.location.href = "../Job/JobsIndex?JobID=" + data + "&reload=true";
+                                                            }, 2000);
+
+                                                        }
+                                                    }
+                                                };
+                                                request.onerror = function (err) {
+                                                };
+                                                //$.ajax({
+                                                //    url: '../Job/Upload',
+                                                //    type: 'POST',
+                                                //    data: formdata,
+                                                //    dataType: 'JSON',
+                                                //    processData: false,
+                                                //    contentType: false,
+                                                //    contentType: 'application/json',
+                                                //    success: function (data) {
+                                                //
+                                                //    },
+                                                //    error: function (err) {
+                                                //
+                                                //    }
+                                                //})
+
+                                            }
+
+                                            $('#Job_ID').val(data);
+                                            $('#hdnjobid').val(data);
+                                            //alert($('#hdnjobid').val(data));
+                                            var sd = $('#Addbtn');
+                                            //$('#JobAddbtn').css("disabled", "disabled");
+                                            $('#JobAddbtn').text('Update');
+                                            $('#JobAddbtn').show();
+                                            $('#Reset').text('New');
+                                            $('#Reset').show();
+                                            allfiles = new Array();
+                                            //GetJobInfo($('#hdnjobid').val());
+
+                                            // DJEVQcalculate();
+                                            //assemblySelectedParts = [];
+                                        },
+                                        error: function (err) {
+                                        }
+                                    });
+                                }
+                                else {
+                                    $('#JobAddbtn').show();
+                                    $('#Reset').show();
+                                }
+
+                            }
+                            else {
+                                $('#JobAddbtn').show();
+                                $('#Reset').show();
+                                DisplayNotification(errormsg, "error");
+                            }
+                        }
+
+
+                        else {
+                            $('#JobAddbtn').show();
+                            $('#Reset').show();
+                            DisplayNotification(errormsg, "error");
+                        }
+                    }
+                    else {
+                        $('#JobAddbtn').show();
+                        $('#Reset').show();
+                        DisplayNotification(errormsg, "error");
+                    }
+                }
+                else {
+                    $('#JobAddbtn').show();
+                    $('#Reset').show();
+                    DisplayNotification(errormsg, "error");
+                }
+                //}
+                //else {
+                //    DisplayNotification("Please Add atlest one Parts and Labor ( Parts and Labor Details List or Asseblies list)", "error");
+                //}
+            }
+            //else {
+            //    $("#Client_Email").focus();
+            //    DisplayNotification("Email is not valid, please enter the valid Email Id", "error");
+            //}
+        }
+        else {
+            $('#JobAddbtn').show();
+            $('#Reset').show();
+            DisplayNotification("Please fill the required fields “Client Name, Client Email, Phone, City & Zip Code”!", "error");
+
+        }
+    }
+
+    function isEmail() {
+
+        valid = 1;
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+        var email = $("#Client_Email").val();
+        var emaillist = new Array()
+        emaillist = email.split(",")
+        if (emaillist.length > 0) {
+            for (i = 0; i < emaillist.length; i++) {
+                if (!emaillist[i].match(emailReg)) {
+                    DisplayNotification(emaillist[i] + " is not valid, please enter a valid Email Id", "error");
+                    valid = 0;
+                }
+            }
+            if (valid > 0) {
+                return true;
+            }
+
+        }
+
+
+
+        //var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        //return regex.test(email);
+    }
+    function phonevalidation() {
+
+        var phoneno = $("#Client_Phone").val();
+        var characterReg = /^[0-9-+]+$/;
+        if (phoneno == "") {
+            return true;
+        }
+        else {
+            if (characterReg.test(phoneno) == false || phoneno.length < 10) {
+                DisplayNotification("Invalid “Phone Number”!", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    }
+    function Mobilevalidation() {
+        var Mobileno = $("#Client_Mobile").val();
+        var characterReg = /^[0-9-+]+$/;
+        if (Mobileno == "") {
+            return true;
+        }
+        else {
+            if (characterReg.test(Mobileno) == false || Mobileno.length < 10) {
+                DisplayNotification("Invalid “Mobile Number”!", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+    }
+    function estimatevalues() {
+
+        var assembliesest = $('#Assembliesbody tr.accordion-toggle');
+        var estimatedtotal = 0;
+        var exptotal = 0;
+        var acttotal = 0;
+        var DjeCost = 0;
+        var VQCost = 0;
+
+        for (var i = 0; i < assembliesest.length; i++) {
+            //exptotal = Number(exptotal) + Number(assembliesest[i].cells[4].children[0].value.trim());
+            exptotal = Number(exptotal) + Number(assembliesest[i].cells[7].children[0].value.trim());
+            //estimatedtotal = Number(estimatedtotal) + Number(assembliesest[i].cells[7].children[0].value.trim());
+            acttotal = Number(acttotal) + Number(assembliesest[i].cells[9].children[0].value.trim());
+        }
+        if (typeof $('#Parts_GrandEstTotal').val() != 'undefined' && $('#Parts_GrandEstTotal').val() != "") {
+            //estimatedtotal = Number(estimatedtotal) + Number($('#Parts_GrandEstTotal').val());
+            exptotal = Number(exptotal) + Number($('#Parts_GrandExpTotal').val());
+            acttotal = Number(acttotal) + Number($('#Parts_GrandActTotal').val());
+        }
+        if (typeof $('#Labor_GrandEstTotal').val() != 'undefined' && $('#Labor_GrandEstTotal').val() != "") {
+            // estimatedtotal = Number(estimatedtotal) + Number($('#Labor_GrandEstTotal').val());
+            exptotal = Number(exptotal) + Number($('#Labor_GrandExpTotal').val());
+            acttotal = Number(acttotal) + Number($('#Labor_GrandActTotal').val());
+        }
+        //if (typeof $('#MileEstTotal').val() != 'undefined' && $('#MileEstTotal').val() != "") {
+        //    //estimatedtotal = Number(estimatedtotal) + Number($('#MileEstTotal').val());
+        //    exptotal = Number(exptotal) + Number($('#MileExpTotal').val());
+        //    acttotal = Number(acttotal) + Number($('#MileActTotal').val());
+        //}
+        if (isNaN(estimatedtotal)) {
+            estimatedtotal = 0;
+        }
+        $('#SubEstTotal').val(estimatedtotal.toFixed(2));
+        if (isNaN(exptotal)) {
+            exptotal = 0;
+        }
+        //here adding Dje and vq with expense total
+        DjeCost = $('#DjeCost_total').val();
+        if (isNaN(DjeCost)) {
+            DjeCost = 0;
+        }
+        VQCost = $('#VQCost_total').val()
+        if (isNaN(VQCost)) {
+            VQCost = 0;
+        }
+        exptotal += Number(DjeCost) + Number(VQCost);
+        $('#Job_ExpenseTotal').val(exptotal.toFixed(2));
+        if (acttotal != 0) {
+            $("#jobtotal_toggle").show();
+            $("#jobtotal_toggleSection").show();
+        }
+        else {
+            $("#jobtotal_toggle").hide();
+            $("#jobtotal_toggleSection").hide();
+        }
+        if (isNaN(acttotal)) {
+            acttotal = 0;
+        }
+        $('#ActualTotal').val(acttotal.toFixed(2));
+        var expp = $('#EstimateTotal').val();
+
+        if ($('#EstimateTotal').val() == '' || $('#EstimateTotal').val() == "0.00" || $('#EstimateTotal').val() == "0" || $('#EstimateOverride').val() == "") {
+
+            $('#EstimateTotal').val(estimatedtotal.toFixed(2));
+        }
+        profitcal();
+        GetEstimation();
+    }
+
+    function profitcal() {
+        var profitloss = Number($('#EstimateTotal').val()) - Number($('#Job_ExpenseTotal').val());
+        if (isNaN(profitloss)) {
+            profitloss = 0;
+        }
+        $('#ProfitLossTotal').val(Number(profitloss).toFixed(2));
+    }
+
+
+    function openassemblyparts(assemblyname, val) {
+        assemblySelectedParts = [];
+
+        KeyCurrentOperation = "JobAssemblyParts";
+        KeyPopupStatus = "Open";
+
+
+        CurrentAssemblyName = assemblyname;
+        var mainparentrow = $(val).parent().parent()[0].id;
+        selectedrow = mainparentrow;
+
+        //old method starts
+        var lstpartnum = "";
+        //$("#Loading").show();
+        var JobID = $('#Job_ID').val();
+        //var mainparentrow = $(val).parent().parent()[0].id;
+        //selectedrow = mainparentrow;
+        var lstpartnum = "";
+        var assemnameid = assemblyname;
+        if (assemblyname.indexOf(' ') > -1) {
+            assemnameid = assemnameid.replace(/ /g, "_");
+        }
+        var tablRows = $('#' + mainparentrow + ' #' + assemnameid + '_partstbody tr')
+        if (tablRows.length > 0) {
+
+            $('#' + mainparentrow + ' #' + assemnameid + '_partstbody tr').each(function () {
+                var customerId = $(this).find("#partnumber").html();
+                lstpartnum += customerId.trim() + ",";
+                assemblySelectedParts.push(customerId.trim());//To add in the selected list
+            });
+        }
+        var tablRowsassem = $('#' + mainparentrow + ' #' + assemnameid + '_partstbodyassem tr')
+        if (tablRowsassem.length > 0) {
+
+            $('#' + mainparentrow + ' #' + assemnameid + '_partstbodyassem tr').each(function () {
+                var customerId = $(this).find("#partnumber").html();
+                if (customerId != undefined) {
+                    lstpartnum += customerId.trim() + ",";
+                    assemblySelectedParts.push(customerId.trim());//To add in the selected list
+                }
+            });
+        }
+
+        //To clear the individual search text boxes in datatable
+        $('#ClientPartsTable thead tr:eq(1) th input').each(function (i) {
+            $(this).val('');
+        });
+
+        ClientPartsTable.columns().search('').draw();
+        $('#ClientPartsTable_filterSelect1').val('');
+        $("#OpenPartsPopUp").click();
+
+        return;
+
+        $.ajax({
+            url: '../Job/checkAssemblyIsExist?name=' + assemblyname,
+            type: 'Get',
+            success: function (data) {
+                if (data == "true") {
+                    getassemblyparts(assemblyname, lstpartnum, assemnameid);
+                }
+                else {
+                    DisplayNotification("You cannot add the parts for this assembly, because this assembly has been deleted from the \"Assembly List\"!", "error");
+                }
+                //$('#divJobAssemblyPartsData').html(data);
+                //$('#JobAssemblyPartsPopup').click();
+                //$("#nullpartsassemblyname").val(assemnameid);
+            },
+            error: function (err) {
+                $("#Loading").hide();
+            }
+        });
+    }
+
+    function getassemblyparts(assemblyname, lstpartnum, assemnameid) {
+
+        $.ajax({
+            url: '../Job/GetallPartsListAssembly?name=' + assemblyname + "&lstparts=" + lstpartnum,
+            type: 'Get',
+            success: function (data) {
+                $("#Loading").hide();
+                //$('#divpartsdata').html(data);
+                $('#divJobAssemblyPartsData').html(data);
+                $('#JobAssemblyPartsPopup').click();
+
+                $("#nullpartsassemblyname").val(assemnameid);
+            },
+            error: function (err) {
+                $("#Loading").hide();
+            }
+        });
+    }
+
+    function Assemblyselectrow(val) {
+        HideNotification();
+        i = 0;
+        var ss = $('#selectall');
+        var checkbx = $(val).find("input[type=checkbox]");
+        var content = checkbx[0];
+        var value = $(content).attr("data-id");
+        var assemblyName = $("#" + val.id).attr('val');
+        var iszero = $("#hidAssemblie" + assemblyName).attr("data-id");
+        if (value != 0) {
+            if (iszero == "False") {
+                if (typeof content != 'undefined') {
+                    if (checkbx[0].checked == false) {
+                        checkbx[0].checked = true;
+                        //To store the selected assemblies
+                        selectedAssemblies.push(checkbx[0].value);
+                    }
+                    else {
+                        // document.getElementById("ASselectall").checked = false;
+                        checkbx[0].checked = false;
+                        //To delete the selected parts from stored list
+                        if (selectedAssemblies.indexOf(checkbx[0].value) > -1)
+                            selectedAssemblies.splice(selectedAssemblies.indexOf(checkbx[0].value), 1);
+                    }
+                }
+                else {
+                    if (val.checked == false) {
+                        val.checked = true;
+                    }
+                    else {
+                        //  document.getElementById("ASselectall").checked = false;
+                        val.checked = false;
+                    }
+                }
+                //$('#Assembliestable').find("input:checkbox").each(function () {
+                //    if (this.checked == true) {
+                //        i++
+                //    }
+                //    var tablerowlength = $("#Showasbody tr").length;
+                //    if (tablerowlength == i) {
+                //        document.getElementById("ASselectall").checked = true;
+                //    }
+                //});
+            }
+            else {
+                val.checked = false;
+                DisplayNotification("'" + assemblyName + "' Assembliy has '0' value, please update the price in assembly master.", "error");
+            }
+        }
+        else {
+            DisplayNotification("You cannot add this assembly, because this assembly doesn't have any parts. If you want to add this assembly,you should add parts to the assembly in Assembly Master!", "error");
+        }
+
+    }
+
+
+    function AssemblyPartselectrow(val) {
+        i = 0;
+        var ss = $('#selectall');
+        var checkbx = $(val).find("input[type=checkbox]");
+        var content = checkbx[0];
+
+        if (typeof content != 'undefined') {
+            if (checkbx[0].checked == false) {
+                checkbx[0].checked = true;
+                //To store the selected parts
+                //assemblySelectedParts.push(checkbx[0].id);
+            }
+            else {
+                document.getElementById("ASPselectall").checked = false;
+                checkbx[0].checked = false;
+                //To delete the selected parts from stored list
+                //if (assemblySelectedParts.indexOf(checkbx[0].id) > -1)
+                //    assemblySelectedParts.splice(assemblySelectedParts.indexOf(val.id), 1);
+            }
+        }
+        else {
+            if (val.checked == false) {
+                val.checked = true;
+                //assemblySelectedParts.push(val.id);
+            }
+            else {
+                document.getElementById("ASPselectall").checked = false;
+                val.checked = false;
+                //if (assemblySelectedParts.indexOf(val.id) > -1)
+                //    assemblySelectedParts.splice(assemblySelectedParts.indexOf(val.id), 1);
+            }
+        }
+
+        $('#partstable').find("input:checkbox").each(function () {
+            if (this.checked == true) {
+                i++
+            }
+            var tablerowlength = $("#showaspbody tr").length;
+            if (tablerowlength == i) {
+                document.getElementById("ASPselectall").checked = true;
+            }
+        });
+    }
+
+    function Partsselectrow(val) {
+
+        i = 0;
+        var ss = $('#selectall');
+        var checkbx = $(val).find("input[type=checkbox]");
+        var content = checkbx[0];
+        if (typeof content != 'undefined') {
+            if (checkbx[0].checked == false) {
+                checkbx[0].checked = true;
+                partsselectedpart.push(checkbx[0].id);
+            }
+            else {
+                document.getElementById("selectall").checked = false;
+                checkbx[0].checked = false;
+                if (partsselectedpart.indexOf(checkbx[0].id) > -1)
+                    partsselectedpart.splice(partsselectedpart.indexOf(checkbx[0].id), 1);
+
+            }
+        }
+        else {
+            if (val.checked == false) {
+                val.checked = true;
+                //partsselectedpart.push(val.id);
+                //if (partsselectedpart.indexOf(val.id) > -1)
+                //   partsselectedpart.splice(partsselectedpart.indexOf(val.id), 1);
+            }
+            else {
+                document.getElementById("selectall").checked = false;
+                val.checked = false;
+                //partsselectedpart.push(val.id);
+                //if (partsselectedpart.indexOf(val.id) > -1)
+                //    partsselectedpart.splice(partsselectedpart.indexOf(val.id), 1);
+            }
+        }
+        $('#partstable').find("input:checkbox").each(function () {
+
+            if (this.checked == true) {
+                i++
+            }
+            var tablerowlength = $("#JobPartsBody tr").length;
+            if (tablerowlength == i) {
+
+                document.getElementById("selectall").checked = true;
+            }
+        });
+        debugger;
+    }
+
+
+    function Laborselectrow(val) {
+        i = 0;
+
+        var ss = $('#selectall');
+        var checkbx = $(val).find("input[type=checkbox]");
+        var content = checkbx[0];
+        if (typeof content != 'undefined') {
+            if (checkbx[0].checked == false) {
+                checkbx[0].checked = true;
+                if (laborpopselected.indexOf(checkbx[0].id) == -1)
+                    laborpopselected.push(checkbx[0].id);
+            }
+            else {
+                document.getElementById("laborselectall").checked = false;
+                checkbx[0].checked = false;
+                if (laborpopselected.indexOf(checkbx[0].id) > -1)
+                    laborpopselected.splice(laborpopselected.indexOf(checkbx[0].id), 1);
+            }
+        }
+        else {
+            if (val.checked == false) {
+                val.checked = true;
+                if (laborpopselected.indexOf(val.id) == -1)
+                    laborpopselected.push(val.id);
+            }
+            else {
+                document.getElementById("laborselectall").checked = false;
+                val.checked = false;
+                if (laborpopselected.indexOf(val.id) > -1)
+                    laborpopselected.splice(laborpopselected.indexOf(val.id), 1);
+            }
+        }
+        $('#Labortable').find("input:checkbox").each(function () {
+
+            if (this.checked == true) {
+                i++
+            }
+            var tablerowlength = $("#LaborBody tr").length;
+            if (tablerowlength == i) {
+                document.getElementById("laborselectall").checked = true;
+            }
+        });
+    }
+
+    function Legalselectrow(val) {
+
+        i = 0;
+        var ss = $('#selectall');
+        var checkbx = $(val).find("input[type=checkbox]");
+        var content = checkbx[0];
+        if (typeof content != 'undefined') {
+            if (checkbx[0].checked == false) {
+                checkbx[0].checked = true;
+                legalpopselected.push(checkbx[0].id);
+            }
+            else {
+                document.getElementById("legalselectall").checked = false;
+                checkbx[0].checked = false;
+                if (legalpopselected.indexOf(checkbx[0].id) > -1)
+                    legalpopselected.splice(legalpopselected.indexOf(checkbx[0].id), 1);
+            }
+        }
+        else {
+            if (val.checked == false) {
+                val.checked = true;
+                legalpopselected.push(val.id);
+                var cc = $("input[id=" + val.id + "]:checked").length
+                legalpopselected.splice(legalpopselected.indexOf(val.id), 1);
+            }
+            else {
+
+                document.getElementById("legalselectall").checked = false;
+                val.checked = false;
+                if (legalpopselected.indexOf(val.id) > -1)
+                    legalpopselected.splice(legalpopselected.indexOf(val.id), 1);
+            }
+        }
+
+        $('#Legaltable').find("input:checkbox").each(function () {
+
+            if (this.checked == true) {
+
+                i++
+            }
+            var tablerowlength = $("#showLegalbody tr").length;
+            if (tablerowlength == i) {
+                document.getElementById("legalselectall").checked = true;
+            }
+        });
+    }
+
+    //To delete the selected part from the current assembly
+    function deleteAssemblyPartsInfo() {
+        //var agree = confirm("Are you sure that you want to delete this item?");
+        $(this).closest('tr').remove();
+        //$(this).parent().parent().remove();
+        //$.ajax({
+        //    url: '../Job/deleteAssemblyPartsInfo?part=' + part,
+        //    type: 'Get',
+        //    success: function (data) {
+        //        $(partstable).html(data);
+        //    },
+        //    error: function (err) {
+
+        //    }
+        //});
+    }
+</script>
+
+<script src="~/Scripts/Job.js"></script>
+<div class="magic-layoutz">
+    <div class="box magic-element width-full">
+
+        <div id="divJobDetailsinfo">
+        </div>
+    </div>
+    <a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#PartsPopUp" id="OpenPartsPopUp" style="display: none">popup</a>
+    <div id="PartsPopUp" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 78%; margin-left: 21%; margin-top: 60px;">
+            <div class="modal-header" style="background-color: #333333; height: 35px;">
+                <button type="button" class="close" data-dismiss="modal" id="ClosePartsPopUp" onclick="ClosePartsPopup();" style="color: white !important; opacity: 0.9;">&times;</button>
+                <h4 class="modal-title" style="color: #FFF !important;">Add Parts Details</h4>
+            </div>
+            <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                <table id="ClientPartsTable" class="table table-bordered datatables" cellspacing="0" width="100%">
+                    <thead style="background-color: #45525F">
+                        <tr>
+                            <th>Select</th>
+                            <th>Part Category</th>
+                            <th>Description</th>
+                            <th>Parts Number</th>
+                            <th>My Cost</th>
+                            <th>Resale</th>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="pull-right popup-btn">
+                    <button type="button" class="btn btn-flat btn-primary btn-sm " style="margin: 2px" id="AddParts">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer clearfix">
+        <div class="pull-right" style="width: 35%">
+            <button value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" style="width: 49%" tabindex="10" id="JobAddbtn" onclick="SaveJobDetails();">Add</button>
+            <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" style="width: 49%" onclick="if($('#Reset').text()!='New'){if(confirm('Are you sure, do you want to reset?'))window.location.href='../Job/JobsIndex';}else{window.location.href='../Job/JobsIndex';}" id="Reset">Clear</a>
+        </div>
+    </div>
+</div>

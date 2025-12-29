@@ -1,0 +1,12 @@
+﻿@model ElectricEase.Models.Account_MasterInfo
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<script></script>
+<div class="row-fluid">
+    <div class="col-md-3">
+        <div class="form-group">
+            <label for="title"><strong>Temp Pole:</strong></label>
+            @Html.CheckBoxFor(m => m.Account_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+        </div>
+    </div>
+</div>

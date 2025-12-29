@@ -1,0 +1,645 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<script>
+    $(document).ready(function () {
+        Cookies.set('labourdtpagelen', "");
+        Cookies.set('labourtpageno', "");
+        Cookies.set('labourearch', "");
+        $('li').removeClass('active');
+        $("#labourmaster").addClass('active');
+        $(".content-title").text("Labor Master");
+        getlist();
+        editlabour('0', '0');
+    });
+    function Cancel() {
+        msg = "Are you sure, do you want to cancel?"
+        if (confirm(msg)) {
+            editlabour('0', '0');
+            getlist();
+            $("#title-cont").text("Add Labor Details");
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    function checknum(element) {
+
+        var values = $(element).val();
+        var rgx = /^[0-9]*\.?[0-9]*$/;
+        if (values.match(rgx)) {
+
+        }
+        else {
+            $(element).val(0);
+            //$(element).val($(element).val().replace(/\D/, ''));
+        }
+    }
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/LaborMaster.pdf");
+    })
+
+    function ShowOtherCategory(value) {
+
+        if (value == "other") {
+            $("[name=otherLabor_Category]").removeAttr("disabled");
+            $("#spnCatError").show();
+        }
+        else {
+            $("otherLabor_Category").val('');
+            $("[name=otherLabor_Category]").attr("disabled", "disabled");
+            $("#spnCatError").hide();
+        }
+    }
+
+    function GetLaborCatgory(val) {
+        var clientid = $(val).val();
+        var laborname = $("#Laborer_Name").val();
+        if (clientid == "") {
+            $("#Labor_Category").attr('disabled', 'disabled');
+        }
+        else {
+            $.ajax({
+
+                url: '../Labour_Master/GetMyLaborCatgory?ClientID=' + clientid + '&laborname=' + laborname,
+                type: 'Get',
+                success: function (data) {
+                    $("#Labor_Category").removeAttr('disabled')
+                    dropdownElement = $("#Labor_Category");
+                    dropdownElement.find('option[value!=""]').remove();
+                    var $laborcatgorylist = $("#Labor_Category");
+                    if (laborname == "") {
+                        $.each(data, function (i, catgory) {
+                            $('<option>', {
+                                value: catgory.Labor_Category
+                            }).html(catgory.Labor_Category).appendTo($laborcatgorylist);
+                        });
+                    }
+                    else {
+                        $.each(data.laborcatgorylist, function (i, catgory) {
+                            $('<option>', {
+                                value: catgory.Labor_Category
+                            }).html(catgory.Labor_Category).appendTo($laborcatgorylist);
+
+                        });
+                        $("#Labor_Category").val(data.Labor_Category);
+
+                    }
+                },
+                error: function (err) { }
+
+            });
+        }
+
+
+    }
+    function editlabour(val1, val2) {
+        if ($("#IsAdmin").val() == "Admin") {
+            //GetLaborCatgory("#Client_ID");
+            $("#Part_Category").removeAttr('disabled');
+        }
+        $.ajax({
+            url: '../Labour_Master/EditLabourDetails?LabourName=' + val1 + '&ClientID=' + val2,
+            type: 'Get',
+            success: function (data) {
+
+                var ddl = $("select[name=Client_ID]");
+                $("#Part_Category").removeAttr('disabled');
+                $('#divaddlabour').html(data);
+                $("#Client_ID").select2();
+                $("#Labor_Category").select2();
+                if (val2 != "0" && val2 != null) {
+                    if ($("#IsAdmin").val() == "Admin") {
+                        GetLaborCatgory("#Client_ID");
+                    }
+                    var s = $("#Reset");
+                    $("#title-cont").text("Edit Labor Details")
+                    $("#Reset").hide();
+                    $("#Labor_Category").focus();
+                    // $("#submit").text("Update")
+                    //$("#submit").addClass("pull-right")
+                }
+
+            },
+            error: function (err) {
+                DisplayNotification("\"Network Error\" Please try later!", "error");
+            }
+        });
+    }
+    function getlist(showBot) {
+        $.ajax({
+            url: '../Labour_Master/LabourList',
+            type: 'GET',
+            success: function (data) {
+                $('#divlabourslist').html(data);
+                if (showBot == 1) {
+                    $("#divBotLabour").focus();
+                }
+
+            },
+            error: function (err) {
+            }
+        });
+    }
+    function GetImage(val) {
+
+        var fileUpload = document.getElementById("fileupload");
+        $("#firstlogo").hide();
+        $("#dvPreview").html("");
+        var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.jpg|.jpeg|.gif|.png|.bmp)$/;
+        if (regex.test($(val).val().toLowerCase())) {
+            if ($.browser.msie && parseFloat(jQuery.browser.version) <= 9.0) {
+                $("#dvPreview").show();
+                $("#dvPreview")[0].filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = $(val).val();
+            }
+            else {
+                if (typeof (FileReader) != "undefined") {
+
+                    $("#dvPreview").show();
+                    $("#dvPreview").append("<img id='upimg' height='75' width='30%'/>").attr({ width: '300px', height: '150px' });
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $("#dvPreview img").attr("src", e.target.result);
+                    }
+                    reader.readAsDataURL($(val)[0].files[0]);
+                } else {
+                    alert("This browser does not support FileReader.");
+                }
+            }
+        } else {
+            alert("Please upload a valid image file.");
+            $("#fileupload").val("");
+        }
+
+    }
+
+    function laborcatgoryValidate() {
+
+        var LaborCategory = $('#Labor_Category').val();
+        if (LaborCategory != "") {
+            var otherCategory = $("#otherLabor_Category").val();
+            othercatgoryMsg = "\"Other Category\" field is required, If you had selected \"Other\" in category field.";
+            if (LaborCategory == "other" && otherCategory == '') {
+                DisplayNotification(othercatgoryMsg, "error");
+                return false;
+
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("Labor “Category” is required.", "error");
+            return false;
+
+        }
+    }
+    function laborNameValidate() {
+
+        var LaborerName = $('#Laborer_Name').val();
+        if (LaborerName != "") {
+            return true;
+        }
+        else {
+            DisplayNotification("“Labor Name” is required!", "error");
+            return false;
+        }
+    }
+    function CostValidate() {
+        if ($("#Cost").val() != "") {
+            //var intRegex = /^\d+(?:\.\d\d?)?$/;
+            var intRegex = /^(\d*\.?\d+|\d+\.\d*)$/;
+            if (!$("#Cost").val().match(intRegex)) {
+                DisplayNotification("Cost should be a “Number”.", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("“Cost” is required.", "error");
+            return false;
+        }
+
+    }
+    function RateValidate() {
+        if ($("#Rate").val() != "") {
+            //var intRegex = /^\d+(?:\.\d\d?)?$/;
+            var intRegex = /^(\d*\.?\d+|\d+\.\d*)$/;
+            if (!$("#Rate").val().match(intRegex)) {
+                DisplayNotification("“Rate” should be a number!", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("“Rate” is required!", "error");
+            return false;
+        }
+
+    }
+    function resaleValidate() {
+        if ($("#Rcost").val() != "") {
+            //var intRegex = /^\d+(?:\.\d\d?)?$/;
+            var intRegex = /^(\d*\.?\d+|\d+\.\d*)$/;
+            if (!$("#Rcost").val().match(intRegex)) {
+                DisplayNotification("Resale Cost should be a “Number”.", "error");
+                return false;
+            }
+            else if (Number($("#Cost").val()) > Number($("#Rcost").val())) {
+                if (!confirm('“Cost” is greater than the “Resale Cost” in. Press OK to continue.')) {
+                    DisplayNotification("User cancelled the operation!", "error");
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("Resale “Cost” is required.", "error");
+            return false;
+        }
+    }
+    //function ResaleValidate() {
+    //    if ($("#Rcost").val()!= "")
+    //    {
+    //        // var intRegex = /^\d+(?:\.\d\d?)?$/;
+    //        var intRegex = /^(\d*\.?\d+|\d+\.\d*)$/;
+    //        if (!$("#Rcost").val().match(intRegex)) {
+    //            DisplayNotification("Resale  Should be a number", "error");
+    //            return false;
+    //        }
+    //        else
+    //        {
+    //            var Cost = $("#Cost").val();
+    //            var ResaleCost = $("#Rcost").val();
+    //            costMsg = "Resale price should be higher than “My Cost” price.";
+    //            if (parseFloat(ResaleCost) <= parseFloat(Cost))
+    //            {
+    //                DisplayNotification(costMsg, 'error');
+    //                return false;
+    //            }
+    //            else
+    //            {
+    //                return true;
+    //            }
+
+    //        }
+    //    }
+    //    else {
+    //        DisplayNotification("Resale is Required", "error");
+    //        return false;
+    //    }
+
+    //}
+    function ClientNamevalidate() {
+
+        if ($("#IsAdmin").val() == "Admin") {
+            var valueid = $('#Client_ID').val();
+            if ($('#Client_ID').val() == "") {
+                DisplayNotification("“Client Name” is required.", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            $('#Client_ID').val(0);
+            return true;
+        }
+    }
+    function burdenvalidate() {
+        var intRegex = /^\d+(?:\.\d\d?)?$/;
+        var burden = $("#burden").val();
+        if (burden != "" && burden != "0") {
+            if (!burden.match(intRegex)) {
+                DisplayNotification("“Burden” should be a number!", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("“Burden”  is required.", "error");
+            return false;
+        }
+    }
+    function CheckisExistingLabor() {
+        if (ClientNamevalidate() == true && laborcatgoryValidate() == true && laborNameValidate() == true && RateValidate() == true && burdenvalidate() == true && CostValidate() == true && resaleValidate() == true) {
+            var clientid = $("#Client_ID").val();
+            var laborname = $('#Laborer_Name').val();
+            $.ajax({
+                url: '../Labour_Master/CheckLaborNameIsvalid?ClientID=' + clientid + "&LaborName=" + laborname,
+                type: 'GET',
+                success: function (data) {
+                    if (data == "Already Exists") {
+                        msg = "Labor name is already exists!, do you want update?"
+                        if (confirm(msg)) {
+                            savelabour()
+                        }
+                        else {
+                            $('#Laborer_Name').focus();
+                        }
+
+                    }
+                    else {
+                        savelabour()
+                    }
+                },
+                error: function (err) {
+                }
+            })
+        }
+
+    }
+    function labornameValidate(val) {
+
+        var laborname = $(val).val();
+        //var characterReg = /^[A-Za-z\d=#$%...-]+$/;
+        var characterReg = /^[-_ a-zA-Z0-9]+$/;
+        if (!characterReg.test(laborname)) {
+            $("#labormsg").text("special characters are not allowed");
+            $('#Laborer_Name').focus();
+            return false;
+        }
+        else {
+            $("#labormsg").text("");
+            return true;
+        }
+
+    }
+    function nameValidate(val) {
+
+        var asname = val;
+        //var characterReg = /^[A-Za-z\d=#$%...-]+$/;
+        var characterReg = /^[-_ a-zA-Z0-9]+$/;
+        if (!characterReg.test(asname)) {
+            $("#labormsg").text("special characters are not allowed");
+            $('#Laborer_Name').focus();
+            return false;
+        }
+        else {
+            $("#labormsg").text("");
+            return true;
+        }
+
+    }
+    function savelabour() {
+        if (ClientNamevalidate() == true && laborcatgoryValidate() == true && laborNameValidate() == true && RateValidate() == true && burdenvalidate() == true && CostValidate() == true && resaleValidate() == true) {
+            var formData = new FormData();
+            var uploadfiles = document.getElementById('fileupload').files[0];
+            Gender = $("#Gender");
+            formData.append("uploadfile", uploadfiles);
+            var Model = {
+                "Client_ID": $("#Client_ID").val(),
+                "Labor_Category": $("#Labor_Category").val(),
+                "otherLabor_Category": $('#otherLabor_Category').val(),
+                "Laborer_Name": $('#Laborer_Name').val(),
+                "Gender": Gender[0].checked,
+                "Rate": $('#Rate').val(),
+                "Cost": $('#Cost').val(),
+                "Resale_Cost": $('#Rcost').val(),
+                "burden": $('#burden').val(),
+                "Description": $('#Description').val(),
+                "Client_Description": $('#Client_Description').val()
+            }
+            var btn = $("#submit").text();
+            if (btn == "Update ") {
+                msg = "Would you like to update this laborer?"
+            }
+            else {
+                msg = "Would you like to add this laborer?"
+
+            }
+
+            if (confirm(msg)) {
+                formData.append('Model', JSON.stringify(Model));
+                $.ajax({
+                    url: '../Labour_Master/SaveLaborDetails',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (data) {
+
+                        if (data == "“Labor details” are added successfully." || data == "“Labor details” are updated successfully.") {
+                            DisplayNotification(data, "success");
+                            editlabour('0', '0');
+                            getlist(1);
+                        }
+                        else {
+                            DisplayNotification(data, "error");
+                        }
+                    },
+                    error: function (err) {
+                    }
+                })
+            }
+
+        }
+
+    }
+
+
+
+    function deleteLabour(val1, val2) {
+        msg = "Would you like to delete this 'Laborer Details'?"
+        if (confirm(msg)) {
+
+            $.ajax({
+                url: '../Labour_Master/DeleteLaborDetail?LaborName=' + val1 + '&ClientID=' + val2,
+                type: 'Get',
+                success: function (data) {
+                    if (data != "“Deleted” successfully.") {
+                        DisplayNotification(data, "error");
+                    }
+                    else {
+                        DisplayNotification("“Labor Details” are deleted successfully!", "success");
+                        getlist();
+                        editlabour('0', '0');
+
+                    }
+                },
+                error: function (err) { }
+
+            });
+        }
+        else {
+            return false;
+        }
+
+
+
+    }
+
+
+    function ValidateLabour() {
+
+        var value = $('#Labor_Category').val();
+        var intRegex = /^\d+(?:\.\d\d?)?$/;
+        msg = "Labor category field is required";
+        if (value == "Select") {
+
+            if (confirm(msg)) {
+                return false;
+            }
+            else {
+                return false;
+
+            }
+        }
+        //Modified by Arunkumar.k on 12/15/2015.
+        var value = $('#Labor_Category').val();
+        var otherCategory = $("#otherLabor_Category").val();
+        othercatgoryMsg = "\"Other Category\" field is required, If you had selected \"Other\" in category field.";
+        if (value == "other" && otherCategory == '') {
+
+            if (confirm(othercatgoryMsg)) {
+                $("[name=otherLabor_Category]").focus();
+                return false;
+
+            }
+        }
+
+        var ClientName = $("#Client_ID").val();
+        message = "Client field is required";
+        if (ClientName == "Select") {
+            if (confirm(message)) {
+                return false;
+                $("#Client_ID").focus();
+            }
+        }
+
+        if ($("#Laborer_Name").val() == "") {
+            DisplayNotification("“Labor Name” is required!", "error");
+            return false;
+        }
+        if ($("#Cost").val() == "") {
+            DisplayNotification("“Cost” is required.", "error");
+            return false;
+        }
+        var intRegex = /^\d+(?:\.\d\d?)?$/;
+        if (!$("#Cost").val().match(intRegex)) {
+            $("#errmsg").html("Number only").show();
+            return false;
+        }
+
+        //if ($("#Rcost").val() == "") {
+        //    DisplayNotification("Resale “Cost” is required.", "error");
+        //    return false;
+        //}
+        //if (!$("#Rcost").val().match(intRegex)) {
+        //    $("#RCosterrmsg").html("Number only").show();
+        //    return false;
+        //}
+
+        var intRegex = /^\d+(?:\.\d\d?)?$/;
+        if ($("#burden").val() != "") {
+            if (!$("#burden").val().match(intRegex)) {
+                $("#burdenerrmsg").html("Number only").show();
+                return false;
+            }
+        }
+
+        //var Cost = $("#Cost").val();
+        //var ResaleCost = $("#Rcost").val();
+        //costMsg = "Resale price should be higher than “My Cost” price.";
+        //if (parseFloat(ResaleCost) <= parseFloat(Cost)) {
+        //    DisplayNotification(costMsg, 'error');
+        //        return false;
+        //}
+        if (parseFloat(Cost) == 0) {
+            CostZero = "Cost should be Higher than 0";
+            var result = confirm(CostZero)
+            if (result == true) {
+                return false;
+            }
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function ResetAll() {
+        msg = "Are you sure, do you want to “Clear” all fields?"
+        if (confirm(msg)) {
+            $("#Client_ID").val("").trigger('change');
+            $("#Labor_Category").val("").trigger('change');
+
+            $("#Laborer_Name").val("");
+            $("#Labor_Category").val("");
+            $("#otherLabor_Category").val("");
+            $("#burden").val("");
+            $("#fileupload").val("");
+            $("#dvPreview img:last-child").remove()
+            $("#Gender").bootstrapToggle('on');
+            $("#Description").val("");
+            $("#Client_Description,#Rate").val("");
+            $("#Cost").val("");
+            $("#Rcost").val("");
+            if ($("#IsAdmin").val() == "Admin") {
+                $("#Labor_Category").attr('disabled', 'disabled');
+            }
+
+            $("#otherLabor_Category").attr('disabled', 'disabled');
+
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function setRegexValidations() {
+        $("#Rate").limitkeypress({ rexp: /^(\d{1,4})?(\.)?(\.\d{1,2})?$/ });
+        $("#Rcost").limitkeypress({ rexp: /^(\d{1,4})?(\.)?(\.\d{1,2})?$/ });
+        $("#burden").limitkeypress({ rexp: /^(\d{1,3})?$/ });
+    }
+
+</script>
+
+<div class="app-body" id="Scroll">
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full" id="">
+            <fieldset>
+                <div id="accordion">
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong id="title-cont"> &nbsp Add Labor Details  </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+
+                    </div>
+                    <div id="divaddlabour"></div>
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp  Labor List  </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+
+                    </div>
+                    <div id="divlabourslist"></div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>

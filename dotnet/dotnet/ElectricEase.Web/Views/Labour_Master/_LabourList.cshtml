@@ -1,0 +1,161 @@
+﻿@model List<ElectricEase.Models.Labor_DetailsInfoList>
+<table id="labourlisttable" class="table table-bordered datatables" cellspacing="0" width="100%">
+    <thead style="background-color: #45525F">
+        <tr>
+            <th></th>
+            @if (HttpContext.Current.User.IsInRole("Admin"))
+            {
+                <th>Company Name</th>
+            }
+            <th>Labor Name</th>
+            <th>Labor Category</th>
+            <th>Rate</th>
+            <th>Burden</th>
+            <th>Cost</th>
+            <th>Resale</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>@item.Labour_ID</td>
+            @if (HttpContext.Current.User.IsInRole("Admin"))
+            {
+                <td>@item.Client_Company</td>
+            }
+            <td>@item.Laborer_Name</td>
+            <td>@item.Labor_Category</td>
+            <td>@item.Rate</td>
+            <td>@item.Burden</td>
+            <td>@item.Cost</td>
+            <td>@item.Resale_Cost</td>
+            <td>
+                <a href="javascript:void(0);" onclick="editlabour('@item.Laborer_Name','@item.Client_ID');">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </a>&nbsp;&nbsp;&nbsp;
+                <a class="confirm" id="alert" href="javascript:void(0)" onclick="deleteLabour('@item.Laborer_Name','@item.Client_ID');">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+<div id="divBotLabour" tabindex="1"></div>
+<style>
+     .pagination {
+        margin:5px 0px !important;
+    }
+    .dataTables_filter {
+        padding-bottom:0px !important;
+    }
+    div.dataTables_length label {
+        float:none !important;
+    }
+</style>
+<script> 
+    var dropdwn = document.getElementsByName('labourlisttable_length');
+    var pagno = Cookies.get('labourtpageno');
+    if (pagno == null || pagno == "") {
+        pagno = 0;
+    }
+    if (Cookies.get('labourdtpagelen') != null && Cookies.get('labourdtpagelen') != "") {
+        var pagelen = Cookies.get('labourdtpagelen');
+        pagelen = Number(pagelen);
+        var tab = $('#labourlisttable').dataTable({
+            "order": [[0, "asc"]],
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "iDisplayLength": pagelen,
+            "sDom": '<"top"flp>rt<"bottom"pri>',
+            "tableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "copy",
+                        "sButtonText": "Copy to clipboard"
+                    },
+                    {
+                        "sExtends": "csv",
+                        "sButtonText": "Save to CSV"
+                    },
+                    {
+                        "sExtends": "xls",
+                        "oSelectorOpts": {
+                            page: 'current'
+                        }
+                    }
+                ]
+            }
+            //"displayStart": 50,
+            //"PageLength": Cookies.get('labourdtpagelen'),
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('labourearch') != null && Cookies.get('labourearch') != "") {
+            tab.fnFilter(Cookies.get('labourearch'));
+        }
+    }
+    else {
+        var tab = $('#labourlisttable').dataTable({
+            "order": [[0, "asc"]],
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "sDom": '<"top"flp>rt<"bottom"pri>', "tableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "copy",
+                        "sButtonText": "Copy to clipboard"
+                    },
+                    {
+                        "sExtends": "csv",
+                        "sButtonText": "Save to CSV"
+                    },
+                    {
+                        "sExtends": "xls",
+                        "oSelectorOpts": {
+                            page: 'current'
+                        }
+                    }
+                ]
+            }
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('labourearch') != null && Cookies.get('labourearch') != "") {
+            tab.fnFilter(Cookies.get('labourearch'));
+        }
+    }    
+    $(dropdwn).change(function () {
+        var len = this.value;
+        Cookies.set('labourdtpagelen', len);
+    });
+    $('#labourlisttable_filter input').on("keyup", function () {
+        Cookies.set('labourearch', $(this).val());
+    });
+    $('#labourlisttable').on('page.dt', function () {
+        var info = this;
+        setTimeout(function () {
+            var ss = $('.paginate_button.active');
+            var pgno = ss[0].innerText;
+            if (pgno != "" && pgno != "0") {
+                pgno = Number(pgno) - Number(1);
+            }
+            Cookies.set('labourtpageno', pgno);
+        }, 1000);
+
+    });
+</script>

@@ -1,0 +1,306 @@
+﻿@model ElectricEase.Data.TimeSheetMaster.TimeSheetDTO
+@{
+    var disabl = (Model.TimeSheetMaster.User_ID != null && (Model.TimeSheetMaster.User_ID != Model.LoginUser.User_ID)) ? "disabled" : "";
+    disabl = Model.IsView ? "disabled" : disabl;
+}
+@if (Model.TimeSheetDetails != null && Model.TimeSheetDetails.Any())
+{
+    var totalMondayHours = Model.TimeSheetDetails.Where(a => a.IsDeleted == false).Sum(a => Convert.ToDecimal(a.Monday.Split('_')[0]));
+    var totalTuesdayHours = Model.TimeSheetDetails.Where(a => a.IsDeleted == false).Sum(a => Convert.ToDecimal(a.Tuesday.Split('_')[0]));
+    var totalWednesdayHours = Model.TimeSheetDetails.Where(a => a.IsDeleted == false).Sum(a => Convert.ToDecimal(a.Wednesday.Split('_')[0]));
+    var totalThursdayHours = Model.TimeSheetDetails.Where(a => a.IsDeleted == false).Sum(a => Convert.ToDecimal(a.Thursday.Split('_')[0]));
+    var totalFridayHours = Model.TimeSheetDetails.Where(a => a.IsDeleted == false).Sum(a => Convert.ToDecimal(a.Friday.Split('_')[0]));
+    var totalSaturdayHours = Model.TimeSheetDetails.Where(a => a.IsDeleted == false).Sum(a => Convert.ToDecimal(a.Saturday.Split('_')[0]));
+    var totalSundayHours = Model.TimeSheetDetails.Where(a => a.IsDeleted == false).Sum(a => Convert.ToDecimal(a.Sunday.Split('_')[0]));
+    var MondayOTHours = totalMondayHours > 8 ? totalMondayHours - 8 : 0;
+    var TuesdayOTHours = totalTuesdayHours > 8 ? totalTuesdayHours - 8 : 0;
+    var WednesdayOTHours = totalWednesdayHours > 8 ? totalWednesdayHours - 8 : 0;
+    var ThursdayOTHours = totalThursdayHours > 8 ? totalThursdayHours - 8 : 0;
+    var FridayOTHours = totalFridayHours > 8 ? totalFridayHours - 8 : 0;
+    var SaturdayOTHours = totalSaturdayHours > 8 ? totalSaturdayHours - 8 : 0;
+    var SundayOTHours = totalSundayHours > 8 ? totalSundayHours - 8 : 0;
+    // Model.OTHours = @MondayOTHours + @TuesdayOTHours + @WednesdayOTHours + @ThursdayOTHours + @FridayOTHours + @SaturdayOTHours + @SundayOTHours;
+    Model.TotalHours = @totalMondayHours + @totalTuesdayHours + @totalWednesdayHours + @totalThursdayHours + @totalFridayHours + @totalSaturdayHours + @totalSundayHours;
+    //Model.RegularHours = (totalMondayHours > 8 ? 8 : totalMondayHours) + (totalTuesdayHours > 8 ? 8 : totalTuesdayHours)
+    //    + (totalWednesdayHours > 8 ? 8 : totalWednesdayHours) + (totalThursdayHours > 8 ? 8 : totalThursdayHours) +
+    //    (totalFridayHours > 8 ? 8 : totalFridayHours) + (totalSaturdayHours > 8 ? 8 : totalSaturdayHours) +
+    //    (totalSundayHours > 8 ? 8 : totalSundayHours);
+    Model.RegularHours = Model.TotalHours <= 40 ? Model.TotalHours : 40;
+    Model.OTHours = Model.TotalHours > 40 ? (Model.TotalHours - Model.RegularHours) : 0;
+
+    var totalRec = Model.TimeSheetDetails.Where(a => a.IsDeleted == false).Count();
+    <input type="hidden" id="hidIsProcessed" value="0" />
+    <div class="ts-table" id="divTimeSheetDetails">
+        <input type="hidden" id="hdnRowCount" value="@totalRec" />
+        @Html.HiddenFor(a => a.TimeSheetMaster.TimeSheetID)
+        @Html.HiddenFor(a => a.TimeSheetMaster.Status, new { @id = "hdnStatus" })
+        <table class="table table-bordered fs13 classroomtype" style="margin-bottom:0px !important;">
+            <tbody>
+                <tr class="headcolor ">
+                    @{
+                        if (Model.TimeSheetDetails.Any())
+                        {
+                            var firstRec = Model.TimeSheetDetails[0];
+                            System.Reflection.PropertyInfo[] properties = typeof(ElectricEase.Data.DataBase.USP_TimeSheetDetails_Result).GetProperties();
+                            foreach (System.Reflection.PropertyInfo property in properties)
+                            {
+                                if (property.Name != "Job" && property.Name != "IsDeleted")
+                                {
+                                    if (property.Name == "Job_ID")
+                                    {
+                                        <th style="width:150px"><p>@Html.Raw("Job_ID & Client Name") </p></th>
+                                    }
+                                    else if (property.Name == "CostCode")
+                                    {
+                                        <th><p>@Html.Raw("Cost Codes") </p></th>
+                                    }
+                                    else
+                                    {
+                                        var res = property.GetValue(firstRec, null);
+                                        if (res != null)
+                                        {
+                                            string[] val = res.ToString().Split('_');
+                                            <th><div>@property.Name</div> <div>@Html.Raw(val.Length > 1 ? val[1] : "") </div></th>
+                                        }
+                                        else
+                                        {
+                                            <th><p>@property.Name </p></th>
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                    <th>
+                        <p>Project hours</p>
+                    </th>
+                    @if (disabl == "" && (string.IsNullOrEmpty(Model.TimeSheetMaster.Status) || Model.TimeSheetMaster.Status == "Saved" || Model.TimeSheetMaster.Status == "Rejected"))
+                    {
+                        <th>
+                            <p>Add/Remove</p>
+                        </th>
+                    }
+                </tr>
+                @{
+                    if (Model.TimeSheetDetails.Any())
+                    {
+                        int j = 0;
+                        for (int i = 0; i < Model.TimeSheetDetails.Count(); i++)
+                        {
+                            string jobId = "ddlJob" + i, txtCodeId = "txtCodeId" + i, hdnMondayId = "hdnMondayId" + i, hdnTuesdayId = "hdnTuesdayId" + i,
+                                  hdnWednesdayId = "hdnWednesdayId" + i, hdnThursdayId = "hdnThursdayId" + i, hdnFridayId = "hdnFridayId" + i,
+                                  hdnSaturdayId = "hdnSaturdayId" + i, hdnSundayId = "hdnSundayId" + i, txtTotalID = "txtTotalId" + i, hdnIsDeleted = "hdnIsDeleted" + i;
+                            @Html.HiddenFor(a => a.TimeSheetDetails[i].Saturday, new { @id = hdnSaturdayId })
+                            @Html.HiddenFor(a => a.TimeSheetDetails[i].IsDeleted, new { @id = hdnIsDeleted })
+                            @Html.HiddenFor(a => a.TimeSheetDetails[i].Sunday, new { @id = hdnSundayId })
+                            @Html.HiddenFor(a => a.TimeSheetDetails[i].Monday, new { @id = hdnMondayId })
+                            @Html.HiddenFor(a => a.TimeSheetDetails[i].Tuesday, new { @id = hdnTuesdayId })
+                            @Html.HiddenFor(a => a.TimeSheetDetails[i].Wednesday, new { @id = hdnWednesdayId })
+                            @Html.HiddenFor(a => a.TimeSheetDetails[i].Thursday, new { @id = hdnThursdayId })
+                            @Html.HiddenFor(a => a.TimeSheetDetails[i].Friday, new { @id = hdnFridayId })
+
+                            if (Model.TimeSheetDetails[i].IsDeleted!=true)
+                            {
+                                string monday = @Model.TimeSheetDetails[i].Monday.Split('_')[0] == "0.00" ? null : @Model.TimeSheetDetails[i].Monday.Split('_')[0];
+                                string tuesday = @Model.TimeSheetDetails[i].Tuesday.Split('_')[0] == "0.00" ? null : @Model.TimeSheetDetails[i].Tuesday.Split('_')[0];
+                                string wednesday = @Model.TimeSheetDetails[i].Wednesday.Split('_')[0] == "0.00" ? null : @Model.TimeSheetDetails[i].Wednesday.Split('_')[0];
+                                string thursday = @Model.TimeSheetDetails[i].Thursday.Split('_')[0] == "0.00" ? null : @Model.TimeSheetDetails[i].Thursday.Split('_')[0];
+                                string friday = @Model.TimeSheetDetails[i].Friday.Split('_')[0] == "0.00" ? null : @Model.TimeSheetDetails[i].Friday.Split('_')[0];
+                                string saturday = @Model.TimeSheetDetails[i].Saturday.Split('_')[0] == "0.00" ? null : @Model.TimeSheetDetails[i].Saturday.Split('_')[0];
+                                string sunday = @Model.TimeSheetDetails[i].Sunday.Split('_')[0] == "0.00" ? null : @Model.TimeSheetDetails[i].Sunday.Split('_')[0];
+                                decimal total = Convert.ToDecimal(monday ?? "0") + Convert.ToDecimal(tuesday ?? "0") + Convert.ToDecimal(wednesday ?? "0") + Convert.ToDecimal(thursday ?? "0") + Convert.ToDecimal(friday ?? "0") + Convert.ToDecimal(saturday ?? "0") + Convert.ToDecimal(sunday ?? "0");
+                                <tr>
+                                    @if (disabl == "")
+                                    {
+                                        <td style="width:100px">
+                                            @Html.DropDownListFor(m => Model.TimeSheetDetails[i].Job_ID, new SelectList(Model.Jobs, "Job_ID", "Job_Description", Model.TimeSheetDetails[i].Job_ID), "Select Job", new { @id = jobId, @class = "form-control", @onchange = "CheckPreviousJobs(" + jobId + ")" })
+                                        </td>
+                                        <td>
+                                            @Html.TextBoxFor(a => Model.TimeSheetDetails[i].CostCode, new { @class = "form-control costcode", @id = txtCodeId, @maxlength = "500", @style = "cursor:text !important" })
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="width:100px">
+                                            @Html.DropDownListFor(m => Model.TimeSheetDetails[i].Job_ID, new SelectList(Model.Jobs, "Job_ID", "Job_Description", Model.TimeSheetDetails[i].Job_ID), "Select Job", new { @id = jobId, @class = "form-control", @onchange = "CheckPreviousJobs(" + jobId + ")", @style = "cursor:text !important", @disabled = "disabled" })
+                                        </td>
+                                        <td>
+                                            @Html.TextBoxFor(a => Model.TimeSheetDetails[i].CostCode, new { @class = "form-control costcode", @id = txtCodeId, @maxlength = "500", @disabled = @disabl, @style = "cursor:text !important" })
+                                        </td>
+                                    }
+
+
+                                    <td>
+
+                                        <input type="text" class="clshours" val="@i" style="width:60px" value="@saturday" onchange="UpdateValues(this,'Saturday',@i)" @disabl />
+                                    </td>
+                                    <td>
+
+                                        <input type="text" class="clshours" val="@i" style="width:60px" value="@sunday" onchange="UpdateValues(this,'Sunday',@i)" @disabl />
+                                    </td>
+                                    <td>
+
+                                        <input type="text" class="clshours" val="@i" style="width:60px" value="@monday" onchange="UpdateValues(this,'Monday',@i)" @disabl />
+                                    </td>
+                                    <td>
+
+                                        <input type="text" class="clshours" val="@i" style="width:60px" value="@tuesday" onchange="UpdateValues(this,'Tuesday',@i)" @disabl />
+                                    </td>
+                                    <td>
+
+                                        <input type="text" class="clshours" val="@i" style="width:60px" value="@wednesday" onchange="UpdateValues(this,'Wednesday',@i)" @disabl />
+                                    </td>
+                                    <td>
+
+                                        <input type="text" class="clshours" val="@i" style="width:60px" value="@thursday" onchange="UpdateValues(this,'Thursday',@i)" @disabl />
+                                    </td>
+                                    <td>
+
+                                        <input type="text" class="clshours" val="@i" style="width:60px" value="@friday" onchange="UpdateValues(this,'Friday',@i)" @disabl />
+                                    </td>
+                                    <td><input type="text" value="@total" id="@txtTotalID" name="" class="bottomcolor" readonly="readonly" /></td>
+                                    @if (disabl == "" && (string.IsNullOrEmpty(Model.TimeSheetMaster.Status) || Model.TimeSheetMaster.Status == "Saved" || Model.TimeSheetMaster.Status == "Rejected"))
+                                    {
+                                        <td>
+                                            <center>
+                                                @if (j > 0 || totalRec > 1)
+                                                {
+                                                    <b style="font-size:30px;cursor:pointer;margin-right:20px" onclick="RemoveJob(@i)">-</b>
+                                                }
+                                                @if (totalRec == 1 || j == totalRec - 1)
+                                                {
+                                                    <b style="font-size:25px;cursor:pointer" onclick="AddJob()">+</b>
+                                                }
+                                            </center>
+                                        </td>
+                                    }
+                                </tr>
+                                j = j + 1;
+                            }
+                            else
+                            {
+                                @Html.HiddenFor(a => a.TimeSheetDetails[i].Job_ID)
+                            }
+                        }
+                        <tr class="bottomcolor ">
+                            <td class="bottomfirst">
+                                @*@if (disabl == "")
+                                    {
+                                        <center><b style="font-size:25px;cursor:pointer" onclick="AddJob()">+</b></center>
+                                    }*@
+
+                            </td>
+                            @*<td class="bottomfirst">Regular hours</td>
+                                <td><label id="lblSaturdayHours">@Html.Raw(totalSaturdayHours > 8 ? "8.00" : totalSaturdayHours.ToString())</label></td>
+                                <td><label id="lblSundayHours">@(totalSundayHours > 8 ? "8.00" : totalSundayHours.ToString())</label></td>
+                                <td><label id="lblMondayHours">@(totalMondayHours > 8 ? "8.00" : totalMondayHours.ToString())</label></td>
+                                <td><label id="lblTuesdayHours">@(totalTuesdayHours > 8 ? "8.00" : totalTuesdayHours.ToString())</label></td>
+                                <td><label id="lblWednesdayHours">@(totalWednesdayHours > 8 ? "8.00" : totalWednesdayHours.ToString())</label></td>
+                                <td><label id="lblThursdayHours">@(totalThursdayHours > 8 ? "8.00" : totalThursdayHours.ToString())</label></td>
+                                <td><label id="lblFridayHours">@(totalFridayHours > 8 ? "8.00" : totalFridayHours.ToString())</label></td>*@
+                            <td class="bottomfirst">Total Hours</td>
+                            <td><label id="lblSaturdayHours">@Html.Raw(totalSaturdayHours.ToString())</label></td>
+                            <td><label id="lblSundayHours">@(totalSundayHours.ToString())</label></td>
+                            <td><label id="lblMondayHours">@(totalMondayHours.ToString())</label></td>
+                            <td><label id="lblTuesdayHours">@( totalTuesdayHours.ToString())</label></td>
+                            <td><label id="lblWednesdayHours">@(totalWednesdayHours.ToString())</label></td>
+                            <td><label id="lblThursdayHours">@(totalThursdayHours.ToString())</label></td>
+                            <td><label id="lblFridayHours">@(totalFridayHours.ToString())</label></td>
+                            <td><label id="lblProjectedTotalHours">@Model.TotalHours</label></td>
+                        </tr>
+                        <tr class="bottomcolor " style="display:none">
+                            <td class="bottomfirst"></td>
+                            <td class="bottomfirst">Daily OT hours</td>
+                            <td><label id="lblOTSaturday">@SaturdayOTHours</label></td>
+                            <td><label id="lblOTSunday">@SundayOTHours</label></td>
+                            <td><label id="lblOTMonday">@MondayOTHours</label></td>
+                            <td><label id="lblOTTuesday">@TuesdayOTHours</label></td>
+                            <td><label id="lblOTWednesday">@WednesdayOTHours</label></td>
+                            <td><label id="lblOTThursday">@ThursdayOTHours</label></td>
+                            <td><label id="lblOTFriday">@FridayOTHours</label></td>
+
+                        </tr>
+                    }
+                }
+
+            </tbody>
+        </table>
+        <div>
+            <p style="padding-top: 5px;font-size: 9px;font-weight: bold;">
+                Note: For logging 15, 30 & 45 minutes, please enter 0.25, 0.50 & 0.75 only.
+                For example: Logging 1 hour 45 minutes it should be entered as 1.75 Hours.
+            </p>
+        </div>
+        <center>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>  Total hours</td>
+                        <td width="40"></td>
+                        <td> Regular hours</td>
+                        <td width="40"></td>
+                        <td>  OT hours</td>
+                    </tr>
+                    <tr>
+                        <td class="greencolor_box">@Html.TextBoxFor(a => a.TotalHours, new { @id = "lblTotalHours", @readonly = "readonly", @style = "background-color:#89d859;border:none" })</td>
+                        <td width="30"></td>
+                        <td class="yellowcolor_box">@Html.TextBoxFor(a => a.RegularHours, new { @id = "lblRegularHours", @readonly = "readonly", @style = "background-color:yellow;border:none" })</td>
+                        <td width="30"></td>
+                        <td class="pinkcolor_box">@Html.TextBoxFor(a => a.OTHours, new { @id = "lblTotalOTHours", @readonly = "readonly", @style = "background-color:#e674ba;border:none" }) </td>
+                    </tr>
+                </tbody>
+            </table>
+            @if (Model.TimeSheetLogDetails != null && Model.TimeSheetLogDetails.Any())
+            {
+                <div class="clearfix" style="margin-top:20px"></div>
+                <div style="padding:10px 0;background:#E9F1F9;color:#1D4875;border-top:1px solid #BFD8F3;border-bottom:1px solid #BFD8F3;">
+                    <div style="width:200px;float:left;">
+                        <label style="text-decoration:underline;font-size:15px;font-weight:bold;float:left;margin-left:20%">Comments</label>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div style="float:left;width:75%;">
+                        <table style="margin:0px;overflow: hidden;">
+                            @foreach (var item in Model.TimeSheetLogDetails)
+                            {
+                                <tr style="color:#1D4875">
+                                    <td width="20">
+                                        #
+                                    </td>
+                                    <td width="150">@item.CreatedOn : </td>
+                                    <td style="word-break:break-all">
+                                        @Html.Raw(item.Comments)
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
+
+            }
+        </center>
+        @*<input type="button" value="add" class="btn btn-flat btn-primary btn-sm" onclick="AddJob()" />*@
+    </div>
+    if (Model.TimeSheetMaster.TimeSheetID == 0)
+    {
+        <div class="pull-left popup-btn" style="margin-top:10px">
+            <button type="button" value="Clear" class="btn btn-flat btn-primary btn-sm" id="submit" style="background:#f44336;border:none" onclick="ClearTimeSheet();">Clear</button>
+        </div>
+    }
+    <div class="pull-right popup-btn" style="margin-top:10px">
+        @if (Convert.ToBoolean(HttpContext.Current.Items["SiteAdministrator"]) == true && Model.TimeSheetMaster.Status == "Pending")
+        {
+            <button type="button" value="Accept" class="btn btn-flat btn-primary btn-sm" id="btnAprove" onclick="ApproveOrReject('Aproved');" style="background:#87de75;border:none">Approve</button>
+            <button type="button" value="Reject" class="btn btn-flat btn-primary btn-sm" id="btnReject" data-toggle="modal" data-target="#RejectPopUp" style="background:#f39c12;border:none">Reject</button>
+            <a href="/TimeSheet/TimeSheetExport?timeSheetId=@Model.TimeSheetMaster.TimeSheetID&from=@Model.From">  <button type="button" value="Download" class="btn btn-flat btn-primary btn-sm" id="btnDownload" style="background:#878787;border:none">Download</button></a>
+        }
+        @if (disabl != "disabled" && (Model.TimeSheetMaster.Status == "Saved" || Model.TimeSheetMaster.Status == "Rejected" || string.IsNullOrEmpty(Model.TimeSheetMaster.Status)))
+        {
+            <button type="button" value="Save" class="btn btn-flat btn-primary btn-sm" id="submit" style="background:#03a9f4;border:none" onclick="SaveTimeSheet('Saved');">Save</button>
+            <button type="button" value="Submit" class="btn btn-flat btn-primary btn-sm" id="submit" style="background:#03a9f4;border:none" onclick="SaveTimeSheet('Pending');">Submit</button>
+        }
+
+    </div>
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="h-full w-full" viewBox="0 0 120 50">
+  <path d="M39.17 24.5a8.34 8.34 0 1 0-8.33 8.33 8.33 8.33 0 0 0 8.33-8.33ZM38.89 16.45 22.78 32.56M38.89 32.56 22.78 16.44" style="fill:none;stroke:currentcolor"/>
+  <path d="m42.79 30.86 1.45 5.42 1.45-5.42h-2.9z"/>
+  <path d="M44.22 16.44v15.42" style="fill:none;stroke:currentcolor;stroke-width:.5px"/>
+  <path d="m43.51 31.36.72 2.71.73-2.71h-1.45z" style="fill:currentcolor;stroke:currentcolor"/>
+  <path d="M22.5 24.5h-4.61M17.89 20.31v8.38" style="stroke:currentcolor"/>
+  <path d="M74.37 30.39a8.33 8.33 0 0 0 11.78 0l-5.89-5.89ZM86.15 18.61a8.33 8.33 0 0 0-11.78 0l5.89 5.89Z" style="fill:none;stroke:currentcolor"/>
+  <path d="M86.15 30.39a8.33 8.33 0 0 0 0-11.78l-5.89 5.89ZM74.37 18.61a8.33 8.33 0 0 0 0 11.78l5.89-5.89Z" style="fill:currentcolor;stroke:currentcolor"/>
+  <path d="m91.25 30.86 1.45 5.42 1.46-5.42h-2.91z"/>
+  <path d="M92.69 16.44v15.41" style="fill:none;stroke:currentcolor;stroke-width:.5px"/>
+  <path d="m91.97 31.36.72 2.71.73-2.71h-1.45z" style="fill:currentcolor;stroke:currentcolor"/>
+  <path d="M71.93 24.5h-4.62M67.31 20.31v8.38" style="stroke:currentcolor"/>
+</svg>

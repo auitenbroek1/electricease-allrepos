@@ -1,0 +1,105 @@
+﻿@{
+    ViewBag.Title = "list";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script src="~/Scripts/jquery.validate.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script>
+        
+
+
+    //$.ajax({
+
+    //    url: "/Ajax/GetMyUserListinAM",
+    //    type: 'GET',
+    //    dataType: 'json',
+    //    success: function (data) {
+    //        var value = $('#loguser').val();
+    //        if (value == "Admin")
+    //            assignToAdminEventsColumns(data);
+    //        else
+    //            assignToUserEventsColumns(data);
+    //    }
+    //});
+
+    function modalAssignToRM() {
+        //if (rmstaffId == "" || rmstaffId == 0) {
+        //    rmstaffId = 0;
+        //}
+        LoadContent($("#profileAssignToRM"), "/Jobs/AddParts");
+        $('#modalAssignToRM').modal();
+    }
+    function assignToAdminEventsColumns(data) {
+        alert("jiii");
+        //var totalRecs = data.length;
+        var table = $('#example').dataTable({
+            "bJQueryUI": true,
+            "deferRender": true,
+            "processing": true,
+            "bServerSide": true,
+            "sAjaxSource": data,
+            "aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+            //"aaData": data,
+            "aoColumnDefs": [
+               {
+                   "mData": "EventTypeId",
+                   "mRender": function (event) {
+                       return event;
+                   }
+               },
+               {
+                   "aTargets": [1],
+                   "mData": "EventType"
+               }
+            ], "aoColumns": [
+                            { "mData": "Client_Company" },
+                            { "mData": "User_ID" },
+                            { "mData": "First_Name" },
+                            { "mData": "Last_Name" },
+                            { "mData": "Phone" },
+                            { "mData": "E_Mail" },
+                            {
+                                "mDataProp": function (source, type, val) {
+                                    return '<a href="/Account_Master/EditUserDetails?UserID=' + source.User_ID + '&ClientID=' + source.Client_ID + '"><i class="icon ion-ios7-compose"></i></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Account_Master/DeleteUser?UserID=' + source.User_ID + '&ClientID=' + source.Client_ID + '"><i class="icon ion-ios7-trash"></i></a>'
+                                }
+                            }
+            ]
+
+        });
+
+    }
+
+
+
+   
+        //$(function () {
+        //    $('#myModal').modal('show')
+
+        //    //$('#myModal').on('show.bs.modal', function (e) {
+        //    //    if (!data) return e.preventDefault() // stops modal from being shown
+        //    //})
+
+        //});
+        
+  
+   
+  
+</script>
+
+<style>
+    div.modal div.modal-backdrop {
+    z-index: 0;
+}
+</style>
+
+ <a href="#AssignModal" data-toggle="modal" data-target="#AssignModal" onclick="modalAssignToRM();"><i class="fa fa-check-square-o"></i><span>Assign To RM</span></a>
+   <div id="modalAssignToRM" class="modal">
+                        <div class="modal-dialog" style="width: 400px;">
+                            <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                                <div id="profileAssignToRM"></div>
+                            </div>
+                        </div>
+                    </div>                                            

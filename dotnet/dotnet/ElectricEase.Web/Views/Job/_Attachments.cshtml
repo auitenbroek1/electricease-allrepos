@@ -1,0 +1,95 @@
+﻿@model List<ElectricEase.Data.DataBase.Job_Attachments>
+<div id="dragAndDropFiles" class="uploadArea">
+   
+</div>
+<form name="demoFiler" id="demoFiler" enctype="multipart/form-data">
+    @{int i=0;
+        foreach(var item in Model)
+        {
+    <a class="list-group-item list-group-item-success" href="javascript:void(0)" id="@i" style="vertical-align:sub;padding-top:5px;padding-bottom:5px;margin:1px;width:30%;display:inline-block;"><span class="badge alert-success pull-right"><button type="button" class="close" onclick="removefile('@i',this)"  data-attachmentid="@item.Attachment_ID" aria-hidden="true">×</button></span>@item.Attachement_Name</a>
+            i++;
+        }
+       <input type="file" name="multiUpload" onchange="getfile(this);" id="multiUpload" multiple />
+       <input type="hidden" id="hdn_file_count" value="@i" />
+    }
+ 
+    @*<input type="submit" name="submitHandler" id="submitHandler" value="Upload" class="buttonUpload" />*@
+</form>
+<!-- Start of StatCounter Code -->
+<script type="text/javascript">
+    
+    var sc_project = 3967696;
+    var sc_invisible = 1;
+    var sc_partition = 46;
+    var sc_click_stat = 1;
+    var sc_security = "6979b175";
+
+    function getfile(val) {
+        
+        var totalfilecount = $('#hdn_file_count').val();
+        for (var i = 0; i < val.files.length; i++) {
+            var filename = val.files[i].name;
+            if (typeof allfiles.length != "undefined") {
+                var totalfiles = $('#demoFiler a.list-group-item ');
+                
+                if (totalfiles.length < 5) {
+                    allfiles.push(val.files[i]);
+                    //if (Number(allfiles.length)>0)
+                    //    var id = Number(allfiles.length) + Number(1);
+                    //else
+                    var id = Number(totalfilecount)+ Number(allfiles.length) - Number(1);
+                    var filetext = '<a class="list-group-item list-group-item-success" href="javascript:void(0)" id="' + id + '" style="vertical-align:sub;padding-top:5px;padding-bottom:5px;margin:1px;width:30%;display:inline-block;"><span class="badge alert-success pull-right"><button type="button" class="close" onclick="removefile(' + id + ')" aria-hidden="true">×</button></span>' + filename + '</a>';
+                    $('#demoFiler').prepend(filetext);
+                    $("#multiUpload").replaceWith($("#multiUpload").clone());
+                }
+                else {
+                    DisplayNotification("Max number of files you can be add are “5”!", "error");
+                }
+            }
+        }
+    }
+
+    function removefile(id, val) {
+        if (val == null || val == "") {
+            //var len = allfiles.length; 
+            allfiles.splice(id, 1);
+           // var len1 = allfiles.length;
+            $('#' + id).remove();
+            var totalfiles = document.getElementById('multiUpload').files;
+            $("#multiUpload").replaceWith($("#multiUpload").clone());
+            var totalfiles = document.getElementById('multiUpload').files;
+        }
+        else {
+            if (confirm("Are you sure, do you want the delete this file?")) {
+                
+                $.ajax({
+                    url: '../Job/deletejobattachment?AttachmentId=' + $(val).attr('data-attachmentid'),
+                    type: 'Get',
+                    success: function (data) {
+                        
+                        // var len = allfiles.length;
+                        if (val == null || val == ""){
+                            allfiles.splice(id, 1);
+                        }
+
+                       // var len1 = allfiles.length;
+                        $('#' + id).remove();
+                        var totalfiles = document.getElementById('multiUpload').files;
+                        $("#multiUpload").replaceWith($("#multiUpload").clone());
+                        var totalfiles = document.getElementById('multiUpload').files;
+                        DisplayNotification('“File” deleted successfully.', 'success'); 
+                    },
+                    error: function (err) {
+                        DisplayNotification('Some error occurred while deleting, please try again!','error');
+                    }
+                });
+            }
+        }
+    }
+</script>
+
+
+
+
+
+

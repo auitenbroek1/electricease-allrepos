@@ -1,0 +1,1703 @@
+﻿<!-- Estimates -->
+
+<style>
+	/* Chrome, Safari, Edge, Opera */
+	.ee-table input::-webkit-outer-spin-button,
+	.ee-table input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	/* Firefox */
+	.ee-table input[type=number] {
+		-moz-appearance: textfield;
+	}
+
+	/* --- */
+
+	#bid_summary_app tbody+tbody {
+		border: none;
+	}
+
+	#bid_summary_app td {
+		vertical-align: middle !important;
+	}
+
+	#bid_summary_app th {
+		vertical-align: middle !important;
+		white-space: nowrap !important;
+	}
+
+	#bid_summary_app .empty {
+		padding: 0 !important;
+	}
+
+	#bid_summary_app .format {
+		align-items: center;
+		display: flex;
+		position: relative;
+		width: 100%;
+	}
+
+	#bid_summary_app .format::before {
+		border-bottom: solid 2px transparent;
+		left: 0;
+		opacity: 50%;
+		padding: 0 8px;
+		pointer-events: none;
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+	}
+
+	#bid_summary_app .format.currency::before {
+		content: '$';
+	}
+
+	#bid_summary_app .format.percentage::before {
+		content: '%';
+	}
+
+	#bid_summary_app .format input[type="number"],
+	#bid_summary_app .format input[type="text"] {
+		text-align: right;
+		width: 100%;
+	}
+
+	#bid_summary_app .format input+input[type="checkbox"] {
+		margin: 0 0 0 8px;
+	}
+
+	#bid_summary_app .with-icon {
+		align-items: center;
+		display: flex;
+	}
+
+	#bid_summary_app .with-icon .material-icons {
+		color: #4387C3;
+		cursor: pointer;
+	}
+
+	#bid_summary_app .summary {
+		background: #9ec1e0;
+		border: none;
+		color: #000000;
+	}
+
+	#bid_summary_app .summary td {
+		border: none;
+	}
+
+	#bid_summary_app .summary input {
+		background: #ffffcc !important;
+	}
+</style>
+
+<script src="https://unpkg.com/vue@next"></script>
+
+<div class="box-row profile-hd">
+	<h7 class="box-heading">
+		<strong>&nbsp; Bid Summary</strong>
+		<span class="pull-right apse b" style="color: #ffffff; padding-right: 5px;">
+			<img id="arrow" src="../Images/down-arrow.png" alt="" />
+		</span>
+	</h7>
+</div>
+
+<div class="row" @Model.hidden>
+	<div id="collapseFive" class="panel-collapse collapse in">
+		<div class="panel panel-default">
+			<div class="panel-body" id="bid_summary_app">
+				<div class="table table-responsive">
+					<table class="table ee-table">
+
+						<colgroup>
+
+							<!-- label -->
+							<col width="*" />
+
+							<!-- subtotal -->
+							<col width="90" />
+							<col width="90" />
+
+							<!-- spacer -->
+							<col width="1" />
+
+							<!-- rate -->
+							<col width="90" />
+							<col width="90" />
+
+							<!-- spacer -->
+							<col width="1" />
+
+							<!-- cost -->
+							<col width="120" />
+
+							<!-- spacer -->
+							<col width="1" />
+
+							<!-- profit -->
+							<col width="90" />
+
+							<!-- spacer -->
+							<col width="1" />
+
+							<!-- overhead -->
+							<col width="90" />
+
+							<!-- spacer -->
+							<col width="1" />
+
+							<!-- tax -->
+							<col width="90" />
+
+							<!-- spacer -->
+							<col width="1" />
+
+							<!-- total -->
+							<col width="120" />
+
+						</colgroup>
+
+						<tbody v-is="'x-labor'" :state="state" v-model="state.labor.summary"></tbody>
+						<tbody v-is="'x-material'" :state="state" v-model="state.material.summary"></tbody>
+						<tbody v-is="'x-other'" :state="state" v-model="state.other.summary"></tbody>
+						<tbody v-is="'x-summary'" :state="state"></tbody>
+
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+
+	//
+
+	var parse_number = function (input) {
+
+		if (input instanceof String) {
+			input = input.replace(/\,/g, '');
+		}
+
+		var number = Number(input);
+
+		if (isNaN(number)) {
+			return 0;
+		}
+
+		return number;
+
+	};
+
+	var format_number = function (input) {
+		return input.toLocaleString(
+			undefined,
+			{ minimumFractionDigits: 2 }
+		)
+	};
+
+	var average = function (nums) {
+		if (nums.length === 0) return 0;
+		return nums.reduce((a, b) => (a + b)) / nums.length;
+	}
+
+	let state = @Html.Raw(Model.state);
+
+	if (!state) {
+		state = {
+			labor: {
+				row_1: {
+					label: 'Assembly Hours',
+					hours_input: 0,
+					hours_override: 0,
+					rate_input: 0,
+					rate_override: 0,
+					overhead_input: 0,
+					profit_input: 0,
+					tax_input: 0,
+					summary: {},
+				},
+				row_2: {
+					label: 'Additional Labor Hours',
+					hours_input: 0,
+					hours_override: 0,
+					rate_input: 0,
+					rate_override: 0,
+					overhead_input: 0,
+					profit_input: 0,
+					tax_input: 0,
+					summary: {},
+				},
+				row_3: {
+					label: 'Additional Material Labor Hours',
+					hours_input: 0,
+					hours_override: 0,
+					rate_input: 0,
+					rate_override: 0,
+					overhead_input: 0,
+					profit_input: 0,
+					tax_input: 0,
+					summary: {},
+				},
+				summary: {}
+			},
+			material: {
+				row_1: {
+					label: 'Assembly Material',
+					amount_input: 0,
+					amount_override: 0,
+					overhead_input: 0,
+					profit_input: 0,
+					tax_input: 0,
+					summary: {},
+					options: {
+						include_cost_in_summary_total: true,
+					},
+				},
+				row_2: {
+					label: 'Additional Material',
+					amount_input: 0,
+					amount_override: 0,
+					overhead_input: 0,
+					profit_input: 0,
+					tax_input: 0,
+					summary: {},
+					options: {
+						include_cost_in_summary_total: true,
+					},
+				},
+				summary: {},
+			},
+			other: {
+				row_1: {
+					label: 'Additional Job Expense',
+					amount_input: 0,
+					amount_override: 0,
+					overhead_input: 0,
+					profit_input: 0,
+					tax_input: 0,
+					summary: {},
+				},
+				row_2: {
+					label: 'Quotes',
+					amount_input: 0,
+					amount_override: 0,
+					overhead_input: 0,
+					profit_input: 0,
+					tax_input: 0,
+					summary: {},
+				},
+				row_3: {
+					label: 'Bond',
+					amount_input: 0,
+					amount_override: 0,
+					overhead_input: 0,
+					profit_input: 0,
+					tax_input: 0,
+					summary: {},
+				},
+				summary: {}
+			},
+			summary: {
+				subtotal: 0,
+				tax: 0,
+				total: 0,
+				options: {
+					show_tax: true,
+				},
+			},
+		};
+
+		state.labor.row_1.rate_input = 35.00;
+		state.labor.row_1.profit_input = 15;
+
+		state.labor.row_2.profit_input = 15;
+
+		state.labor.row_3.rate_input = 35.00;
+		state.labor.row_3.profit_input = 15;
+
+		state.material.row_1.profit_input = 15;
+
+		state.material.row_2.profit_input = 15;
+	}
+
+	const bid_summary = {
+		data() {
+			return {
+				state: state,
+			}
+		},
+	};
+
+	window.bid_summary_app = Vue.createApp(bid_summary);
+
+	bid_summary_app.config.globalProperties.$filters = {
+		number(value) {
+			let number = Number(value);
+			if (isNaN(number)) {
+				number = 0;
+			}
+			const formatted = number.toLocaleString(
+				'en-US',
+				{
+					maximumFractionDigits: 2,
+					minimumFractionDigits: 2,
+				}
+			);
+			return formatted;
+		}
+	}
+
+</script>
+
+<!-- labor -->
+
+<script id="x-labor" type="text/x-template">
+
+	<tbody>
+
+		<tr>
+
+			<th style="border-top:none;">Category</th>
+
+			<th style="border-top:none;">Hours</th>
+			<th style="border-top:none;">Override</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Rate</th>
+			<th style="border-top:none;">Override</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Cost</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Overhead</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Profit</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Tax</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Total</th>
+
+		</tr>
+
+	</tbody>
+
+	<tbody v-is="'x-labor-row'" :state="state.labor.row_1" v-model="state.labor.row_1.summary"></tbody>
+	<tbody v-is="'x-labor-row'" :state="state.labor.row_2" v-model="state.labor.row_2.summary"></tbody>
+	<tbody v-is="'x-labor-row'" :state="state.labor.row_3" v-model="state.labor.row_3.summary"></tbody>
+
+	<tbody class="summary">
+
+		<tr>
+
+			<td>
+				<strong>Labor Totals</strong>
+			</td>
+
+			<td class="empty" colspan="6"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.cost)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text"
+						 :value="$filters.number(summary.overhead)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.profit)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.tax)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+	</tbody>
+
+	<tbody>
+
+		<tr>
+			<td class="empty" colspan="16">&nbsp;</td>
+		</tr>
+
+	</tbody>
+
+</script>
+
+<script>
+
+	bid_summary_app.component('x-labor', {
+		props: [
+			'state',
+			'modelValue'
+		],
+		emits: [
+			'update:modelValue'
+		],
+		computed: {
+			summary() {
+				let cost = 0;
+				let overhead = 0;
+				let profit = 0;
+				let tax = 0;
+				let total = 0;
+				for (const index of [1, 2, 3]) {
+					const row = this.state.labor[`row_${index}`];
+					cost += row.summary.cost;
+					overhead += row.summary.overhead;
+					profit += row.summary.profit;
+					tax += row.summary.tax;
+					total += row.summary.total;
+				}
+				const summary = {
+					cost: cost,
+					overhead: overhead,
+					profit: profit,
+					tax: tax,
+					total: total,
+				};
+				this.$emit('update:modelValue', summary);
+				return summary;
+			}
+		},
+		template: '#x-labor'
+	});
+
+</script>
+
+<script id="x-labor-row" type="text/x-template">
+
+	<tbody>
+
+		<tr>
+
+			<td>
+				<span class="with-icon">
+					<span class="material-icons" v-on:click.prevent="show_totals = ! show_totals">
+						info
+					</span>
+					{{ state.label }}
+				</span>
+			</td>
+
+			<td>
+				<span class="format hours">
+					<input class="form-control" disabled type="text" :value="$filters.number(state.hours_input)" />
+				</span>
+			</td>
+			<td>
+				<span class="format hours">
+					<input class="form-control" type="number" v-model="hours_override" />
+				</span>
+			</td>
+
+			<td class="empty">x</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(state.rate_input)" />
+				</span>
+			</td>
+			<td>
+				<span class="format currency">
+					<input class="form-control" type="number" v-model="rate_override" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.cost)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format percentage">
+					<input class="form-control" type="number" v-model="overhead_input" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format percentage">
+					<input class="form-control" type="number" v-model="profit_input" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format percentage">
+					<input class="form-control" type="number" v-model="tax_input" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+		<tr v-if="show_totals">
+
+			<td class="empty"></td>
+
+			<td colspan="2">
+				<span class="format hours">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.hours)" />
+				</span>
+			</td>
+
+			<td class="empty">x</td>
+
+			<td colspan="2">
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.rate)" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.cost)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.overhead)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.profit)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.tax)" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+	</tbody>
+
+</script>
+
+<script>
+
+	bid_summary_app.component('x-labor-row', {
+		props: [
+			'state',
+			'modelValue'
+		],
+		emits: [
+			'update:modelValue'
+		],
+		data() {
+			return {
+				hours_override: '',
+				rate_override: '',
+				overhead_input: '',
+				profit_input: '',
+				tax_input: '',
+				show_totals: false,
+			}
+		},
+		computed: {
+			value() {
+				const hours_override = this.init('hours_override');
+				const rate_override = this.init('rate_override');
+				const overhead_input = this.init('overhead_input');
+				const profit_input = this.init('profit_input');
+				const tax_input = this.init('tax_input');
+				console.log({ hours_override, rate_override, overhead_input, profit_input, tax_input });
+				//
+				const hours = hours_override > 0 ? hours_override : this.state.hours_input;
+				const rate = rate_override > 0 ? rate_override : this.state.rate_input;
+				const cost = (hours * rate);
+				const overhead = (cost) * (overhead_input / 100);
+				const profit = (cost + overhead) * (profit_input / 100);
+				const tax = (cost + overhead + profit) * (tax_input / 100);
+				const total = cost + overhead + profit + tax;
+				//
+				const value = {
+					hours: hours,
+					rate: rate,
+					cost: cost,
+					overhead: overhead,
+					profit: profit,
+					tax: tax,
+					total: total,
+				};
+				//
+				this.$emit('update:modelValue', value);
+				return value;
+			},
+		},
+		methods: {
+			init(key) {
+				const local = parse_number(this[key]);
+				const global = parse_number(this.state[key]);
+				console.log(key, local, this[key], global, this.state[key]);
+				if (this[key].length === 0) {
+					this[key] = global > 0 ? global : local;
+				} else {
+					this.state[key] = local
+				}
+				return parse_number(this[key]);
+			},
+		},
+		template: '#x-labor-row'
+	});
+
+</script>
+
+<!-- material -->
+
+<script id="x-material" type="text/x-template">
+
+	<tbody>
+
+		<tr>
+
+			<th style="border-top:none;">Category</th>
+
+			<th colspan="2" style="border-top:none;">Amount</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th colspan="2" style="border-top:none;">Override</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Cost</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Overhead</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Profit</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Tax</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Total</th>
+
+		</tr>
+
+	</tbody>
+
+	<tbody v-is="'x-material-row'" :state="state.material.row_1" v-model="state.material.row_1.summary"></tbody>
+	<tbody v-is="'x-material-row'" :state="state.material.row_2" v-model="state.material.row_2.summary"></tbody>
+
+	<tbody class="summary">
+
+		<tr>
+
+			<td>
+				<strong>Material Totals</strong>
+			</td>
+
+			<td class="empty" colspan="6"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.cost)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.overhead)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.profit)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.tax)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+	</tbody>
+
+	<tbody>
+
+		<tr>
+			<td class="empty" colspan="16">&nbsp;</td>
+		</tr>
+
+	</tbody>
+
+</script>
+
+<script>
+
+	bid_summary_app.component('x-material', {
+		props: [
+			'state',
+			'modelValue'
+		],
+		emits: [
+			'update:modelValue'
+		],
+		computed: {
+			summary() {
+				let cost = 0;
+				let overhead = 0;
+				let profit = 0;
+				let tax = 0;
+				let total = 0;
+				for (const index of [1, 2]) {
+					const row = this.state.material[`row_${index}`];
+					cost += row.summary.cost;
+					overhead += row.summary.overhead;
+					profit += row.summary.profit;
+					tax += row.summary.tax;
+					total += row.summary.total;
+				}
+				const summary = {
+					cost: cost,
+					overhead: overhead,
+					profit: profit,
+					tax: tax,
+					total: total,
+				};
+				this.$emit('update:modelValue', summary);
+				return summary;
+			}
+		},
+		template: '#x-material'
+	});
+
+</script>
+
+<script id="x-material-row" type="text/x-template">
+
+	<tbody>
+
+		<tr>
+
+			<td>
+				<span class="with-icon">
+					<span class="material-icons" v-on:click.prevent="show_totals = ! show_totals">
+						info
+					</span>
+					{{ state.label }}
+				</span>
+			</td>
+
+			<td colspan="2">
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(state.amount_input)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td colspan="2">
+				<span class="format currency">
+					<input class="form-control" type="number" v-model="amount_override" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.cost)" />
+					<input type="checkbox" v-model="state.options.include_cost_in_summary_total" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format percentage">
+					<input class="form-control" type="number" v-model="overhead_input" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format percentage">
+					<input class="form-control" type="number" v-model="profit_input" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format percentage">
+					<input class="form-control" type="number" v-model="tax_input" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+		<tr v-if="show_totals">
+
+			<td class="empty"></td>
+
+			<td colspan="5">
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.amount)" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.cost)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.overhead)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.profit)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.tax)" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+	</tbody>
+
+</script>
+
+<script>
+
+	bid_summary_app.component('x-material-row', {
+		props: [
+			'state',
+			'modelValue'
+		],
+		emits: [
+			'update:modelValue'
+		],
+		data() {
+			return {
+				amount_override: '',
+				overhead_input: '',
+				profit_input: '',
+				tax_input: '',
+				show_totals: false,
+			}
+		},
+		computed: {
+			value() {
+				const amount_override = this.init('amount_override');
+				const overhead_input = this.init('overhead_input');
+				const profit_input = this.init('profit_input');
+				const tax_input = this.init('tax_input');
+				console.log({ amount_override, overhead_input, profit_input, tax_input });
+				//
+				const amount = amount_override > 0 ? amount_override : this.state.amount_input;
+				const cost = (amount);
+				const cost_to_include_in_summary_total = this.state.options.include_cost_in_summary_total ? cost : 0;
+				const overhead = (cost) * (overhead_input / 100);
+				const profit = (cost + overhead) * (profit_input / 100);
+				const tax = (cost + overhead + profit) * (tax_input / 100);
+				const total = cost_to_include_in_summary_total + overhead + profit + tax;
+				//
+				const value = {
+					amount: amount,
+					cost: cost,
+					overhead: overhead,
+					profit: profit,
+					tax: tax,
+					total: total,
+				};
+				//
+				this.$emit('update:modelValue', value);
+				return value;
+			},
+		},
+		methods: {
+			init(key) {
+				const local = parse_number(this[key]);
+				const global = parse_number(this.state[key]);
+				console.log(key, local, this[key], global, this.state[key]);
+				if (this[key].length === 0) {
+					this[key] = global > 0 ? global : local;
+				} else {
+					this.state[key] = local
+				}
+				return parse_number(this[key]);
+			},
+		},
+		template: '#x-material-row'
+	});
+
+</script>
+
+<!-- other -->
+
+<script id="x-other" type="text/x-template">
+
+	<tbody>
+
+		<tr>
+
+			<th style="border-top:none;">Category</th>
+
+			<th colspan="2" style="border-top:none;">Amount</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th colspan="2" style="border-top:none;">Override</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Cost</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Overhead</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Profit</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Tax</th>
+
+			<th class="empty" style="border-top:none;"></th>
+
+			<th style="border-top:none;">Total</th>
+
+		</tr>
+
+	</tbody>
+
+	<tbody v-is="'x-other-row'" :state="state.other.row_1" v-model="state.other.row_1.summary"></tbody>
+	<tbody v-is="'x-other-row'" :state="state.other.row_2" v-model="state.other.row_2.summary"></tbody>
+	<tbody v-is="'x-other-row'" :state="state.other.row_3" v-model="state.other.row_3.summary"></tbody>
+
+	<tbody class="summary">
+
+		<tr>
+
+			<td>
+				<strong>Other Totals</strong>
+			</td>
+
+			<td class="empty" colspan="6"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.cost)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text"
+						 :value="$filters.number(summary.overhead)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.profit)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.tax)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+	</tbody>
+
+	<tbody>
+
+		<tr>
+			<td class="empty" colspan="16">&nbsp;</td>
+		</tr>
+
+	</tbody>
+
+</script>
+
+<script>
+
+	bid_summary_app.component('x-other', {
+		props: [
+			'state',
+			'modelValue'
+		],
+		emits: [
+			'update:modelValue'
+		],
+		computed: {
+			summary() {
+				let cost = 0;
+				let overhead = 0;
+				let profit = 0;
+				let tax = 0;
+				let total = 0;
+				for (const index of [1, 2, 3]) {
+					const row = this.state.other[`row_${index}`];
+					cost += row.summary.cost;
+					overhead += row.summary.overhead;
+					profit += row.summary.profit;
+					tax += row.summary.tax;
+					total += row.summary.total;
+				}
+				const summary = {
+					cost: cost,
+					overhead: overhead,
+					profit: profit,
+					tax: tax,
+					total: total,
+				};
+				this.$emit('update:modelValue', summary);
+				return summary;
+			}
+		},
+		template: '#x-other'
+	});
+
+</script>
+
+<script id="x-other-row" type="text/x-template">
+
+	<tbody>
+
+		<tr>
+
+			<td>
+				<span class="with-icon">
+					<span class="material-icons" v-on:click.prevent="show_totals = ! show_totals">
+						info
+					</span>
+					{{ state.label }}
+				</span>
+			</td>
+
+			<td colspan="2">
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(state.amount_input)" />
+				</span>
+			</td>
+
+			<td class="empty"></td>
+
+			<td colspan="2">
+				<span class="format currency">
+					<input class="form-control" type="number" v-model="amount_override" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.cost)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format percentage">
+					<input class="form-control" type="number" v-model="overhead_input" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format percentage">
+					<input class="form-control" type="number" v-model="profit_input" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format percentage">
+					<input class="form-control" type="number" v-model="tax_input" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+		<tr v-if="show_totals">
+
+			<td class="empty"></td>
+
+			<td colspan="5">
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.amount)" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.cost)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.overhead)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.profit)" />
+				</span>
+			</td>
+
+			<td class="empty">+</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.tax)" />
+				</span>
+			</td>
+
+			<td class="empty">=</td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(value.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+	</tbody>
+
+</script>
+
+<script>
+
+	bid_summary_app.component('x-other-row', {
+		props: [
+			'state',
+			'modelValue'
+		],
+		emits: [
+			'update:modelValue'
+		],
+		data() {
+			return {
+				amount_override: '',
+				overhead_input: '',
+				profit_input: '',
+				tax_input: '',
+				show_totals: false,
+			}
+		},
+		computed: {
+			value() {
+				const amount_override = this.init('amount_override');
+				const overhead_input = this.init('overhead_input');
+				const profit_input = this.init('profit_input');
+				const tax_input = this.init('tax_input');
+				console.log({ amount_override, overhead_input, profit_input, tax_input });
+				//
+				const amount = amount_override > 0 ? amount_override : this.state.amount_input;
+				const cost = (amount);
+				const overhead = (cost) * (overhead_input / 100);
+				const profit = (cost + overhead) * (profit_input / 100);
+				const tax = (cost + overhead + profit) * (tax_input / 100);
+				const total = cost + overhead + profit + tax;
+				//
+				const value = {
+					amount: amount,
+					cost: cost,
+					overhead: overhead,
+					profit: profit,
+					tax: tax,
+					total: total,
+				};
+				//
+				this.$emit('update:modelValue', value);
+				return value;
+			},
+		},
+		methods: {
+			init(key) {
+				const local = parse_number(this[key]);
+				const global = parse_number(this.state[key]);
+				console.log(key, local, this[key], global, this.state[key]);
+				if (this[key].length === 0) {
+					this[key] = global > 0 ? global : local;
+				} else {
+					this.state[key] = local
+				}
+				return parse_number(this[key]);
+			},
+		},
+		template: '#x-other-row'
+	});
+
+</script>
+
+<!-- summary -->
+
+<script id="x-summary" type="text/x-template">
+
+	<tbody>
+
+		<tr id="estimate4-subtotal">
+
+			<td class="empty" colspan="13"></td>
+
+			<td>
+				Subotal
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.subtotal)" />
+					<input disabled type="checkbox" v-model="state.summary.options.show_tax" />
+				</span>
+			</td>
+
+		</tr>
+
+		<tr id="estimate4-tax">
+
+			<td class="empty" colspan="13"></td>
+
+			<td>
+				Tax
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.tax)" />
+					<input type="checkbox" v-model="state.summary.options.show_tax" />
+				</span>
+			</td>
+
+		</tr>
+
+		<tr id="estimate4-total">
+
+			<td class="empty" colspan="13"></td>
+
+			<td>
+				<strong>Grand Total</strong>
+			</td>
+
+			<td class="empty"></td>
+
+			<td>
+				<span class="format currency">
+					<input class="form-control" disabled type="text" :value="$filters.number(summary.total)" />
+				</span>
+			</td>
+
+		</tr>
+
+	</tbody>
+
+</script>
+
+<script>
+
+	bid_summary_app.component('x-summary', {
+		props: [
+			'state',
+		],
+		computed: {
+			summary() {
+				let tax = 0;
+				let total = 0;
+				//
+				tax += this.state.labor.summary.tax;
+				total += this.state.labor.summary.total;
+				//
+				tax += this.state.material.summary.tax;
+				total += this.state.material.summary.total;
+				//
+				tax += this.state.other.summary.tax;
+				total += this.state.other.summary.total;
+				//
+				const summary = {
+					subtotal: total - tax,
+					tax: tax,
+					total: total,
+				};
+				return summary;
+			}
+		},
+		template: '#x-summary'
+	});
+
+</script>
+
+<!-- mount -->
+
+<script>
+
+	window.bid_summary_ref = bid_summary_app.mount('#bid_summary_app');
+
+	var bid_summary_update_labor_row_1 = function () {
+
+		var estimated_labor_hours = 0;
+
+		//
+
+		var $assemblies = $('[data-assembly-item]');
+		$assemblies.each(function () {
+			var $this = $(this);
+
+			var labor_hours = $this.attr('data-labor-hours');
+			labor_hours = parse_number(labor_hours);
+
+			var $estimated_quantity = $this.find('[name="txtAssmEstQty"]');
+			var estimated_quantity = $estimated_quantity.val();
+			estimated_quantity = parse_number(estimated_quantity);
+
+			estimated_labor_hours += labor_hours * estimated_quantity;
+		});
+
+		//
+
+		var hours_input = Number(estimated_labor_hours.toFixed(2));
+
+		console.log('bid_summary_update_labor_row_1', { hours_input });
+
+		bid_summary_ref.state.labor.row_1.hours_input = hours_input;
+
+	};
+
+	var bid_summary_update_labor_row_2 = function () {
+
+		var estimated_hours = 0;
+		var estimated_amount = [];
+
+		//
+
+		var $rows = $('#Laborbody tr');
+		$rows.each(function () {
+			var $row = $(this);
+
+			var $hours = $row.find('[name="txtLaborEstimatedHours"]');
+			var hours = $hours.val();
+			hours = parse_number(hours);
+			estimated_hours += hours;
+
+			var $cost = $row.find('[name="txtLaborCost"]');
+			var cost = $cost.val();
+			cost = parse_number(cost);
+			estimated_amount.push(cost);
+
+		});
+
+		estimated_amount = average(estimated_amount);
+
+		//
+
+		var hours_input = Number(estimated_hours.toFixed(2)) || 0;
+		var rate_input = Number((estimated_amount).toFixed(2)) || 0;
+
+		console.log('bid_summary_update_labor_row_2', { hours_input, rate_input });
+
+		bid_summary_ref.state.labor.row_2.hours_input = hours_input;
+		bid_summary_ref.state.labor.row_2.rate_input = rate_input;
+
+	};
+
+	var bid_summary_update_labor_row_3 = function () {
+
+		var estimated_hours = 0;
+
+		//
+
+		var $parts = $('#PartsLabortblInfo tbody tr');
+		$parts.each(function () {
+			var $this = $(this);
+
+			var $labor_unit = $this.find('[name="txtJobPartsLaborUnit"]');
+			var labor_unit = $labor_unit.val();
+			labor_unit = parse_number(labor_unit);
+
+			var $estimated_quantity = $this.find('[name="txtJobPartsEstQty"]');
+			var estimated_quantity = $estimated_quantity.val();
+			estimated_quantity = parse_number(estimated_quantity);
+
+			estimated_hours += labor_unit * estimated_quantity;
+		});
+
+		//
+
+		var hours_input = Number(estimated_hours.toFixed(2));
+
+		console.log('bid_summary_update_labor_row_3', { hours_input });
+
+		bid_summary_ref.state.labor.row_3.hours_input = hours_input;
+
+	};
+
+	//
+
+	var bid_summary_update_material_row_1 = function () {
+
+		var cost_total = 0;
+
+		//
+
+		var $assemblies = $('[data-assembly-item]');
+		$assemblies.each(function () {
+			var $this = $(this);
+
+			var parts_cost_total = $this.attr('data-parts-cost-total');
+			parts_cost_total = parse_number(parts_cost_total);
+
+			var $estimated_quantity = $this.find('[name="txtAssmEstQty"]');
+			var estimated_quantity = $estimated_quantity.val();
+			estimated_quantity = parse_number(estimated_quantity);
+
+			cost_total += parts_cost_total * estimated_quantity;
+		});
+
+		//
+
+		var amount_input = Number(cost_total.toFixed(2));
+
+		console.log('bid_summary_update_material_row_1', { amount_input });
+
+		bid_summary_ref.state.material.row_1.amount_input = amount_input;
+
+	};
+
+	var bid_summary_update_material_row_2 = function () {
+
+		var cost_total = 0;
+
+		var $costs = $('#PartsLabortblInfo [name="txtJobPartsCost"]');
+		$costs.each(function (item, index) {
+			var $cost = $(this);
+			var cost = parse_number($cost.val());
+			var $quantity = $cost.parent().parent().find('[name="txtJobPartsEstQty"]');
+			var quantity = parse_number($quantity.val());
+			var cost_subtotal = cost * quantity;
+			cost_total += cost_subtotal;
+		});
+
+		//
+
+		var amount_input = Number(cost_total.toFixed(2));
+
+		console.log('bid_summary_update_material_row_2', { amount_input });
+
+		bid_summary_ref.state.material.row_2.amount_input = amount_input;
+
+	};
+
+	//
+
+	var bid_summary_update_other_row_1 = function () {
+
+		var $dje_cost_total = $('#DjeCost_total');
+		var dje_cost_total = $dje_cost_total.val();
+		dje_cost_total = parse_number(dje_cost_total);
+
+		var $dje_resale_total = $('#Dje_total');
+		var dje_resale_total = $dje_resale_total.val();
+		dje_resale_total = parse_number(dje_resale_total);
+
+		//
+
+		var amount_input = Number(dje_cost_total.toFixed(2));
+		var profit_input = Number((dje_resale_total * 100 / dje_cost_total - 100).toFixed(2));
+
+		console.log('bid_summary_update_other_row_1', { amount_input, profit_input });
+
+		bid_summary_ref.state.other.row_1.amount_input = amount_input;
+		bid_summary_ref.state.other.row_1.profit_input = profit_input;
+	};
+
+	var bid_summary_update_other_row_2 = function () {
+
+		var $vq_cost_total = $('#VQCost_total');
+		var vq_cost_total = $vq_cost_total.val();
+		vq_cost_total = parse_number(vq_cost_total);
+
+		var $vq_resale_total = $('#VQ_total');
+		var vq_resale_total = $vq_resale_total.val();
+		vq_resale_total = parse_number(vq_resale_total);
+
+		//
+
+		var amount_input = Number(vq_cost_total.toFixed(2));
+		var profit_input = Number((vq_resale_total * 100 / vq_cost_total - 100).toFixed(2));
+
+		console.log('bid_summary_update_other_row_2', { amount_input, profit_input });
+
+		bid_summary_ref.state.other.row_2.amount_input = amount_input;
+		bid_summary_ref.state.other.row_2.profit_input = profit_input;
+
+	};
+
+</script>

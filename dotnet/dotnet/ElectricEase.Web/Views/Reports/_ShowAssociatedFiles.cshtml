@@ -1,0 +1,52 @@
+﻿@model List<ElectricEase.Data.DataBase.Job_Attachments>
+<script>
+ $(document).ready(function () {
+        var rows_selected = [];
+        $("#filestable").dataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bInfo": false
+        });
+ });
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+<div class="table-resposive" style="max-height: 500px;overflow-y:auto;max-width:50%">
+    <table class="table table-bordered datatables"  id="filestable">
+        <thead>
+            <tr style="color:black">
+                <th>File Name</th>
+                <th>View Files</th>
+            </tr>
+
+        </thead>
+        <tbody>
+            @if(Model!=null&& Model.Count>0)
+            {
+                    foreach (var item in Model)
+                    {
+                        <tr onclick="" style="cursor:pointer">
+                            <td>
+                                @item.Attachement_Name
+                            </td>
+                            <td> <a href="/Reports/ViewFile?JobID=@item.Job_ID&AttachmentName=@item.Attachement_Name">View</a></td>
+                        </tr>
+                    }
+            }
+            
+        </tbody>
+    </table>
+</div>
+

@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "JobsIndex";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+<script>
+    $(function () {
+
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+    $(document).ready(function () {
+        $("button").click(function () {
+            $("p").slideToggle();
+
+        });
+        //getassemblyInfo('');
+        //getassemblyList();
+    });
+</script>

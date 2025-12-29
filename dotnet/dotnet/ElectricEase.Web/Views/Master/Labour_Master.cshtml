@@ -1,0 +1,289 @@
+﻿@model ElectricEase.Models.Labor_DetailsInfo
+
+@{
+    ViewBag.Title = "Labour_Master";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+
+
+
+<script>
+    $(document).ready(function () {
+        $('li').removeClass('active');
+        $("#labourmaster").addClass('active');
+
+        $(".content-title").text("Labor Master");
+            
+    });
+    $("#Ljob").click(function () {
+        //alert("dsfsdfsdf");
+        $(this).addClass('active').siblings().removeClass('active');
+
+        $(".content-title").hide();
+        //var activepage = $('a', this).attr("href");
+        //$(activepage).show();
+        // document.title = $('h1', activepage).first().text();
+        // $('title').text(document.title);
+        return false;
+    });
+</script>
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full">
+            <form class="form-horizontal" role="form">
+
+                <fieldset>
+                    <div id="accordion">
+                        <h7 class="box-heading"><strong>Labor Details</strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                        <span class="pull-right apse a">
+                                        <i class="icon ion-chevron-up"></i></span>
+                                    </a>
+                                </h7>
+                        <hr>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <!--div class="col-lg-6">
+                                        <!-- Labor Details area start -->
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="ajax-refresh2">
+                                                <div class="panel-body">
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Labour Name</strong></label>
+                                                                <input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Category</strong></label>
+                                                                <select class="form-control" name="UnitId" id="IUnitId" tabindex="2">
+                                                                    <option value="">Select or Create New Category</option>
+                                                                    <option value="1">Commercial Labor</option>
+                                                                    <option value="2">Residental</option>
+
+                                                                </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Mobile No</strong></label>
+                                                                <input type="text" class="form-control" name="Contact" id="Contact" maxlength="10" placeholder="Mobile No" tabindex="3" onkeypress="return numbersonly(event)" style="text-align: right;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>My Cost</strong></label>
+                                                                <input type="text" class="form-control" name="MyCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Resale</strong></label>
+                                                                <input type="text" class="form-control" name="ResaleCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Burden</strong></label>
+                                                                <input type="text" class="form-control" name="Burden" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label class="col-md-2" for="input"><strong>Gender</strong></label>
+                                                            <div class="col-lg-6">
+                                                                <div class="switcher switcher-sm">
+                                                                    <input type="checkbox" name="gender" class="switcher-checkbox" id="gender">
+                                                                    <label class="switcher-label" for="gender">
+                                                                        <div class="switcher-inner">
+                                                                            <div class="switcher-inactive">
+                                                                                <div class="switcher-switch">F</div>
+                                                                            </div>
+                                                                            <div class="switcher-active" tabindex="8">
+                                                                                <div class="switcher-switch">M</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </label>
+                                                                </div>
+                                                                <!-- /switcher -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="lable"><strong>Profile photo</strong></label>
+                                                                <input type="file" name="profilePhoto" id="profilePhoto" value="Choose.." tabindex="10">
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="panel-footer clearfix">
+                                                    <div class="pull-right">
+                                                        <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10">Save</button>
+                                                        <a href="labour.php" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11">Clear</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Labor Details area End -->
+                            <!--/div-->
+                        </div>
+
+                        <div class="row"></div>
+                        <div class="row">
+                            <h7 class="box-heading"><strong>Labor Listing</strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                    <span class="pull-right apse b">
+                                    <i class="icon ion-chevron-up"></i></span>
+                                    </a>
+                                    </h7>
+                            <hr>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse in">
+                            <!--div class="col-lg-6">
+                                             <!-- parts list area start-->
+                            <div class="col-md-6">
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="col-lg-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <!--h3 class="panel-title text-center">Item List</h3-->
+                                        <div class="panel-body table-responsive">
+
+                                            <table class="table table-bordered datatables">
+                                                <thead class="thead-color">
+                                                    <tr>
+                                                        <th style="text-align: center;">S.No.</th>
+                                                        <th width="300px" style="text-align: center;">Category</th>
+                                                        <th width="300px" style="text-align: center;">Labor Name</th>
+                                                        <th style="text-align: center;">Resale</th>
+                                                        <th style="text-align: center;">&#10003;</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="text-align: center;">1</td>
+                                                        <td>Residential</td>
+                                                        <td>Kendall 1</td>
+                                                        <td style="text-align: right;">$56.00</td>
+                                                        <td><a href="" id="editItem">
+                                                            <i class="icon ion-social-dropbox"></i>
+                                                        </a>
+                                                            &nbsp;
+                                                    &nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">2</td>
+                                                        <td>Commercial Labor</td>
+                                                        <td>Kendall 2</td>
+                                                        <td style="text-align: right;">$65.00</td>
+
+                                                        <td><a href="" id="editItem">
+                                                            <i class="icon ion-social-dropbox"></i>
+                                                        </a>
+                                                            &nbsp;
+                                                    &nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">3</td>
+                                                        <td>Residential</td>
+                                                        <td>Kevin</td>
+                                                        <td style="text-align: right;">$68.00</td>
+
+                                                        <td><a href="" id="editItem">
+                                                            <i class="icon ion-social-dropbox"></i>
+                                                        </a>
+                                                            &nbsp;
+                                                    &nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">4</td>
+                                                        <td>Commercial labor</td>
+                                                        <td>Nick</td>
+                                                        <td style="text-align: right;">$65.00</td>
+
+                                                        <td><a href="" id="editItem">
+                                                            <i class="icon ion-social-dropbox"></i>
+                                                        </a>
+                                                            &nbsp;
+                                                    &nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">5</td>
+                                                        <td>Commercial labor</td>
+                                                        <td>Nick2</td>
+                                                        <td style="text-align: right;">$100.00</td>
+
+                                                        <td><a href="" id="editItem">
+                                                            <i class="icon ion-social-dropbox"></i>
+                                                        </a>
+                                                            &nbsp;
+                                                    &nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: center;">6</td>
+                                                        <td>Residential</td>
+                                                        <td>Labor1</td>
+                                                        <td style="text-align: right;">$80.00</td>
+                                                        <td><a href="" id="editItem">
+                                                            <i class="icon ion-social-dropbox"></i>
+                                                        </a>
+                                                            &nbsp;
+                                                    &nbsp;
+                                                <a href="" id="deleteItem">
+                                                    <i class="ionicons-class icon ion-trash-b"></i>
+                                                </a></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Parts List Area End -->
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- /fieldset -->
+            </form>
+            <!-- /form -->
+        </div>
+        <!-- /box -->
+    </div>
+    <!-- /app body -->
+</div>
+

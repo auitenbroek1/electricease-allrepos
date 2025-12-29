@@ -1,0 +1,186 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<script src="~/Scripts/NationAssembly.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<div class="magic-layoutz">
+    <div class="box magic-element width-full" id="">
+        <div class="panel-group" id="accordion" style="display: none">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                            Assembly Information
+                        </a><i class="indicator glyphicon glyphicon-chevron-down  pull-right"></i>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                            Parts & Labor Details
+                        </a><i class="indicator glyphicon glyphicon-chevron-up  pull-right"></i>
+                    </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                            Assembly List
+                        </a><i class="indicator glyphicon glyphicon-chevron-up pull-right"></i>
+                    </h4>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="box-row  profile-hd">
+            <h7 class="box-heading">
+                <strong> &nbsp Assembly Information </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                    <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                </span>
+            </h7>
+        </div>
+        <div id="divasseminfo"></div>
+        <div class="box-row profile-hd">
+            <h7 class="box-heading">
+                <strong> &nbsp Parts & Labor Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                    <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                </span>
+            </h7>
+        </div>
+        <div id="divpartsinfo">
+            <button class="btn btn-flat btn-default btn-sm" onclick="OpenPartsPopup();"><i class="fa fa-check-square-o"></i><span>Add Parts List</span></button>
+            <div class="table table-responsive">
+                <table class="table table-bordered" id="PartsLabortblInfo" style="display: none">
+                    <thead>
+                        <tr style="background-color: #eeeeee !important">
+                            <th class="Head-Align">
+                                Part Number
+                            </th>
+                            <th class="Head-Align">
+                                Part Category
+                            </th>
+                            <th class="Head-Align">
+                                Part Description
+                            </th>
+                            <th class="Head-Align">
+                                Cost
+                            </th>
+                            <th class="Head-Align">
+                                Resale Cost
+                            </th>
+                            <th class="Head-Align">
+                                Est.Qty/Hrs
+                            </th>
+                            <th class="Head-Align">
+                                Labor Unit
+                            </th>
+                            <th class="Head-Align">
+                                Est.Cost Total
+                            </th>
+                            <th class="Head-Align">
+                                Est.Resal Total
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="partstbody"></tbody>
+                    <tfoot id="laborDatatbl">
+                    </tfoot>
+                </table>
+
+            </div>
+        </div>
+        <div class="panel-footer clearfix">
+            <div class="pull-right" style="width: 35%">
+                <button value="Submit" class="btn btn-flat btn-primary btn-sm " style="width: 40%" name="addLabour" tabindex="11" id="addbtn" onclick="saveassembly();">Save</button>
+                <button class="btn btn-flat btn-default btn-sm" role="button" style="width: 40%" tabindex="11" id="Reset" onclick="resetall()">Clear</button>
+                <button value="Submit" class="btn btn-flat btn-primary btn-sm " name="addLabour" tabindex="10" id="updatebtn" style="display:none;width: 40%;margin:2px;" onclick="UpdateAssembly();">Update</button>
+                <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" style="width:40%;display:none;" id="Cancel" onclick="Cancel();">Cancel</a>
+            </div>
+        </div>
+        <div class=" box-row profile-hd">
+            <h7 class="box-heading">
+                <strong> &nbsp Assembly List </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                    <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                </span>
+            </h7>
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse in">
+            <input type="hidden" value=" @ViewBag.LoginUser " id="loguser" />
+            @*
+            <table id="NationwideAssemblyMasterDataTable" class="table table-bordered datatables" cellspacing="0" width="100%">
+                <thead style="background-color: #45525F">
+                    <tr>
+                        <th>Assemblies Name</th>
+                        <th>Assembly Category</th>
+                        <th>Assemblies Description</th>
+                        <th>Parts Count</th>
+                        <th>Updated Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+            *@
+            @*<div id="divassemblylist">
+            </div>*@
+            @Html.Partial("_AssembliesDatatable")
+        </div>
+        @*<a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#modalAssignToRM" id="openpopup" style="display: none">popup</a>
+        <div id="modalAssignToRM" class="modal fade" role="dialog">
+            <div class="modal-dialog" style="width: 78%; margin-left: 21%; margin-top: 60px;border:2px solid white;border-radius:5px">
+                <div class="modal-header" style="background-color: #333333; height: 35px;">
+                    <button type="button" class="close" data-dismiss="modal" id="popupclose" style="color: #fff !important;opacity:0.9">&times;</button>
+                    <h4 class="modal-title" style="color: #FFF !important;">Add Parts Details</h4>
+                </div>
+                <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 165px;">
+                    <div id="divpartsdata"></div>
+                </div>
+            </div>
+        </div>*@
+
+        <a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#PartsPopUp" id="OpenPartsPopUp" style="display: none">popup</a>
+        <div id="PartsPopUp" class="modal fade" role="dialog">
+            <div class="modal-dialog" style="width: 78%; margin-left: 21%; margin-top: 60px;">
+                <div class="modal-header" style="background-color: #333333; height: 35px;">
+                    <button type="button" class="close" data-dismiss="modal" id="ClosePartsPopUp" style="color: white !important; opacity: 0.9;">&times;</button>
+                    <h4 class="modal-title" style="color: #FFF !important;">Add Parts Details</h4>
+                </div>
+                <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                    <table id="ClientPartsTable" class="table table-bordered datatables" cellspacing="0" width="100%">
+                        <thead style="background-color: #45525F">
+                            <tr>
+                                <th>Select</th>
+                                <th>Part Category</th>
+                                <th>Description</th>
+                                <th>Parts Number</th>
+                                <th>My Cost</th>
+                                <th>Resale</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div class="pull-right popup-btn">
+                        <button type="button" class="btn btn-flat btn-primary btn-sm " style="margin: 2px" id="AddParts">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

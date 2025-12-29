@@ -1,0 +1,536 @@
+﻿@model ElectricEase.Models.EditParts_DetailsInfo
+
+@{
+    //ViewBag.Title = "PMIndex";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+            //var Grid = new WebGrid( canPage: false, canSort: false, ajaxUpdateContainerId: "container-grid");
+}
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+
+<script type="text/javascript">
+
+    $(function () {
+        //alert("client");
+        LoadPartsCategorydropdown('@Model.Part_Category');
+
+    });
+    $(document).ready(function () {
+        $("[name=OtherPart_Category]").attr("disabled", "disabled");
+        $("#Part_Category").change(function () {
+            var value = $("#Part_Category option:selected").val();
+            //alert("select");
+            //alert(value);
+            ShowOtherCategory(value);
+        });
+        function ShowOtherCategory(value) {
+
+            if (value == 1) {
+                $("[name=OtherPart_Category]").removeAttr("disabled");
+            }
+            else {
+
+                $("OtherPart_Category").val('');
+                $("[name=OtherPart_Category]").attr("disabled", "disabled");
+            }
+        }
+       
+        $(function () {
+            var cost = $("#Cost").val();
+            //alert(cost);
+            if (cost == 0) {
+                $("#Cost").val("");
+            }
+            var rcost = $("#Rcost").val();
+            // alert(rcost);
+            if (cost == 0) {
+                $("#Rcost").val("");
+            }
+
+
+        });
+        $(function () {
+            //alert("client");
+            LoadClientIDDropdown('@Model.Client_ID');
+
+        });
+
+    });
+        $.ajax({
+
+            url: "/Ajax/GetMyPartsList",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var value = $('#loguser').val();
+                if (value == "Admin")
+                    assignToAdminEventsColumns(data);
+                else
+                    assignToUserEventsColumns(data);
+            }
+        });
+
+
+
+        function assignToAdminEventsColumns(data) {
+
+            var table = $('#example').dataTable({
+                
+                "aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+                //"dom": 'C<"clear">lfrtip',
+                "bAutoWidth": false,
+                "aaData": data,
+                //"aaSorting": [],
+                "aoColumnDefs": [
+                   {
+                       "aTargets": [0],
+                       //"bSearchable": false,
+                       //"bSortable": false,
+                       //"bSort": false,
+                       "mData": "EventTypeId",
+                       "mRender": function (event) {
+                           return event;
+                       }
+                   },
+
+                   {
+                       "aTargets": [1],
+                       "mData": "EventType"
+                   }
+                ], "aoColumns": [
+
+                { "mData": "Client_Company" },
+                { "mData": "Part_Number" },
+                { "mData": "Part_Category" },
+                { "mData": "Resale_Cost" },
+                { "mData": "Purchased_From" },
+                {
+                    "mDataProp": function (source, type, val) {
+                        return '<a href="/Parts_Master/EditPartsDetails?PartsNumber=' + encodeURIComponent(source.Part_Number) + '&ClientID=' + source.Client_ID + '"> <span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Parts_Master/DeletePartsDetails?PartNumber=' + encodeURIComponent(source.Part_Number) + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+                    }
+                }
+                ]
+
+            });
+
+        }
+        function assignToUserEventsColumns(data) {
+
+            var table = $('#example').dataTable({
+              
+                "aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+                //"dom": 'C<"clear">lfrtip',
+                "bAutoWidth": false,
+                "aaData": data,
+                //"aaSorting": [],
+                "aoColumnDefs": [
+                   {
+                       "aTargets": [0],
+                       //"bSearchable": false,
+                       //"bSortable": false,
+                       //"bSort": false,
+                       "mData": "EventTypeId",
+                       "mRender": function (event) {
+                           //return  '<input class="childCheck" type="checkbox" id="childCheckBoxes" value="' + event + '">';
+                           return event;
+                       }
+                   },
+
+                   {
+                       "aTargets": [1],
+                       "mData": "EventType"
+                   }
+                ], "aoColumns": [
+                { "mData": "Part_Number" },
+                { "mData": "Part_Category" },
+                { "mData": "Resale_Cost" },
+                { "mData": "Purchased_From" },
+                {
+                    "mDataProp": function (source, type, val) {
+                        return '<a href="/Parts_Master/EditPartsDetails?PartsNumber=' + encodeURIComponent(source.Part_Number) + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Parts_Master/DeletePartsDetails?PartNumber=' + encodeURIComponent(source.Part_Number) + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+                    }
+                }
+                ]
+
+            });
+
+        }
+        function showEdit(id) {
+
+            $.ajax({
+                url: "/Client_Master/EditClientMaster",
+                data: { 'id': id },
+                type: "GET",
+                success: function (data) {
+
+                    var url = '@Url.Action("EditClientMaster", "Client_Master")';
+                    url += '/?id=' + id;
+                    $("#trueview").load(url);
+                },
+                error: function () {
+                }
+            });
+            };
+
+            $(document).on('click', '.confirm', function () {
+                //message = "Are you sure you want to Delete this user?"
+                if (confirm(message))
+                    return true;
+                else
+                    return false;
+            });
+
+
+            $(document).ready(function () {
+                //alert("jiii");
+                $('li').removeClass('active');
+                $("#partsmaster").addClass('active');
+                //alert("active");
+                //To change content tittles
+                $(".content-title").text("Parts Master");
+            });
+            $("#Ljob").click(function () {
+                //alert("dsfsdfsdf");
+                $(this).addClass('active').siblings().removeClass('active');
+                $(".content-title").hide();
+                return false;
+            });
+
+            $(function () {
+                $("#deletebtn").click(function () {
+                    alert("Are sure Want To Delete This Client?");
+                    return true;
+                });
+            });
+
+            $(function () {
+                $("#Reset").click(function () {
+                    $("#Part_Number").val("");
+                    $("#Description").val("");
+                    $("#Client_Description").val("");
+                    $("#Cost").val("");
+                    $("#Rcost").val("");
+                    $("#Purchased_From").val("");
+                    $("#OtherPart_Category").val("");
+                    $("#Part_Category").val("");
+
+                });
+
+            });
+
+            $(function () {
+
+                $("#submit").click(function () {
+
+                    var intRegex = /^\d+(?:\.\d\d?)?$/;
+
+                    var ClientName = $("#Client_ID option:selected").val();
+                    message = "Client Field is Required";
+                    if (ClientName == 0) {
+                        $("#ClietName_Errmsg").html("Required").show();
+                        return false;
+                    }
+
+                    var value = $("#Part_Category option:selected").val();
+                    if (value == 0) {
+                        $("#Category_errmsg").html("Required").show();
+                        return false;
+                    }
+
+
+                    if ($("#Part_Number").val() == "") {
+                        $("#PartNumber_errmsg").html("Required").show();
+                        return false;
+                    }
+                    //Modified by Arunkumar.K on 12/15/2015.
+                    var value = $("#Part_Category option:selected").val();
+
+                    var otherCategory = $("#OtherPart_Category").val();
+                    othercatgoryMsg = "\"Other Category\" field is required, If you had selected \"Other\" in category field.";
+                    if (value == 1 && otherCategory == '') {
+
+                        if (confirm(othercatgoryMsg)) {
+                            $("[name=OtherPart_Category]").focus();
+                            return false;
+
+                        }
+                    }
+
+
+                    
+                    if (!$("#Cost").val().match(intRegex)) {
+                        $("#errmsg").html("Number only").show();
+                        return false;
+                    }
+
+                    
+                    if (!$("#Rcost").val().match(intRegex)) {
+                        $("#RCosterrmsg").html("Number only").show();
+                        return false;
+                    }
+
+
+                    var Cost = $("#Cost").val();
+                    var ResaleCost = $("#Rcost").val();
+                    costMsg = "Resale price should be higher than “My Cost” price.";
+                    if (parseFloat(ResaleCost) <= parseFloat(Cost)) {
+                        if (confirm(costMsg)) {
+                            return false;
+                            $("#Rcost").focus();
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+
+
+                    if (parseFloat(Cost) == 0) {
+                        CostZero = "Cost should be Higher than 0";
+                        var result = confirm(CostZero)
+                        if (result == true) {
+                            return false;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                });
+            });
+
+            $(function () {
+
+                $(".profile-hd").click(function () {
+                    //alert("hii");
+                    $(this).next().slideToggle();
+                });
+            });
+</script>
+<style>
+    .controls > input,
+    .controls > select,
+    .controls > .row,
+    .controls > .input-group,
+    .controls > .form-group > .input-group {
+        margin-bottom: 15px;
+    }
+
+    /*th {
+        background-color: #F48D36;
+    }
+    #example tr.alt td {
+        color: #000000;
+        background-color: #34495e;
+    }
+
+    .alt {
+        background-color: #E4E9F5;
+        color: #000;
+    }*/
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+
+
+
+@if (ViewBag.UpdateErrorMsg != null)
+{ 
+     <script>
+         DisplayNotification(" Error occurred while updating “Parts details”!", "error");
+    </script>
+}
+
+
+
+<div class="box magic-element width-full">
+
+    <fieldset>
+        <div id="accordion">
+
+
+            <div class=" box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp Edit Parts Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                    </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <!--div class="col-lg-6">
+                                        <!-- parts details area start -->
+                @using (Html.BeginForm("UpdatePartsDetails", "Parts_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+                {
+                    @Html.ValidationSummary(true);
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="ajax-refresh2">
+
+
+                                        <div class="panel-body">
+
+
+                                            <div class="row-fluid">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <input  type="hidden" value=" @ViewBag.LoginUser" id="loguser"/>
+                                                        <input type="hidden" name="Client_ID" value="@Model.Client_ID"/>
+                                                        <label for="label"><strong>Category :<span class="err">*</span></strong></label>
+                                                        @Html.DropDownListFor(m => m.Part_Category, Enumerable.Empty<SelectListItem>(), new { Name = "Part_Category", @class = "form-control", data_type = "other" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="col-md-4">
+
+                                                    <div class="form-group">
+                                                        <label for="label"><strong>If Other Category :</strong></label>
+                                                        @Html.TextBoxFor(m => m.OtherPart_Category, new { @class = "form-control", @maxlength = "50", @placeholder = "" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="col-md-3">
+
+                                                    <div class="form-group">
+                                                        <label for="label"><strong>Part Number:</strong></label>
+                                                        @Html.TextBoxFor(m => m.Part_Number, new { @class = "form-control", @readonly = "readonly", @maxlength = "50", @placeholder = "Part Number" })
+                                                         <span id="PartNumber_errmsg" class="error"></span>
+                                                        @Html.ValidationMessageFor(m => m.Part_Number)
+                                                        <input type="hidden" id="userid" name="Part_Number" value="@Model.Part_Number"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label for="label"><strong>My Cost :</strong></label>
+                                                        @Html.TextBoxFor(m => m.Cost, new { @class = "form-control", @maxlength = "8", @placeholder = "0.00", style = "text-align:right" })
+                                                           <span id="errmsg" class="error"></span>
+                                                        @Html.ValidationMessageFor(m => m.Cost)
+                                                        @*<input type="text" class="form-control" name="MyCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">*@
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label for="label"><strong>Resale :</strong></label>
+                                                        @Html.TextBoxFor(m => m.Resale_Cost, new { @class = "form-control", @maxlength = "8", @placeholder = "0.00", @id = "Rcost", style = "text-align:right" })
+                                                         <span id="RCosterrmsg" class="error"></span>
+                                                        @Html.ValidationMessageFor(m => m.Resale_Cost)
+                                                        @*<input type="text" class="form-control" name="ResaleCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">*@
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row-fluid">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="label"><strong>Purchased From :</strong></label>
+                                                        @Html.TextBoxFor(m => m.Purchased_From, new { @class = "form-control", @Id = "IPurchaseRate", @maxlength = "500", @placeholder = "Purchased from" })
+                                                        @*<input type="text" class="form-control" name="PurchasedFrom" id="Ipurchasefrom" autofocus maxlength="50" placeholder="Purchased from" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row-fluid">
+                                                <div class="col-sm-5">
+                                                    <div class="form-group">
+
+                                                        <label for="title"><strong>My Description :</strong></label>
+                                                        @Html.TextAreaFor(m => m.Description, new { @class = "form-control", @Id = "IPurchaseRate", @maxlength = "1000" })
+                                                        @Html.ValidationMessageFor(m => m.Description)
+                                                        @*<textarea rows="3" class="form-control" name="MYDescription" id="IDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>*@
+
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="col-sm-5">
+                                                    <div class="form-group">
+                                                        <label for="title"><strong>Client Description :</strong></label>
+                                                        @Html.TextAreaFor(m => m.Client_Description, new { @class = "form-control", @Id = "IPurchaseRate", @maxlength = "1000" })
+                                                        @Html.ValidationMessageFor(m => m.Client_Description)
+                                                        @*<textarea rows="3" class="form-control" name="ClientDescription" id="ClientDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>*@
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="panel-footer clearfix">
+                                            <div class="pull-right">
+                                                <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" id="submit">Update <span class="glyphicon glyphicon-upload"></span></button>
+                                               @* <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset">Clear</a>*@
+                                            </div>
+                                        </div>
+                                        <div class="panel-footer clearfix">
+                                            <div class="pull-left" style="color: #ccc; font-size: x-small;">
+                                                <div>
+                                                    <label>Created By  :@Model.Created_By on<span></span> @Model.Created_Date</label>
+                                                    <input type="hidden" value="@Model.Created_By" name="Created_By" id="Created_By"/>
+                                                    <input type="hidden" name="Created_Date" value="@Model.Created_Date"  />
+                                                </div>
+
+                                            </div>
+
+                                            <div class="pull-right" style="color: #ccc; font-size: x-small;">
+                                                <div>
+                                                    <label>Updated By  :@Model.Updated_By on<span></span> @Model.Updated_Date</label>
+                                                    <input type="hidden"name="Updated_By" value="@Model.Updated_By"  />
+                                                    <input type="hidden"  name="Updated_Date" value="@Model.Updated_Date"  />
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+                <!-- parts details area End -->
+                <!--/div-->
+            </div>
+
+
+             <div class=" box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp Parts Listing</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                    </div>
+            <div id="collapseTwo" class="panel-collapse collapse in">
+                @* @{ Html.RenderAction("PartsList", "Parts_Master",new ElectricEase.Models.Parts_DetailsInfo());}*@
+                <table id="example" class="table table-bordered datatables" cellspacing="0" width="100%">
+                    <thead style="background-color:#45525F">
+                        <tr>
+                            @if (HttpContext.Current.User.IsInRole("Admin"))
+                            {
+                                <th>Company Name</th>
+                            }
+                            <th>PartNumber</th>
+                            <th>Part Category</th>
+                            <th>Resale</th>
+                            <th>Purchased From</th>
+                            <th>Action </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </fieldset>
+</div>
+

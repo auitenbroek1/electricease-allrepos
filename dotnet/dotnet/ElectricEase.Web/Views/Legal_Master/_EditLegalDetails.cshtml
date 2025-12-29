@@ -1,0 +1,450 @@
+﻿@model ElectricEase.Models.EditLegal_DetailsInfo
+@{
+   
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+               
+}
+
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        if ($("#Legal_Category option:selected").val('')) {
+            $("[name=OtherLegal_Category]").attr("disabled", "disabled");
+        }
+        $("#Legal_Category").change(function () {
+            var value = $("#Legal_Category option:selected").val();
+            ShowOtherCategory(value);
+        });
+        
+        function ShowOtherCategory(value) {
+
+            if (value == 1) {
+                $("[name=OtherLegal_Category]").removeAttr("disabled");
+            }
+            else {
+                $("OtherLegal_Category").val('');
+                $("[name=OtherLegal_Category]").attr("disabled", "disabled");
+            }
+        }
+
+        //$(function () {
+
+        //    $("#submit").click(function () {
+        //        var value = $("#Client_ID option:selected").val();
+        //        msg = "Client Name Field is Required";
+        //        if (value == 0) {
+        //            if (confirm(msg)) {
+        //                return false;
+        //            }
+        //        }
+
+
+        //    });
+        //});
+
+        $(function () {
+            LoadClientIDDropdown('@Model.Client_ID');
+
+        });
+
+        $(function () {
+
+            $("#submit").click(function () {
+               
+                var value = $("#Legal_Category option:selected").val();
+                othercatgoryMsg = "\"Other Category\" field is required, If you had selected \"Other\" in category field.";
+                if (value == 1) {
+                    if (confirm(othercatgoryMsg)) {
+                        $("[name=OtherLegal_Category]").focus();
+                        return false;
+
+                    }
+                }
+
+            });
+        });
+        $(function () {
+            $("#fileupload").change(function () {
+                $("#firstlogo").hide();
+                $("#dvPreview").html("");
+                var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.jpg|.jpeg|.gif|.png|.bmp)$/;
+                if (regex.test($(this).val().toLowerCase())) {
+                    if ($.browser.msie && parseFloat(jQuery.browser.version) <= 9.0) {
+                        $("#dvPreview").show();
+                        $("#dvPreview")[0].filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = $(this).val();
+                    }
+                    else {
+                        if (typeof (FileReader) != "undefined") {
+                            $("#dvPreview").show();
+                            $("#dvPreview").append("<img height='88' width='30%'/>").attr({ width: '300px', height: '150px' });
+                            var reader = new FileReader();
+                            reader.onload = function (e) {
+                                $("#dvPreview img").attr("src", e.target.result);
+                            }
+                            reader.readAsDataURL($(this)[0].files[0]);
+                        } else {
+                            alert("This browser does not support FileReader.");
+                        }
+                    }
+                } else {
+                    alert("Please upload a valid image file.");
+                }
+            });
+        });
+
+    });
+        $.ajax({
+
+            url: "/Ajax/GetMyLegalList",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var value = $('#loguser').val();
+                if (value == "Admin")
+                    assignToAdminEventsColumns(data);
+                else
+                    assignToUserEventsColumns(data);
+            }
+        });
+
+
+
+        function assignToAdminEventsColumns(data) {
+
+            var table = $('#example').dataTable({
+               
+                "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+                //"dom": 'C<"clear">lfrtip',
+                "bAutoWidth": false,
+                "aaData": data,
+                //"aaSorting": [],
+                "aoColumnDefs": [
+                   {
+                       "aTargets": [0],
+                       //"bSearchable": false,
+                       //"bSortable": false,
+                       //"bSort": false,
+                       "mData": "EventTypeId",
+                       "mRender": function (event) {
+                           //return  '<input class="childCheck" type="checkbox" id="childCheckBoxes" value="' + event + '">';
+                           return event;
+                       }
+                   },
+
+                   {
+                       "aTargets": [1],
+                       "mData": "EventType"
+                   }
+
+
+                ], "aoColumns": [
+
+                { "mData": "Client_Company" },
+                { "mData": "Legal_Detail" },
+                { "mData": "Legal_Category" },
+
+                {
+                    "mDataProp": function (source, type, val) {
+
+                        return '<a href="/Legal_Master/EditLegalDetails?LegalID=' + source.Legal_ID + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Legal_Master/DeleteLegalDetails?LegalID=' + source.Legal_ID + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+
+                    }
+                }
+                ]
+
+            });
+
+        }
+        function assignToUserEventsColumns(data) {
+
+            var table = $('#example').dataTable({
+               
+                "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+                //"dom": 'C<"clear">lfrtip',
+                "bAutoWidth": false,
+                "aaData": data,
+                //"aaSorting": [],
+                "aoColumnDefs": [
+                   {
+                       "aTargets": [0],
+                       //"bSearchable": false,
+                       //"bSortable": false,
+                       //"bSort": false,
+                       "mData": "EventTypeId",
+                       "mRender": function (event) {
+                           //return  '<input class="childCheck" type="checkbox" id="childCheckBoxes" value="' + event + '">';
+                           return event;
+                       }
+                   },
+
+                   {
+                       "aTargets": [1],
+                       "mData": "EventType"
+                   }
+
+
+                ], "aoColumns": [
+                { "mData": "Legal_Detail" },
+                { "mData": "Legal_Category" },
+
+                {
+                    "mDataProp": function (source, type, val) {
+
+                        return '<a href="/Legal_Master/EditLegalDetails?LegalID=' + source.Legal_ID + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Legal_Master/DeleteLegalDetails?LegalID=' + source.Legal_ID + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+                    }
+                }
+                ]
+
+            });
+
+        }
+        $(function () {
+            $("#Reset").click(function () {
+                $("#OtherLegal_Category").val("");
+                $("#Legal_Category").val("");
+                $("#Legal_Detail").val("");
+                $("#Client_ID").val("");
+            });
+
+        });
+
+        $(document).on('click', '.confirm', function () {
+            //message = "Are you sure you want to Delete this user?"
+            if (confirm(message))
+                return true;
+            else
+                return false;
+        });
+
+
+        $(document).ready(function () {
+
+            $('li').removeClass('active');
+            //$("#legalmaster").addClass('active');
+            $("#legalmaster").addClass('active');
+
+            //To change content tittles
+            $(".content-title").text("Legal Master");
+        });
+        $("#Ljob").click(function () {
+
+            $(this).addClass('active').siblings().removeClass('active');
+            $(".content-title").hide();
+            return false;
+        });
+
+
+        $(function () {
+            //alert("client");
+            LoadLegalCategorydropdown('@Model.Legal_Category');
+
+        });
+
+    $(function () {
+
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+    $(function () {
+
+        $("#submit").click(function () {
+
+            var intRegex = /^\d+(?:\.\d\d?)?$/;
+
+            var ClientName = $("#Client_ID option:selected").val();
+            message = "Client Field is Required";
+            if (ClientName == 0) {
+                DisplayNotification("“Client Name” is required.", "error");
+                return false;
+            }
+
+            if ($("#Legal_Detail").val() == "") {
+                DisplayNotification("“Legal Detail” is required.", "error");
+                return false;
+            }
+
+
+        });
+    });
+</script>
+<style>
+    .controls > input,
+    .controls > select,
+    .controls > .row,
+    .controls > .input-group,
+    .controls > .form-group > .input-group {
+        margin-bottom: 15px;
+    }
+
+    /*th {
+        background-color: #F48D36;
+    }
+    #example tr.alt td {
+        color: #000000;
+        background-color: #34495e;
+    }
+
+    .alt {
+        background-color: #E4E9F5;
+        color: #000;
+    }*/
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+
+<div class="app-body" id="Scroll">
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+
+            <fieldset>
+                <div id="accordion">
+
+
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp Edit Legal Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <!--div class="col-lg-6">
+                                        <!-- parts details area start -->
+                        @using (Html.BeginForm("UpdateLegalDetails", "Legal_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+                        {
+                            @Html.ValidationSummary(true);
+                
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="ajax-refresh2">
+
+
+                                                <div class="panel-body">
+                                                     <input  type="hidden" value=" @ViewBag.LoginUser" id="loguser"/>
+                                                    
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                 <input type="hidden" name="Client_ID" value="@Model.Client_ID"/>
+                                                                <label for="label"><strong>Category :</strong></label>
+                                                                <input type="hidden" id="userid" name="Client_ID" value="@Model.Client_ID"/>
+                                                                <input type="hidden" id="legalid" name="Legal_ID" value="@Model.Legal_ID"/>
+                                                                @Html.DropDownListFor(m => m.Legal_Category, Enumerable.Empty<SelectListItem>(), new { Name = "Legal_Category", @class = "form-control", data_type = "other" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>If Other Category :</strong></label>
+                                                                @Html.TextBoxFor(m => m.OtherLegal_Category, new { @class = "form-control", @maxlength = "50", @placeholder = "" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-sm-12">
+                                                            <div class="form-group">
+
+                                                                <label for="title"><strong>Legal Detail<span class="err">*</span>:</strong></label>
+                                                                @Html.TextAreaFor(m => m.Legal_Detail, new { @class = "form-control" ,@maxlength="2000" })
+                                                                @Html.ValidationMessageFor(m => m.Legal_Detail)
+                                                                @*<textarea rows="3" class="form-control" name="MYDescription" id="IDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>*@
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="panel-footer clearfix">
+                                                    <div class="pull-right" style="width:35%">
+                                                        <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm pull-right" name="addLabour" style="width:49%" tabindex="10">Update</button>
+                                                        <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" style="width:49%;" id="Cancel" onclick="Cancel();">Cancel</a>
+    @* <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset">Clear</a>*@
+                                                    </div>
+                                                </div>
+                                                <div class="panel-footer clearfix">
+                                                    <div class="pull-left" style="color: #ccc; font-size: x-small;">
+                                                        <div>
+                                                            <label>Created By  :@Model.Created_By on<span></span> @Model.Created_Date</label>
+                                                            <input type="hidden" value="@Model.Created_By" name="Created_By" id="Created_By"/>
+                                                            <input type="hidden" name="Created_Date" value="@Model.Created_Date"  />
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="pull-right" style="color: #ccc; font-size: x-small;">
+                                                        <div>
+                                                            <label>Updated By  :@Model.Updated_By on<span></span> @Model.Updated_Date</label>
+                                                            <input type="hidden"name="Updated_By" value="@Model.Updated_By"  />
+                                                            <input type="hidden"  name="Updated_Date" value="@Model.Updated_Date"  />
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <!-- parts details area End -->
+                        <!--/div-->
+                    </div>
+
+
+                   <div class=" box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp Legal Listing  </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+                        <table id="example" class="table table-bordered datatables" cellspacing="0" width="100%">
+                            <thead style="background-color:#45525F">
+                                <tr>
+                                     @if (HttpContext.Current.User.IsInRole("Admin"))
+                                     {
+                                         <th>Company Name</th>
+                                     }
+                                 <th style="width:70%">Legal Detail</th>
+                                    <th>Legal Category</th>
+                                    <th>Action </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<!-- app content here -->
+
+
+
+<!-- app content here -->
+
+
+
+
+
+
+

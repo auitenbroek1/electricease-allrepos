@@ -1,0 +1,159 @@
+﻿@model ElectricEase.Models.Legal_DetailsInfo
+
+@{
+    Layout = null;
+}
+
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<script type="text/javascript">
+    $(document).ready(function(){
+        // getlist();
+        $("[name=OtherLegal_Category]").attr("disabled", "disabled");
+        //if ($("#Legal_Category option:selected").val('')) {
+        //    $("[name=OtherLegal_Category]").attr("disabled", "disabled");
+        //}
+        $("#Legal_Category").change(function() {
+            var value = $("#Legal_Category option:selected").val();
+            ShowOtherCategory(value);
+        });
+    });
+
+
+</script>
+<style>
+    .controls > input,
+    .controls > select,
+    .controls > .row,
+    .controls > .input-group,
+    .controls > .form-group > .input-group {
+        margin-bottom: 15px;
+    }
+
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+<fieldset>
+    <div id="accordion">
+        <div id="collapseOne" class="panel-collapse collapse in">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="ajax-refresh2">
+                                <div class="panel-body">
+                                    <input type="hidden" value="@ViewBag.LoginUser" id="loguser" class="hidden" />
+                                    <div class="hidden">@Html.HiddenFor(x => x.Legal_ID)</div>
+                                    <div class="row"> 
+                                        @if (HttpContext.Current.User.IsInRole("Admin"))
+                                        {
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <input type="hidden" value="Admin" id="IsAdmin" />
+                                                    <label for="title"><strong>Client Name  <span class="err">*</span>:</strong></label>
+                                                    <input type="hidden" id="legalid" value="@Model.Legal_ID" />
+                                                    @if (Model.Legal_Detail == null || Model.Legal_Detail == "")
+                                                    {
+                                                        @Html.DropDownListFor(m => m.Client_ID, ViewBag.Clientid as SelectList, "Select", new { Name = "Client_ID", @class = "form-control", onchange = "GetLegalCatgory(this);" })
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.DropDownListFor(m => m.Client_ID, ViewBag.Clientid as SelectList, "Select", new { Name = "Client_ID", @class = "form-control", disabled = "disabled" })
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Category  <span class="err">*</span>:</strong></label>
+                                                @if (HttpContext.Current.User.IsInRole("Admin"))
+                                                {
+                                                    if (Model.Legal_ID != 0)
+                                                    {
+                                                        @Html.DropDownListFor(m => m.Legal_Category, ViewBag.LegalCategory as SelectList, "Select", new { Name = "Legal_Category", @class = "form-control", onchange = "ShowOtherCategory(this.value);" })
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.DropDownListFor(m => m.Legal_Category, ViewBag.LegalCategory as SelectList, "Select", new { Name = "Legal_Category", @class = "form-control", onchange = "ShowOtherCategory(this.value);", disabled = "disabled" })
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(m => m.Legal_Category, ViewBag.LegalCategory as SelectList, "Select", new { Name = "Legal_Category", @class = "form-control", onchange = "ShowOtherCategory(this.value);" })
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="label"><strong>If Other Category <span class="err" id="spnCatError" style="display:none">*</span>:</strong></label>
+                                                @Html.TextBoxFor(m => m.OtherLegal_Category, new { @class = "form-control", @maxlength = "50", @placeholder = "" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Legal Detail<span class="err">*</span>:</strong></label>
+                                                @Html.TextAreaFor(m => m.Legal_Detail, new { @class = "form-control", @maxlength = "2000" })
+                                                @Html.ValidationMessageFor(m => m.Legal_Detail)
+                                                @*<textarea rows="3" class="form-control" name="MYDescription" id="IDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="pull-right" style="width:35%">
+                                            @if (Model.Legal_Detail == null)
+                                            {
+                                                <button value="Submit" class="btn btn-flat btn-primary btn-sm" onclick="CheckIsExistingLegal()" name="addLabour" id="submit" style="width:49%" tabindex="10">Save </button>
+                                                <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" style="width:49%" id="Reset" onclick="ResetAll();">Clear</a>
+                                            }
+                                            else
+                                            {
+                                                <button value="Submit" class="btn btn-flat btn-primary btn-sm" onclick="saveLegals()" name="addLabour" id="submit" style="width:49%" tabindex="10">Update </button>
+                                                <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" style="width:49%;" id="Cancel" onclick="Cancel();">Cancel</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (Model.Legal_ID != 0)
+                    {
+                        <div class="panel-footer clearfix">
+
+                            <div class="pull-left" style="font-size: x-small;">
+                                <div>
+                                    <label style="color: #3D81BD !important;">Created By  : &nbsp @Model.Created_By on<span></span> @Model.Created_Date</label>
+
+                                </div>
+
+                            </div>
+
+                            <div class="pull-right" style=" font-size: x-small;">
+                                <div>
+                                    <label style="color: #3D81BD !important;">Updated By  : &nbsp @Model.Updated_By on<span></span> @Model.Updated_Date</label>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>

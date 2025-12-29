@@ -1,0 +1,25 @@
+﻿@model List<ElectricEase.Models.sowdata>  
+
+<table class="table table-bordered datatables table-responsive" id="Sowtable">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Subject</th>
+            <th>Job Description</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody >
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>  @item.Category  </td> 
+                        <td>  @item.Subject   </td>
+                        <td><a href="#" onclick="Showdetilas(' + @item.Id + ')"> @item.Sow_desc   </a></td>
+                        <td><button type="button" class="close" onclick="removesow(@item.Id)" aria-hidden="true"><i class="icon ion-ios7-trash"></i></button> </td> 
+                    </tr> 
+        }
+
+
+    </tbody>
+</table>

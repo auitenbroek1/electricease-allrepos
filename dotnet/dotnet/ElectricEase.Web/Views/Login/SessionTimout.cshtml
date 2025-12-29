@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "SessionTimout";
+    Layout = "~/Views/Shared/_estimLoginLayout.cshtml";
+}
+
+<section id="wrapper" class="container">
+        <section id="signin" class="sign-wrapper signin transition-layout">
+            <div class="row" style="padding-top:5%">
+                <div class="col-md-12" style="text-align:center">
+                <h2 style="color:white">Session Is Expired Or You don't have access to this Page</h2>
+                    </div>
+            </div>
+            <div class="row">
+                 <div class="col-md-12" style="text-align:center">
+                <a href="../Login/Login?returnurl=@Request.QueryString["returnurl"]" style="color:white">Click here to Login Again</a>
+                     </div>
+            </div>
+            </section>
+    </section>

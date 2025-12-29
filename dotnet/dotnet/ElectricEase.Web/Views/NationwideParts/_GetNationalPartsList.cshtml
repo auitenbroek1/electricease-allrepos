@@ -1,0 +1,242 @@
+﻿<style>
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+    /*.pagination {
+                                margin:20px 0px !important;
+                            }
+                            div.dataTables_paginate {
+                            }*/
+</style>
+
+<div class="table table-responsive">
+    <table id="N_ptexample" class="table table-bordered datatables" cellspacing="0" width="100%">
+        <thead style="background-color: #45525F">
+            <tr>
+                <th>ID</th>
+                <th>Part Category</th>
+                <th>Description</th>
+                <th>Part Number</th>
+                <th>Cost</th>
+                <th>Purchased From</th>
+                <th>UOM</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="partsbody"></tbody>
+    </table>
+    <div id='bootomNationParts' tabindex='1'></div>
+</div>
+
+
+<script>
+    var pagelen = 5;
+    var dropdwn = document.getElementsByName('N_ptexample_length');
+        var tab = $('#N_ptexample').DataTable({
+        "order": [[0, "desc"]],
+        "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+        "aLengthMenu": [[5, 10, 15, 25, 100], [5, 10, 15, 25, 100]],
+        "iDisplayLength": pagelen,
+        "sDom": '<"top"flp>rt<"bottom"pri>',
+        "tableTools": {
+            "aButtons": [
+                {
+                    "sExtends": "copy",
+                    "sButtonText": "Copy to clipboard"
+                },
+                {
+                    "sExtends": "csv",
+                    "sButtonText": "Save to CSV"
+                },
+                {
+                    "sExtends": "xls",
+                    "oSelectorOpts": {
+                        page: 'current'
+                    }
+                }
+            ]
+        },
+    "proccessing": true,
+    "serverSide": true,
+    "ajax": {
+        url: "@Url.Action("PartsDatatable", "NationwideParts")" ,
+        type: 'POST',
+        contentType: "application/json",
+        data: function (d) {
+            d.extra_search = Cookies.get('partsfilter');
+            return JSON.stringify(d);
+        }
+            },
+            //"fnDrawCallback": function (oSettings) {
+            //    alert('DataTables has redrawn the table');
+            //},
+            //"initComplete": function (settings, json) {
+            //    alert('com' + json);
+
+            //    // call your function here
+            //},
+    "language": {
+        "search": "",
+        "searchPlaceholder": "Search..."
+    },
+   "columns": [
+       { "mData": "ID" },
+       { "data": "Part_Category" },
+       { "data": "Description" },
+       { "data": "Part_Number" },
+       { "data": "Cost" },
+       { "data": "Purchased_From" },
+       { "data": "UOM" },
+       {
+
+           "data": function (o) {
+               return '<a href="javascript: void (0);" onclick="editParts(\'' + o.Part_Number.trim().replace(/\\/g, "\\\\").replace("'", "\'") +'\');">'+
+                   '<span class="glyphicon glyphicon-pencil"></span>'+
+                       '</a>&nbsp;&nbsp;&nbsp;'+
+                   '<a class="confirm" id="alert" href="javascript: void (0);" onclick="deleteParts(\'' + o.Part_Number.trim().replace(/\\/g, "\\\\").replace("'", "\'") +'\'); ">'+
+                   '<span class="glyphicon glyphicon-trash"></span></a>';
+           }, orderable: false
+       }
+    ]
+    });
+        //pagno = Number(pagno);
+        //var total = $('.paginate_button');
+        //if (total.length == 3) {
+        //    pagno = 0;
+        //}
+        //if (pagno > 0) {
+        //    tab.fnPageChange(pagno, true);
+        //}
+        //if (Cookies.get('N_Partsearch') != null && Cookies.get('N_Partsearch') != "") {
+        //    tab.fnFilter(Cookies.get('N_Partsearch'));
+        //}
+   // }
+    @*else {
+        var tab = $('#N_ptexample').DataTable({
+        "order": [[0, "desc"]],
+        "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+        "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+        "iDisplayLength": pagelen,
+        "sDom": '<"top"flp>rt<"bottom"pri>',
+        "tableTools": {
+            "aButtons": [
+                {
+                    "sExtends": "copy",
+                    "sButtonText": "Copy to clipboard"
+                },
+                {
+                    "sExtends": "csv",
+                    "sButtonText": "Save to CSV"
+                },
+                {
+                    "sExtends": "xls",
+                    "oSelectorOpts": {
+                        page: 'current'
+                    }
+                }
+            ]
+        },
+    "proccessing": true,
+    "serverSide": true,
+    "ajax": {
+        url: "@Url.Action("PartsDatatable", "NationwideParts")",
+        type: 'POST',
+        contentType: "application/json",
+        data: function (d) {
+            d.extra_search = Cookies.get('partsfilter');
+            return JSON.stringify(d);
+        },
+        dataSrc: function (json) {
+            alert('success');
+            return json.data;
+        }
+    },
+    "language": {
+        "search": "",
+        "searchPlaceholder": "Search..."
+    },
+   "columns": [
+       { "mData": "ID" },
+       { "data": "Part_Category" },
+       { "data": "Description" },
+       { "data": "Part_Number" },
+       { "data": "Cost" },
+       { "data": "Purchased_From" },
+       { "data": "UOM" },
+       {
+
+           "data": function (o) {
+               return '<a href="javascript: void (0);" onclick="editParts(\'' + o.Part_Number.trim() +'\');">'+
+                   '<span class="glyphicon glyphicon-pencil"></span>'+
+                       '</a>&nbsp;&nbsp;&nbsp;'+
+                   '<a class="confirm" id="alert" href="javascript: void (0);" onclick="deleteParts(\'' + o.Part_Number.trim() +'\'); ">'+
+                   '<span class="glyphicon glyphicon-trash"></span></a>';
+           }
+       }
+    ]
+    });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('N_Partsearch') != null && Cookies.get('N_Partsearch') != "") {
+            tab.fnFilter(Cookies.get('N_Partsearch'));
+        }
+    }*@
+    $($('#N_ptexample_length')[0].parentElement).removeClass('col-md-6');
+    $($('#N_ptexample_length')[0].parentElement).addClass('col-md-10');
+    $(".dataTables_info").focus();
+    $(dropdwn).change(function () {
+        var len = this.value;
+        Cookies.set('N_Partsdtpagelen', len);
+    });
+    $('#N_ptexample_filter input').on("keyup", function () {
+        Cookies.set('N_Partsearch', $(this).val());
+    });
+    $('#N_ptexample').on('page.dt', function () {
+        var info = this;
+        setTimeout(function () {
+            var ss = $('.paginate_button.active');
+            var pgno = ss[0].innerText;
+            if (pgno != "" && pgno != "0") {
+                pgno = Number(pgno) - Number(1);
+            }
+            Cookies.set('N_partstpageno', pgno);
+        }, 1000);
+
+    });
+
+</script>
+<style>
+    /*#ptexample_wrapper .row:nth-child(1) .col-sm-6:first-child {
+        width: 25%;
+        margin-left: 1%;
+    }*/
+    table#N_ptexample tr th:first-child {
+        width: 100px !important;
+    }
+
+    table#N_ptexample tr th:nth-child(3) {
+        width: 175px !important;
+    }
+
+    table#N_ptexample tr th:nth-child(5) {
+        width: 140px !important;
+    }
+
+    table#N_ptexample tr th:nth-child(6) {
+        width: 100px !important;
+    }
+
+    table#N_ptexample tr th:nth-child(7) {
+        width: 95px !important;
+    }
+</style>

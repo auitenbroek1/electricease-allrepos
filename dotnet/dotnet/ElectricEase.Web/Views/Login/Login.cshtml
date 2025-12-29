@@ -1,0 +1,228 @@
+﻿@model ElectricEase.Models.LoginInfo
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_estimLoginLayout.cshtml";
+}
+<script>
+
+    function SendResetLink() {
+
+        var email = $("#Email").val();
+
+        if (email != "") {
+            var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+            if (!email.match(emailReg)) {
+                DisplayNotification("“Email is Invalid”, kindly check your email Id!", "error");
+                return false;
+            }
+            else {
+                $.ajax({
+                    url: '../Login/ForgotPassword',
+                    data: { Email: email },
+                    type: 'POST',
+                    success: function (data) {
+
+                        var msg = $("#errmsg").val();
+                        if (data != "NotExist") {
+                            $("#DivForgotPasswordSent").html(data);
+                            $("#wrapper").hide();
+                        }
+                        else {
+
+                            //$("#recover").show();
+                            //$("#wrapper").hide();
+                            DisplayNotification("Please provide “Registered” email address.", "error")
+                        }
+                    }
+
+                })
+
+            }
+        }
+        else {
+            DisplayNotification("Email ID is required!", "error");
+        }
+    }
+    var localstor = window.localStorage.getItem("isclick");
+    if (typeof localstor != "undefined" && localstor == "Forgot") {
+        $('#forgotpwd').click();
+    }
+    history.pushState(null, null, 'Login');
+    window.addEventListener('popstate', function (event) {
+        history.pushState(null, null, 'Login');
+    });
+
+</script>
+<style>
+    .material-icons {
+        font-size: 50px !important;
+    }
+</style>
+<body>
+    <div id="DivForgotPasswordSent">
+
+    </div>
+
+    <input type="hidden" value="@ViewBag.fpErrorMsg" id="errmsg" />
+    <!-- content wrapper to define fullpage or container -->
+    <!-- (recomended: dont change the id value) -->
+
+    <section id="wrapper" class="container">
+        <section id="signin" class="sign-wrapper signin transition-layout">
+
+            <div class="row">
+                <div class="col-md-offset-4 loginwrapper">
+                    <div class="sign-brand">
+
+                        <div class="row"></div>
+                        @*<img src="~/AppImges/easeelectric.gif" alt="Brand" />*@
+                        <img src="~/AppImges/logo_electricease.png" alt="Brand" style="height: 94px;" />
+                        <label class="text-center">@ViewBag.Message</label>
+                    </div>
+
+                    <!-- /sign-brand -->
+                    <div class="sign-container">
+                        <div>
+                            @using (Html.BeginForm("Login", "Login", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                @Html.HiddenFor(x => x.ReturnUrl);
+                                @Html.ValidationSummary(true)
+                                <div class="group">
+                                    <span class="highlight"></span>
+                                    @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", style = "padding-top:0px;padding-bottom:0px;" })
+                                    @Html.ValidationMessageFor(m => m.UserName)
+                                    <label>Username</label>
+
+
+                                </div>
+                                <!-- /form-group -->
+                                <div class="group">
+                                    <span class="highlight"></span>
+                                    @Html.PasswordFor(m => m.Password, new { @class = "group", style = "padding-top:0px;padding-bottom:0px;" })
+                                    @Html.ValidationMessageFor(m => m.Password)
+                                    <label>Password</label>
+
+
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="input-group" style="width: 95%;">
+                                        <input type="submit" class="btn btn-lg btn-primary btn-block" value="Log In">
+                                    </div>
+
+                                </div>
+                                <!-- /form-group -->
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="pull-left">
+                                                <div class="2">
+                                                    <input type="checkbox" class="css-checkbox" id="checkbox19" checked="checked" style="top: 0 !important; width:20px !important; float:right;">
+                                                </div>
+                                                <div class="col-md-10">
+                                                    <label class="icheck-label" for="rememberme" style="top: 0 !important; margin-top:-15px; float:left;">Stay signed in</label>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="pull-right">
+                                                <a href="#recover" data-toggle="transition-layout" id="forgotpwd" class="btn btn-link text-inverse">Forgot password?</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+
+                            }
+                        </div>
+
+                    </div>
+                    <!-- /sign-container -->
+                </div>
+                <!-- /col -->
+            </div>
+            <!-- /row -->
+
+            <div class="sign-footer">
+                <a href="https://electric-ease.com" target="_blank" class="btn btn-link text-inverse" style="color:white !important; width: 28px; text-decoration: none; font-weight: bold;"><i class="material-icons">home</i> <br />&nbsp Home </a>
+            </div>
+            <!-- /sign-footer -->
+        </section>
+        <!-- /signin -->
+        <section id="recover" class="sign-wrapper recover transition-layout">
+
+            <div class="row">
+                <div class="col-md-offset-4 loginwrapper">
+                    <div class="sign-brand">
+                        <img src="~/AppImges/logo_electricease.png" alt="Brand" style="height: 94px;" />
+                    </div>
+                    <div class="sign-container">
+
+                        @* @using (Html.BeginForm("ForgotPassword", "Login", FormMethod.Post))
+                            {
+                        *@
+                        <div class="group">
+                            <span class="highlight"></span>
+                            @Html.TextBox("Email", "", new { @class = "form-control", placeholder = "Email" })
+                            <label>Enter the email address you used to create your Electric Ease account.</label>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="input-group" style="width: 95%;">
+                                <button value="Submit" class="btn btn-lg btn-success btn-block" name="addLabour" style="width:49%;float:left;" tabindex="10" onclick="SendResetLink();">Submit</button>
+                                <a href="#signin" style="color:white !important;width:49%;float:left;margin-top:0px;margin-left:5px;" data-toggle="transition-layout" class="btn btn-lg btn-danger btn-block">Sign In</a>
+                            </div>
+                        </div>
+                        @*  }*@
+
+                    </div>
+                </div>
+                <!-- /col -->
+            </div>
+            <div class="row" style="display:none">
+                <div class="col-md-offset-4 col-sm-offset-0 col-xs-offset-0 col-md-4 col-sm-12 col-xs-12">
+                    <div class="sign-brand">
+                        <img src="~/AppImges/logo_electricease.png" alt="Brand" style="height: 52px; width: 51%;" />
+
+                    </div>
+                    <!-- /sign-brand -->
+                    <div class="sign-container">
+
+                        @* @using (Html.BeginForm("ForgotPassword", "Login", FormMethod.Post))
+                            {
+                        *@
+                        <div class="form-group">
+
+                            @Html.TextBox("Email", "", new { @class = "form-control input-lg", placeholder = "Email" })
+                            <small class="help-block text-inverse">Enter the email address you used to create your Electric Ease account.</small>
+                        </div>
+                        <!-- /form-group -->
+                        <div class="form-group">                                                        
+                            <button value="Submit" class="btn btn-lg btn-success btn-block" name="addLabour" style="width:49%;float:left;" tabindex="10" onclick="SendResetLink();">Submit</button>
+                            <a href="#signin" style="color:white !important;width:49%;float:left;margin-top:0px;margin-left:5px;" data-toggle="transition-layout" class="btn btn-lg btn-danger btn-block">Sign In</a>
+                        </div>
+
+                        @*  }*@
+
+                    </div>
+                    <!-- /sign-container -->
+                </div>
+                <!-- /col -->
+            </div>
+            <!-- /row -->
+
+            <div class="sign-footer">
+
+            </div>
+            <!-- /sign-footer -->
+        </section>
+        <!-- /recover -->
+    </section>
+    <!-- /wrapper -->
+
+</body>
+

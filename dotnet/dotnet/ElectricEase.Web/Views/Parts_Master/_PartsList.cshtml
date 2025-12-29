@@ -1,0 +1,141 @@
+﻿<style>
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+    /*.pagination {
+        margin:20px 0px !important;
+    }
+    div.dataTables_paginate {
+    }*/
+</style>
+
+<div id="collapseTwo" class="panel-collapse collapse in">
+    @{ string name = "Client";}
+    <div class="col-md-2">
+        <div class="form-group">
+            @Html.DropDownList("Part_CategoryList", ViewBag.PartCategory as SelectList, new { Name = "Part_Category", @class = "form-control input-sm", data_type = "other", onchange = "getpartslist(this.value);" })
+        </div>
+    </div>
+
+    <div class="table table-responsive">
+        <table id="ptexample" class="table table-bordered datatables" cellspacing="0" width="100%">
+            <thead style="background-color: #45525F">
+                <tr>
+                    <th>ID</th>
+                    <th>Part Category</th>
+                    <th>Description</th>
+                    <th>Part Number</th>
+                    <th>Cost</th>
+                    <th>Resale</th>
+                    <th>UOM</th>
+                    <th>Purchased From</th>
+                    <th>Type</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="partsbody"></tbody>
+        </table>
+        <div id='bootomParts' tabindex='1'></div>
+    </div>
+</div>
+<script>
+    var pagelen = 5;
+    var dropdwn = document.getElementsByName('ptexample_length');
+        var tab = $('#ptexample').DataTable({
+        "order": [[0, "desc"]],
+        "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+        "aLengthMenu": [[5, 10, 15, 25,100, 500], [5, 10, 15, 25,100, 500]],
+        "iDisplayLength": pagelen,
+        "sDom": '<"top"flp>rt<"bottom"pri>',
+        "tableTools": {
+            "aButtons": [
+                {
+                    "sExtends": "copy",
+                    "sButtonText": "Copy to clipboard"
+                },
+                {
+                    "sExtends": "csv",
+                    "sButtonText": "Save to CSV"
+                },
+                {
+                    "sExtends": "xls",
+                    "oSelectorOpts": {
+                        page: 'current'
+                    }
+                }
+            ]
+        },
+    "proccessing": true,
+    "serverSide": true,
+    "ajax": {
+        url: "@Url.Action("PartsDatatable", "Parts_Master")" ,
+        type: 'POST',
+        contentType: "application/json",
+        data: function (d) {
+            d.extra_search = Cookies.get('partsfilter');
+            return JSON.stringify(d);
+        }
+            },
+    "language": {
+        "search": "",
+        "searchPlaceholder": "Search..."
+            },
+   "columns": [
+       { "mData": "ID" },
+       { "data": "Part_Category" },
+       { "data": "Description" },
+       { "data": "Part_Number" },
+       { "data": "Cost" },
+       { "data": "Resale_Cost" },
+       { "data": "UOM" },
+       { "data": "Purchased_From" },
+       { "data": "Type" },
+       {
+           "data": function (o) {
+               return '<a href="javascript: void (0);" onclick="editParts(\'' + o.Part_Number.trim().replace(/\\/g, "\\\\").replace("'", "\'") + '\',\'' + o.Client_ID + '\');">' +
+                   '<span class="glyphicon glyphicon-pencil"></span>' +
+                   '</a>&nbsp;&nbsp;&nbsp;' +
+                   '<a class="confirm" id="alert" href="javascript: void (0);" onclick="deleteParts(\'' + o.Part_Number.trim().replace(/\\/g, "\\\\").replace("'", "\'") + '\',\'' + o.Client_ID + '\');">' +
+                   '<span class="glyphicon glyphicon-trash"></span></a>';
+           }, orderable: false
+       }
+    ]
+    });
+
+    $($('#ptexample_length')[0].parentElement).removeClass('col-sm-6');
+    $($('#ptexample_length')[0].parentElement).addClass('col-sm-10');
+    $(".dataTables_info").focus();
+    $(dropdwn).change(function () {
+        var len = this.value;
+        Cookies.set('Partsdtpagelen', len);
+    });
+    $('#ptexample_filter input').on("keyup", function () {
+        Cookies.set('Partsearch', $(this).val());
+    });
+    $('#ptexample').on('page.dt', function () {
+        var info = this;
+        setTimeout(function () {
+            var ss = $('.paginate_button.active');
+            var pgno = ss[0].innerText;
+            if (pgno != "" && pgno != "0") {
+                pgno = Number(pgno) - Number(1);
+            }
+            Cookies.set('partstpageno', pgno);
+        }, 1000);
+
+    });
+
+</script>
+
+<style>
+    #ptexample_wrapper .row:nth-child(1) .col-sm-6:first-child {
+        width: 25%;
+        margin-left: 1%;
+    }
+</style>

@@ -1,0 +1,45 @@
+﻿@model List<ElectricEase.Models.SOWInfoList>
+<div style="margin-top: 1%">
+    @{int i = 0;}
+    <div class="list-group" style="width: 40%; float:left;overflow:scroll;max-height:435px;">
+        <ul align="center">
+            @foreach (var item in Model)
+            {
+                if (item.Doing_What != "" && item.Doing_What != null)
+                {
+                    i++;
+                <li class="list-group-item list-group-item-success" onclick="ShowSOW(@i)" style="cursor:pointer;margin:2px;">
+                    @if (item.Doing_What.Length > 100)
+                    {
+                        <span>@item.Doing_What.ToString().Substring(0, 100) ....</span>
+                        <textarea id="@i" style="display:none">@item.Doing_What</textarea>
+                    }
+                    else
+                    {
+                        <span>@item.Doing_What.ToString() ....</span>
+                        <textarea id="@i" style="display:none">@item.Doing_What</textarea>
+                    }
+                </li>
+                }
+            }
+        </ul>
+    </div>
+
+    <div class="list-group" style="width: 45%; display: inline-block;">
+        @*<input type="text" aria-multiline="true" id="txtpreview" class="form-control" />*@
+        <textarea id="txtpreview" class=""  rows="@i" style="float:left; width:120%;height:400px; margin-left:10px; outline:none;"></textarea>
+    </div>
+
+    <div class="panel-footer clearfix">
+        <div class="pull-right">
+            <button value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" id="Addbtn" onclick="SaveSOW();">Add</button>
+           
+        </div>
+    </div>
+
+</div>
+<script>
+    function ShowSOW(val) {
+        $('#txtpreview').text($('#'+val).text());
+    }
+</script>

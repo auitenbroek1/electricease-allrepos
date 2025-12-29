@@ -1,0 +1,65 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElectricEase.BLL", "ElectricEase.BLL\ElectricEase.BLL.csproj", "{BBCE4A39-A1B9-4C86-A15B-361D0A432472}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElectricEase.Data", "ElectricEase.Data\ElectricEase.Data.csproj", "{509408E1-10F9-4F27-AAB6-6F75B5565C96}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElectricEase.Helpers", "ElectricEase.Helpers\ElectricEase.Helpers.csproj", "{D7591AF6-2A60-4D67-9D4E-BAF0D41B1D04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElectricEase.Models", "ElectricEase.Models\ElectricEase.Models.csproj", "{28CFD7FF-DD88-48E3-8103-8AE79AFC6594}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElectricEase.Web", "ElectricEase.Web\ElectricEase.Web.csproj", "{38E97166-9078-41AE-893B-D8DADEF1AFB2}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 6
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://visentechnosoft.visualstudio.com/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = ElectricEase.BLL\\ElectricEase.BLL.csproj
+		SccProjectName1 = ElectricEase.BLL
+		SccLocalPath1 = ElectricEase.BLL
+		SccProjectUniqueName2 = ElectricEase.Data\\ElectricEase.Data.csproj
+		SccProjectName2 = ElectricEase.Data
+		SccLocalPath2 = ElectricEase.Data
+		SccProjectUniqueName3 = ElectricEase.Helpers\\ElectricEase.Helpers.csproj
+		SccProjectName3 = ElectricEase.Helpers
+		SccLocalPath3 = ElectricEase.Helpers
+		SccProjectUniqueName4 = ElectricEase.Models\\ElectricEase.Models.csproj
+		SccProjectName4 = ElectricEase.Models
+		SccLocalPath4 = ElectricEase.Models
+		SccProjectUniqueName5 = ElectricEase.Web\\ElectricEase.Web.csproj
+		SccProjectName5 = ElectricEase.Web
+		SccLocalPath5 = ElectricEase.Web
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BBCE4A39-A1B9-4C86-A15B-361D0A432472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBCE4A39-A1B9-4C86-A15B-361D0A432472}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBCE4A39-A1B9-4C86-A15B-361D0A432472}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBCE4A39-A1B9-4C86-A15B-361D0A432472}.Release|Any CPU.Build.0 = Release|Any CPU
+		{509408E1-10F9-4F27-AAB6-6F75B5565C96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{509408E1-10F9-4F27-AAB6-6F75B5565C96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{509408E1-10F9-4F27-AAB6-6F75B5565C96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{509408E1-10F9-4F27-AAB6-6F75B5565C96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7591AF6-2A60-4D67-9D4E-BAF0D41B1D04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7591AF6-2A60-4D67-9D4E-BAF0D41B1D04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7591AF6-2A60-4D67-9D4E-BAF0D41B1D04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7591AF6-2A60-4D67-9D4E-BAF0D41B1D04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28CFD7FF-DD88-48E3-8103-8AE79AFC6594}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28CFD7FF-DD88-48E3-8103-8AE79AFC6594}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28CFD7FF-DD88-48E3-8103-8AE79AFC6594}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28CFD7FF-DD88-48E3-8103-8AE79AFC6594}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38E97166-9078-41AE-893B-D8DADEF1AFB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38E97166-9078-41AE-893B-D8DADEF1AFB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38E97166-9078-41AE-893B-D8DADEF1AFB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38E97166-9078-41AE-893B-D8DADEF1AFB2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

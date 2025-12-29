@@ -1,0 +1,77 @@
+﻿@model ElectricEase.Models.Assembly_MasterInfo
+@{
+    ViewBag.Title = "AssemblyExport";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<link href="~/Content/chosen.min.css" rel="stylesheet" />
+<script src="~/Scripts/chosen.jquery.min.js"></script>
+<script src="~/Scripts/AssemblyExport.js"></script>
+<div class="app-body" id="Scroll">
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full" id="">
+            <fieldset>
+                <div id="accordion" class="partsmobile">
+                    <div class="box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp Nationwide Assembly Export </strong> <span id="togglecont" class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="row typerdio">
+                                <div class="col-md-12">
+                                    <div class="col-md-3">
+                                        <div class="radio">
+                                            <input id="Distributor" name="radio" type="radio" value="Distributor" onclick="radioclick();">
+                                            <label for="Distributor" class="radio-label">Distributor</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @Html.DropDownListFor(x => x.DistributorID, ViewBag.Distributor as SelectList, new { @class = "chosen-select", @style = "display: none;", multiple = "multiple", @name = "test" })
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="radio">
+                                            <input id="Standared" name="radio" type="radio" value="Standared" onclick="radioclick();">
+                                            <label for="Standared" class="radio-label">Standard</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @Html.DropDownListFor(x => x.Client_ID, ViewBag.Standared as SelectList, new { @class = "chosen-select", @style = "display: none;", multiple = "multiple", @name = "test" })
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <br />
+                                    <div class="pull-right">
+                                        <button class="btn btn-primary" onclick="ValidateLaborUnit();">Validate Labor Unit</button>
+                                        <button class="btn btn-primary" onclick="ExportAssemblies();">Export</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="panel-body">
+                <div id="divassemblylist"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var selectedvalues = new Array();
+    var DistributorId = new Array();
+    var ClienId = new Array();
+    var AssemblyIds = new Array();
+    var isediting = false;
+    var category = "";
+    $(document).ready(function () {
+        $('li').removeClass('active');
+        $("#Assemblyexportsub").addClass('acivesub');
+        $(".content-title").text("Nationwide Assembly Export");
+        $("#Expend").click();
+        getassemblyList();
+    })
+</script>

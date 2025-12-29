@@ -1,0 +1,112 @@
+﻿@model List<ElectricEase.Models.Legal_DetailsInfoList>
+
+<div class="table table-responsive">
+    <table class="table" id="LegalTable">
+        <thead>
+            <tr hidden>
+                <th>
+                    Legal ID
+                </th>
+                <th style="width:6%"></th>
+                <th>
+                    Legal Detail
+                </th>
+
+            </tr>
+        </thead>
+        <tbody id="Legalbody">
+
+            @{ int i = 1;
+                foreach (var item in Model)
+                {
+                    <tr id="@i">
+                        <td id="LegalID" hidden>
+                            @item.Legal_ID
+                        </td>
+                        <td style="width:6%">
+                            @if (i == 1)
+                            {
+                                <img src="../Images/arrow-down-2.ico" id="imgdown" title="Push Down" onclick="movedown(this)" style="width:35%;cursor:pointer;float:right;margin-right: 7px;" />
+                                <img src="../Images/arrow-up-2.png" title="Push Up" id="imgup" onclick="moveup(this)" style="width:35%;margin-right:2px;cursor:pointer;display:none" />
+                            }
+                            else if (i == Model.Count)
+                            {
+                                <img src="../Images/arrow-up-2.png" title="Push Up" id="imgup" onclick="moveup(this)" style="width:35%;margin-right:2px;cursor:pointer;" />
+                                <img src="../Images/arrow-down-2.ico" id="imgdown" title="Push Down" onclick="movedown(this)" style="width:35%;cursor:pointer;float:right;margin-right: 7px;display:none" />
+                            }
+                            else
+                            {
+                                <img src="../Images/arrow-up-2.png" title="Push Up" id="imgup" onclick="moveup(this)" style="width:35%;margin-right:2px;cursor:pointer" />
+                                <img src="../Images/arrow-down-2.ico" id="imgdown" title="Push Down" onclick="movedown(this)" style="width:35%;cursor:pointer;float:right;margin-right: 7px;" />
+                            }
+                        </td>
+                        <td id="LegalDetail">
+                            @item.Legal_Detail
+                        </td>
+                    </tr>
+                    i++;
+                }
+            }
+        </tbody>
+        <tfoot>
+        </tfoot>
+    </table>
+</div>
+<script>
+    function moveup(val) {
+        var currentrow = $(val).parent().parent();
+        var previousrow = $(currentrow);
+        previousrow = previousrow[0].previousElementSibling;
+        var currentrowhtml = $(currentrow).html();
+        var previousrowhtml = $(previousrow).html();
+        $(currentrow).html(previousrowhtml);
+        $(previousrow).html(currentrowhtml);
+        var rowlength = $('#Legalbody tr');
+        if (previousrow.id == '1') {
+            var iimgup = $(previousrow).find('#imgup');
+            $(iimgup).hide();
+            iimgup = $(previousrow).find('#imgdown');
+            $(iimgup).show();
+            var iimgdown = $(currentrow).find('#imgup');
+            $(iimgdown).show();
+        }
+        else {
+            var iimgup = $(previousrow).find('#imgup');
+            $(iimgup).show();
+            iimgup = $(previousrow).find('#imgdown');
+            $(iimgup).show();
+        }
+        if (currentrow[0].id == rowlength.length) {
+            var iimgdown = $(currentrow).find('#imgdown');
+            $(iimgdown).hide();
+        }
+    }
+    function movedown(val) {
+        var currentrow = $(val).parent().parent();
+        var nextrow = $(currentrow);
+        nextrow = nextrow[0].nextElementSibling;
+        var currentrowhtml = $(currentrow).html();
+        var nextrowhtml = $(nextrow).html();
+        $(currentrow).html(nextrowhtml);
+        $(nextrow).html(currentrowhtml);
+        var rowlength = $('#Legalbody tr');
+        if (nextrow.id == rowlength.length) {
+            var iimgup = $(nextrow).find('#imgup');
+            $(iimgup).show();
+            iimgup = $(nextrow).find('#imgdown');
+            $(iimgup).hide();
+            var iimgdown = $(currentrow).find('#imgdown');
+            $(iimgdown).show();
+        }
+        else {
+            var iimgup = $(nextrow).find('#imgdown');
+            $(iimgup).show();
+            iimgup = $(nextrow).find('#imgup');
+            $(iimgup).show();
+        }
+        if (currentrow[0].id == "1") {
+            var iimgup = $(currentrow).find('#imgup');
+            $(iimgup).hide();
+        }
+    }
+</script>

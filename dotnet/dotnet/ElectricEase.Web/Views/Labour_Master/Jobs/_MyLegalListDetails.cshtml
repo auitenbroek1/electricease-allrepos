@@ -1,0 +1,44 @@
+﻿@model List< ElectricEase.Models.Legal_DetailsInfoList>
+@{
+    var LegalGrid = new WebGrid(source: Model, canPage: false, canSort: false);
+}
+<script>
+    $(document).ready(function () {
+       // alert("partsss");
+        $(".LegalListGrid").dataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bInfo": false,
+            "bAutoWidth": false,
+            stateSave: true
+
+
+        });
+    });
+</script>
+<style>
+   
+     table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+    .dataTables_filter {
+
+        padding-bottom: 35px;
+    }
+</style>
+
+                 @LegalGrid.GetHtml(
+                           tableStyle: "table table-bordered datatables LegalListGrid",
+                           htmlAttributes: new { id = "checkableGrid" },
+                            alternatingRowStyle: "alt",
+                           columns: LegalGrid.Columns(
+        
+                           LegalGrid.Column(columnName: "Legal_ID", header: "Legal ID"),
+                           LegalGrid.Column(columnName: "Legal_Detail", header: "Legal Detail")
+                           )
+                           )

@@ -1,0 +1,97 @@
+﻿@{
+    ViewBag.Title = "Job_CalenderEvents";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+
+<link href="~/Content/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Content/fullcalendar.print.css" rel="stylesheet"   media='print'/>
+<script src="~/Scripts/fullcalendar.min.js"></script>
+@*<link href="~/Content/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Content/fullcalendar.print.css" rel="stylesheet" media='print' />
+<script src="~/Scripts/fullcalendar.min.js"></script>*@
+
+<script>
+    $(document).ready(function () {
+        $('li').removeClass('active');
+        $("#jobcalender").addClass('active');
+        //alert("active");
+        //To change content tittles
+        $(".content-title").text("Job calendar");
+               $('#calender').fullCalendar({
+            
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+                
+            },
+            editable: false,
+           //  draggable:false,
+
+            eventLimit: true,
+            events:  {
+                url: 'GetCalendarEvents',
+                resourceEditable: false,
+                error: function() {
+                   // $('#script-warning').show();
+                }
+            },
+                //"@Url.Action("GetCalendarEvents/")"
+
+         });
+    
+    });
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/JobMaster.pdf");
+    })
+</script>
+<style>
+     #UserColor {
+            border: none;
+            height: 1px;
+            width: 5px;
+            float: right;
+          
+        }
+         .fc-more-popover .fc-event-container
+         {
+
+         }
+</style>
+<div class="box magic-element width-full" style="max-height: 1000px !important;">
+      
+            <div class=" box-row  profile-hd">
+    <h7 class="box-heading"><strong> &nbsp Job Calender </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                                      <img id="arrow" src="../Images/down-arrow.png" alt="" /></span></h7>
+
+</div>
+            
+        <div class="panel panel-default" style="overflow-y: scroll;width:100%">
+            <div class="panel-body">
+                <div class="ajax-refresh2">
+                    <div class="panel-body" style="width:100%">
+                    
+                    <div class="row">
+                        <div style="background-color: #fff; color: black; height: 500px; max-width:100%; max-height: 1000px !important;" >
+                            <div class="col-md-12">
+                                <div class="">
+                                                   <label for="title" style="font-size: 11px;">UnAssigned Job :&nbsp
+                                                       <input type="text"  name="UserColor" id="UserColor" style="background-color:#231f20" class = "form-control" />
+                                                   </label>
+                                                </div>
+                        <div id="calender">
+                        </div>
+                                </div> 
+                    </div>
+                    </div>
+                    
+                </div>
+                    </div>
+                </div>
+            </div>
+               
+
+    </div>
+  

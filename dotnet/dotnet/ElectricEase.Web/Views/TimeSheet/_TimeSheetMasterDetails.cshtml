@@ -1,0 +1,219 @@
+﻿@model ElectricEase.Data.TimeSheetMaster.TimeSheetDTO
+@{
+    var remain = Model.TimeSheetMasterDetails.Where(a => a.Status == "Rejected" || a.Status == "Aproved").ToList();
+    Model.TimeSheetMasterDetails = (!HttpContext.Current.User.IsInRole("Admin") && Convert.ToBoolean(HttpContext.Current.Items["MyAssembliesRights"]) == true && Model.From == 1) ? Model.TimeSheetMasterDetails.Where(a => a.Status == "Pending").ToList() : Model.TimeSheetMasterDetails;
+    var Grid = new WebGrid(source: Model.TimeSheetMasterDetails, canPage: false, canSort: false);
+    var remainGrid = new WebGrid(source: remain, canPage: false, canSort: false);
+    var Apporvaltital = Model.UserDetails.Site_Administrator == true ? "Approval Pending" : "Timesheets";
+
+}
+<div id="Tabs" role="tabpanel">
+    <!-- Nav tabs -->
+    @Html.HiddenFor(a => a.IsApprovedOrRejected, new { @id = "hdnIsApprovedOrRejected" })
+    @Html.HiddenFor(a => a.TimeSheetMaster.TimeSheetID, new { @id = "hdnTimeSheetID" })
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#personal" aria-controls="personal" role="tab" data-toggle="tab" id="lnkPending">
+                @Apporvaltital
+            </a>
+        </li>
+        @if (!HttpContext.Current.User.IsInRole("Admin") && Convert.ToBoolean(HttpContext.Current.Items["MyAssembliesRights"]) == true && Model.From == 1)
+        {
+            <li>
+                <a href="#employment" aria-controls="employment" role="tab" data-toggle="tab" id="lnkCompleted">
+                    Completed
+                </a>
+            </li>
+        }
+
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content" style="margin-top:0px;">
+        <div role="tabpanel" class="tab-pane active" id="personal">
+            <div class="panel-body">
+                <div class="ajax-refresh2">
+                    <div class="panel-body">
+                        @Grid.GetHtml(
+tableStyle: "table table-bordered datatables TimeSheet",
+alternatingRowStyle: "alt",
+htmlAttributes: new { id = "grid" },
+rowStyle: "webgrid-row-style",
+columns: Grid.Columns(
+Grid.Column("TimeSheetID", format: @<text> @item.TimeSheetID</text> ),
+
+Grid.Column("Timesheet ID", format: @<text>  @item.TimeSheetCode </text>),
+Grid.Column("Employee Name", format: @<text><label style="text-transform:capitalize">  @item.User_ID </label></text>),
+Grid.Column("Week", format: @<text>@item.StartDate.ToString("MM-dd-yyyy") - @item.EndDate.ToString("MM-dd-yyyy")</text>),
+Grid.Column("Total Hours", format: @<text>@item.TotalHours </text>),
+Grid.Column("Status", format: @<text>
+    @if (@item.Status == "Saved")
+{
+<button type="button" value="Saved" class="btn btn-flat btn-default btn-sm" style="background:#878787;border:none">Saved</button>
+}
+else if (@item.Status == "Pending")
+{
+<button type="button" value="Pending" class="btn btn-flat btn-primary btn-sm" style="background:#f39c12;border:none">Pending</button>
+}
+else if (@item.Status == "Aproved")
+{
+<button type="button" value="Approved" class="btn btn-flat btn-green btn-sm" style="background:#87de75;border:none">Approved</button>
+}
+else if (@item.Status == "Rejected")
+{
+<button type="button" value="Rejected" class="btn btn-flat btn-danger btn-sm" style="background:#e74c3c;border:none">Rejected</button>
+
+}
+
+
+
+
+</text>),
+Grid.Column("Reporting Manager", format: @<text><label style="text-transform:capitalize">
+        @item.ReportingManager
+    </label> </text>),
+Grid.Column("Last Modified", format: @<text>@item.UpdatedOn </text>),
+
+Grid.Column(header: "Action", format: @<text><div class="text-right">
+    @if (@item.User_ID == Model.UserDetails.User_ID && (@item.Status == "Saved" || @item.Status == "Rejected"))
+{
+<a href="/TimeSheet/NewTimeSheet?timeSheetId=@item.TimeSheetID&from=@Model.From">
+    <span class="ibg ibgyellow"> <img src="../Images/edit.svg" width="20" /> </span>
+</a>
+}
+
+    <a class=confirm id=alert href="/TimeSheet/ViewTimeSheet?timeSheetId=@item.TimeSheetID&from=@Model.From">
+        <span class="ibg ibggreen">  <img src="../Images/view.svg" width="20" /></span>
+    </a>
+    <a class=confirm id=lnkDownload href="/TimeSheet/TimeSheetExport?timeSheetId=@item.TimeSheetID&from=@Model.From">
+        <span class="ibg ibgblue"> <img src="../Images/download.svg" width="20" /> </span>
+    </a>
+    @if (Convert.ToBoolean(HttpContext.Current.Items["SiteAdministrator"]) == true)
+{
+    <a class=confirm id=lnkDelete href="javascript:void(0)" onclick="DeleteTimeSheet(@item.TimeSheetID,0)">
+        <span class="ibg ibgred">  <img src="../Images/trash.svg" width="20" /> </span>
+    </a>
+}
+
+
+
+</div>
+</text>)
+)
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="employment">
+            <div class="panel-body">
+                <div class="ajax-refresh2">
+                    <div class="panel-body">
+                        @remainGrid.GetHtml(
+tableStyle: "table table-bordered datatables TimeSheet",
+alternatingRowStyle: "alt",
+htmlAttributes: new { id = "remaingrid" },
+rowStyle: "webgrid-row-style",
+columns: Grid.Columns(
+Grid.Column("TimeSheetID", format: @<text> @item.TimeSheetID</text> ),
+
+Grid.Column("Timesheet ID", format: @<text>  @item.TimeSheetCode </text>),
+Grid.Column("Employee Name", format: @<text><label style="text-transform:capitalize">
+        @item.User_ID
+    </label> </text>),
+Grid.Column("Week", format: @<text>@item.StartDate.ToString("MM-dd-yyyy") - @item.EndDate.ToString("MM-dd-yyyy")</text>),
+Grid.Column("Total Hours", format: @<text>@item.TotalHours </text>),
+Grid.Column("Status", format: @<text>
+    @if (@item.Status == "Saved")
+{
+<button type="button" value="Saved" class="btn btn-flat btn-default btn-sm" style="background:#878787;border:none">Saved</button>
+}
+else if (@item.Status == "Pending")
+{
+<button type="button" value="Pending" class="btn btn-flat btn-primary btn-sm" style="background:#f39c12;border:none">Pending</button>
+}
+else if (@item.Status == "Aproved")
+{
+<button type="button" value="Approved" class="btn btn-flat btn-green btn-sm" style="background:#87de75;border:none">Approved</button>
+}
+else if (@item.Status == "Rejected")
+{
+<button type="button" value="Rejected" class="btn btn-flat btn-danger btn-sm" style="background:#e74c3c;border:none">Rejected</button>
+
+}
+
+
+
+
+
+
+</text>),
+Grid.Column("Reporting Manager", format: @<text> <label style="text-transform:capitalize">
+        @item.ReportingManager
+    </label> </text>),
+Grid.Column("Last Modified", format: @<text>@item.UpdatedOn </text>),
+
+Grid.Column(header: "Action", format: @<text> @if (@item.User_ID == Model.UserDetails.User_ID && (@item.Status == "Saved" || @item.Status == "Rejected"))
+{
+                                                 <a href="/TimeSheet/NewTimeSheet?timeSheetId=@item.TimeSheetID&from=@Model.From">
+                                                    
+                                                     <span class="ibg ibgyellow"> <img src="../Images/edit.svg" width="20" /> </span>
+                                                 </a>
+}
+
+                                                 <a class=confirm id=alert href="/TimeSheet/ViewTimeSheet?timeSheetId=@item.TimeSheetID&from=@Model.From">
+                                                     <span class="ibg ibggreen">  <img src="../Images/view.svg" width="20" /></span>
+                                                 </a>
+                                                 <a class=confirm id=lnkDownload href="/TimeSheet/TimeSheetExport?timeSheetId=@item.TimeSheetID&from=@Model.From">
+                                                     <span class="ibg ibgblue"> <img src="../Images/download.svg" width="20" /> </span>
+                                                 </a>
+@if (Convert.ToBoolean(HttpContext.Current.Items["SiteAdministrator"]) == true)
+{
+                                                 <a class=confirm id=lnkDelete href="javascript:void(0)" onclick="DeleteTimeSheet(@item.TimeSheetID,1)">
+                                                     <span class="ibg ibgred">  <img src="../Images/trash.svg" width="20" /> </span>
+                                                 </a>
+}
+
+
+
+
+
+</text>)
+)
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .ibg {
+       
+        display: inline-block;
+        width: 25px;
+        height: 25px;
+        padding: 5px;
+        border-radius:3px;
+        text-align:center;
+    }
+        .ibg img {
+           height:15px;
+           width:auto;
+        }
+    .ibggreen {
+        background: #05b904;
+    }
+    .ibgyellow {
+        background: #fe9900;
+    }
+    .ibgred {
+        background: #fe0000;
+    }
+    .ibgblue {
+        background: #0099ff;
+    }
+    .ibg .ion-ios7-trash {
+        color: #fff !important;
+        font-size: 18px !important;
+    }
+</style>

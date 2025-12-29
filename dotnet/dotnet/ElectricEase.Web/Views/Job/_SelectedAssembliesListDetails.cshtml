@@ -1,0 +1,327 @@
+﻿@model List<ElectricEase.Models.Assembly_MasterInfo>
+
+
+<script>
+    var fetchedassemblies = "";
+    function ExpandTable(val) {
+        
+        var AsName = $(val).attr('data-assembly');
+        var rownum = $(val).attr('data-row');
+        var JobID = $('#Job_ID').val();
+        var partstable = $(val).attr('data-target');
+        var imgsrc = $(val).attr('src');
+        if (imgsrc.indexOf('plus.png') > -1)
+            $(val).attr('src', '../AppImges/minus.png');
+        else
+            $(val).attr('src', '../AppImges/plus.png');
+        if (fetchedassemblies.indexOf(AsName+"-"+rownum) == -1) {
+            $.ajax({
+                url: '../Job/GetMyAssembliesDataInfo',
+                data: { AsName: encodeURI( AsName ), JobID: JobID },
+                type: 'Get',
+                success: function (data) {
+                    fetchedassemblies += AsName+"-"+rownum + ",";
+                    $(partstable).html(data);
+                    if (AsName.indexOf(' ') > -1) {
+                        AsName = AsName.replace(/ /g, "_");
+                    }
+                    var totalrow = $('#Toggle'+rownum+' #' + AsName + '_partstbody tr');
+                    var estqty = 0;
+                    var actualtotal = 0;
+                    for (var i = 0; i < totalrow.length; i++) {
+                        estqty = Number(estqty) + Number($('#' + AsName + '_' + i + '_2').val());
+                        actualtotal = Number(actualtotal) + Number($('#' + AsName + '_' + i + '_6').val());
+                    }
+                    $('#Toggle'+rownum+' #' + AsName + '_labour_5').val($('#' + AsName + '_labour_2').val());
+                    $('#Toggle' + rownum + ' #' + AsName + '_labour_6').val($('#' + AsName + '_labour_4').val());
+                    $('#Toggle' + rownum + ' #A_' + rownum + '_0').val(estqty);
+                    $('#Toggle' + rownum + ' #A_' + rownum + '_3').val(estqty);
+                    actualtotal = Number(actualtotal) + Number($('#Toggle' + rownum + ' #' + AsName + '_labour_6').val());
+                    $('#Toggle' + rownum + ' #A_' + rownum + '_4').val(actualtotal);
+                    estimatevalues();
+                },
+                error: function (err) {
+                    alert("Error");
+                }
+            });
+        }
+
+    }
+
+    function calculatecost(val) {
+        var AsName = val;
+        var asnname = val;
+        if (typeof val.id != 'undefined') {
+            var idsplit = val.id.split('_');
+
+            AsName = idsplit[0];
+            for (var i = 1; i < idsplit.length - 2; i++) {
+                AsName += "_" + idsplit[i];
+            }
+            
+            asnname = $(val).parent().parent().parent().parent().parent().parent();
+            asnname = asnname[0].id;
+            asnname = asnname.substr(6, 1);
+        }
+        if (AsName.indexOf(' ') > -1) {
+            AsName = AsName.replace(/ /g, "_");
+        }
+        
+        var rownum = $('#' + AsName+'-'+asnname).attr('data-row');
+        var totalrow = $('#Toggle' + rownum + ' #' + AsName + '_partstbody tr');
+        var totalrowassem = $('#Toggle' + rownum + ' #' + AsName + '_partstbodyassem tr');
+        var rowlength = Number(totalrow.length);
+        if (typeof totalrowassem.length != 'undefined') {
+            rowlength = Number(rowlength) + Number(totalrowassem.length);
+        }
+        var estqty = 0;
+        var actualtotal = 0;
+        var estcosttotal = 0;
+        var estresaltotal = 0;
+        var actualqty = 0;
+        for (var i = 0; i < rowlength; i++) {
+            actualqty = Number(actualqty) + Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_5').val() == "" ? 0 : $('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_5').val());
+            estqty = Number(estqty) + Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_2').val());
+            $('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_6').val(Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_5').val()) * Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_1').val()));
+            $('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_4').val(Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_2').val()) * Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_1').val()));
+            $('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_3').val(Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_2').val()) * Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_0').val()));
+            actualtotal = Number(actualtotal) + Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_6').val());
+            estcosttotal = Number(estcosttotal) + Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_3').val());
+            estresaltotal = Number(estresaltotal) + Number($('#Toggle' + rownum + ' #'+ AsName + '_' + i + '_4').val());
+        }
+        $('#Toggle' + rownum + ' #'+ AsName + '_total_0').val(estcosttotal.toFixed(2));
+        $('#Toggle' + rownum + ' #'+ AsName + '_total_1').val(estresaltotal.toFixed(2));
+        $('#Toggle' + rownum + ' #'+ AsName + '_labour_6').val((Number($('#Toggle' + rownum + ' #'+ AsName + '_labour_1').val()) * Number($('#Toggle' + rownum + ' #'+ AsName + '_labour_5').val())).toFixed(2));
+        $('#Toggle' + rownum + ' #'+ AsName + '_labour_3').val((Number($('#Toggle' + rownum + ' #'+ AsName + '_labour_2').val()) * Number($('#Toggle' + rownum + ' #'+ AsName + '_labour_0').val())).toFixed(2));
+        $('#Toggle' + rownum + ' #'+ AsName + '_labour_4').val((Number($('#Toggle' + rownum + ' #'+ AsName + '_labour_1').val()) * Number($('#Toggle' + rownum + ' #'+ AsName + '_labour_2').val())).toFixed(2));
+        $('#Toggle' + rownum + ' #' + AsName + '_grandtotal_0').val((Number(estcosttotal) + Number($('#Toggle' + rownum + ' #' + AsName + '_labour_3').val())).toFixed(2));
+        $('#Toggle' + rownum + ' #'+ AsName + '_grandtotal_1').val((Number(estresaltotal) + Number($('#Toggle' + rownum + ' #'+ AsName + '_labour_4').val())).toFixed(2));
+       
+        //$('#A_' + rownum + '_0').val(estqty.toFixed(2));
+        
+        var tot = Number($('#Toggle' + rownum + ' #'+ AsName + '_grandtotal_0').val()).toFixed(2) * Number(estqty.toFixed(2)) * Number($('#Toggle' + rownum + ' #'+ AsName + '_multiplier').val());
+        $('#A_' + rownum + '_1').val(Number($('#Toggle' + rownum + ' #'+ AsName + '_grandtotal_0').val()).toFixed(2) * Number(estqty.toFixed(2)) * Number($('#Toggle' + rownum + ' #'+ AsName + '_multiplier').val()));
+        $('#A_' + rownum + '_2').val(Number($('#Toggle' + rownum + ' #'+ AsName + '_grandtotal_1').val()).toFixed(2) * Number(estqty.toFixed(2)) * Number($('#Toggle' + rownum + ' #'+ AsName + '_multiplier').val()));
+        $('#A_' + rownum + '_3').val(actualqty.toFixed(2));
+        actualtotal = Number(actualtotal) + Number($('#Toggle' + rownum + ' #'+ AsName + '_labour_6').val());
+        $('#A_' + rownum + '_4').val(actualtotal.toFixed(2));
+        calculatemultiplier(AsName,rownum);
+        estimatevalues();
+        footertotal();
+    }
+    function calculatemultiplier(val,rowid) {
+        
+        var AsName = val;
+        if (typeof val.id != 'undefined') {
+            var idsplit = val.id.split('_');
+            AsName = idsplit[0];
+            for (var i = 1; i < idsplit.length - 2; i++) {
+                AsName += "_" + idsplit[i];
+            }
+        }
+        if (AsName.indexOf(' ') > -1) {
+            AsName = AsName.replace(/ /g, "_");
+        }
+        var grandname = AsName;
+        AsName += "-" + rowid;
+        var rownum = $('#' + AsName).attr('data-row');
+        var grandd = Number($('#Toggle' + rowid + ' #' + grandname + '_grandtotal_0').val()).toFixed(2);
+        var grandd1 = Number($('#Toggle' + rowid + ' #' + grandname + '_grandtotal_1').val()).toFixed(2);
+        if (grandd == "NaN") {
+            grandd = Number($('#A_' + rownum + '_5').val());
+        }
+        if (grandd1 == "NaN") {
+            grandd1 = Number($('#A_' + rownum + '_6').val());
+        }
+        if (Number($('#A_' + rownum + '_0').val()) == 0) {
+            $('#A_' + rownum + '_0').val(1);
+        }
+        if (Number($('#A_' + rownum + '_7').val()) == 0) {
+            $('#A_' + rownum + '_7').val(1);
+        }
+        var ssss = Number($('#A_' + rownum + '_0').val());
+        var fdp = Number($('#A_' + rownum + '_7').val());
+        $('#A_' + rownum + '_1').val((Number(grandd).toFixed(2) * Number($('#A_' + rownum + '_0').val()) * Number($('#A_' + rownum + '_7').val())).toFixed(2));
+        $('#A_' + rownum + '_2').val((Number(grandd1).toFixed(2) * Number($('#A_' + rownum + '_0').val()) * Number($('#A_' + rownum + '_7').val())).toFixed(2));
+        //estimatevalues();
+        footertotal();
+    }
+
+    function deleteassembly(nameid, id, val) {
+        if (confirm("Are you sure? Do you want to delete this item?")) {
+            if ($('#Job_ID').val() != "0") {
+                $.ajax({
+                    url: '../Job/deleteJobAssembly?Id=' + nameid + '&Jobid=' + $('#Job_ID').val(),
+                    type: 'GET',
+                    success: function (data) {
+                        $(val).parent().parent().next().remove();
+                        $(val).parent().parent().remove();
+                        footertotal();
+                        estimatevalues();
+                        profitcal();
+                    },
+                    error: function (err) {
+                        alert('error while deleting please try again');
+                    }
+                })
+            }
+            else {
+                $(val).parent().parent().next().remove();
+                $(val).parent().parent().remove();
+                footertotal();
+            }
+        }
+       
+    }
+</script>
+<style>
+
+</style>
+
+<div class="table table-responsive">
+    <table class="table" id="AssembliestblInfo">
+        <thead>
+            <tr>
+                <td style="width:25%">Assemblies Name
+                </td>
+                <td>Assemblies Category
+                </td>
+                <td>
+                    Multiplier
+                </td>
+                <td>Assembly Qty
+                </td>
+                <td>Assembly Cost Total
+                </td>
+                <td>Assembly Resale Total
+                </td>
+                @{ string hidde = "hidden";
+                   if (Request.Form["JobID"] != null && Request.Form["JobID"]!="0")
+                   {
+                       hidde = ""; }}
+                <td @hidde>Assembly Actual Qty
+                </td>
+                <td @hidde>Assembly Actual Total
+                </td>
+            </tr>
+        </thead>
+        <tbody id="Assembliesbody">
+
+
+
+            @{ int i = 0;
+               string pid = "";
+               string Eid = "";
+               string Did = "";
+               decimal totalestcost=0.00M;
+               decimal totalresaleestcost = 0.00M;
+               decimal totalactualcost = 0.00M;
+               foreach (var item in Model)
+               {
+                        <tr name="trJobAssembly" data-toggle="collapse" data-target="#demo1" class="accordion-toggle">
+                            
+                            @{string rowid = item.Assemblies_Name;
+                                if (rowid.Contains(' '))
+                                {
+                                    rowid = rowid.Replace(' ', '_');
+                                }
+                                rowid += "-" + i;
+                            }
+                            <td id="@rowid" data-row="@i">
+                                @{Eid = "E_" + i + "_0"; Did = "Toggle" + i;
+                                }
+                                <input type="hidden" id="bodyassemblyids" value="@item.Assemblies_Name" />
+                                <input type="hidden" name="AssemblyIndex" value="@i" />
+                                <img src="../AppImges/plus.png" data-toggle="collapse" data-row="@i" data-target="#@Did" data-assembly="@item.Assemblies_Name" class="clickable _details_" style="width:7%; margin-right:10px;cursor:pointer" id="@Eid" onclick="ExpandTable(this);">
+                                <img src="~/Images/deleteicon.png" style="width:10%" title="delete assembly" alt="delete" onclick="deleteassembly('@item.JobAssembly_Id','@rowid',this)" />
+                                <span class="glyphicon glyphicon-trash"></span>
+                                @item.Assemblies_Name
+
+                            </td>
+                            <td id="AsCategory">
+                                @item.Assemblies_Category
+                            </td>
+                            <td>
+                                @{string multiplierid = "A_" + i + "_7";
+                            }
+                            <input type="text" id="@multiplierid" class="form-control" value="@item.Multiplier" onkeyup="calculatemultiplier('@item.Assemblies_Name',@i,this);" style="text-align:right" />
+                            <input type="hidden" id="jobassemblyid" value="@item.JobAssembly_Id" />
+                        </td>
+                        <td>
+                            @{pid = "A_" + i + "_0";
+                                string EstQty = item.Estimated_Qty_Total == 0 ? "" : item.Estimated_Qty_Total.ToString();}
+                            <input type="text" class="form-control" value="@EstQty" onkeyup="calculatemultiplier('@item.Assemblies_Name',@i,this);" id="@pid" style="text-align: right" />
+                        </td>
+                        <td>
+                            @{pid = "A_" + i + "_1";
+                                string EstCostTotal = item.Est_Cost_Total == 0 ? "" : item.Est_Cost_Total.ToString();
+                                totalestcost += item.Est_Cost_Total;
+                            }
+                            <input type="text" class="form-control" value="@EstCostTotal" disabled onkeyup="calculatecost(this);" id="@pid" style="text-align: right" />
+                            @{string hdnid = "A_" + i + "_5";
+                            }
+                            <input type="hidden" class="form-control" value="@EstCostTotal" disabled onkeyup="calculatecost(this);" id="@hdnid" style="text-align: right" />
+                        </td>
+                        <td>
+                            @{pid = "A_" + i + "_2";
+                                string EstResaleTotal = item.Est_Resale_Total == 0 ? "" : item.Est_Resale_Total.ToString();
+                                totalresaleestcost += item.Est_Resale_Total;
+                            }
+                            <input type="text" class="form-control" value="@EstResaleTotal" disabled onkeyup="calculatecost(this);" id="@pid" style="text-align: right" />
+                            @{hdnid = "A_" + i + "_6";
+                            }
+                            <input type="hidden" class="form-control" value="@EstResaleTotal" disabled onkeyup="calculatecost(this);" id="@hdnid" style="text-align: right" />
+                        </td>
+                        <td @hidde>
+                            @{pid = "A_" + i + "_3";
+                                string ActQty = item.Actual_Qty == 0 ? "" : item.Actual_Qty.ToString();
+                            }
+
+                            <input type="text" class="form-control" value="@ActQty" disabled name="EstCost_Total" id="@pid" style="text-align: right" />
+                        </td>
+                        <td @hidde>
+                            @{pid = "A_" + i + "_4";
+                                string ActualTotal = item.Actual_Total == 0 ? "" : item.Actual_Total.ToString();
+                                totalactualcost += item.Actual_Total;
+                            }
+                            <input type="text" class="form-control" value="@ActualTotal" disabled id="@pid" style="text-align: right" />
+                        </td>
+                        </tr>
+                <tr>
+                    <td colspan="12" class="hiddenRow">
+                        <div class="accordian-body collapse" id="@Did">
+
+                            <span>No “Records” found!</span>
+                        </div>
+                    </td>
+                </tr>
+                
+                          i++;
+               }
+            }
+
+        </tbody>
+
+        <tfoot id="PartsTotal">
+            <tr style="background:#eeeeee">
+                <th colspan="5">
+                    Grand Total
+                </th>
+                <th></th>
+                <th style="text-align: right">
+                    @totalestcost
+                </th>
+                <th style="text-align: right">
+                    @totalresaleestcost
+                </th>
+                <td @hidde></td>
+                <th style="text-align: right" @hidde>
+                    @totalactualcost
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+
+

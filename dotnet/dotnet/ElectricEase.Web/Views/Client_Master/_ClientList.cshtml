@@ -1,0 +1,189 @@
+﻿@model List<ElectricEase.Models.Client_MasterInfolist>
+@{
+    Layout = "";
+
+}
+
+<script>
+    //$(document).ready(function () {
+    //    $('#ClientTable').dataTable({
+    //        "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+    //        "sDom": '<"top"flp>rt<"bottom"pri>',
+    //    })
+
+    //});
+
+    var dropdwn = document.getElementsByName('ClientTable_length');
+    var pagno = Cookies.get('Clienttpageno');
+    if (pagno == null || pagno == "") {
+        pagno = 0;
+    }
+    var pagelen = "0";
+
+    if (Cookies.get('Clientdtpagelen') != null && Cookies.get('Clientdtpagelen') != "") {
+        var pagelen = Cookies.get('Clientdtpagelen');
+        pagelen = Number(pagelen);
+        var tab = $('#ClientTable').dataTable({
+            "order": [[0, "desc"]],
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "iDisplayLength": pagelen,
+            "sDom": '<"top"flp>rt<"bottom"pri>'
+
+            //"displayStart": 50,
+            //"PageLength": Cookies.get('Clientdtpagelen'),
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('Clientearch') != null && Cookies.get('Clientearch') != "") {
+            tab.fnFilter(Cookies.get('Clientearch'));
+        }
+    }
+    else {
+        var tab = $('#ClientTable').dataTable({
+            "order": [[0, "desc"]],
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "sDom": '<"top"flp>rt<"bottom"pri>'
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('Clientearch') != null && Cookies.get('Clientearch') != "") {
+            tab.fnFilter(Cookies.get('Clientearch'));
+        }
+    }
+
+    var clientdivv = ('#ClientTable');
+    $(clientdivv[0].parentElement).removeClass('col-md-12');
+    $(clientdivv[0].parentElement).addClass('table-responsive');
+    $(dropdwn).change(function () {
+        var len = this.value;
+        Cookies.set('Clientdtpagelen', len);
+    });
+    $('#ClientTable_filter input').on("keyup", function () {
+        Cookies.set('Clientearch', $(this).val());
+    });
+    $('#ClientTable').on('page.dt', function () {
+        var info = this;
+        setTimeout(function () {
+            var ss = $('.paginate_button.active');
+            var pgno = ss[0].innerText;
+            if (pgno != "" && pgno != "0") {
+                pgno = Number(pgno) - Number(1);
+            }
+            Cookies.set('Clienttpageno', pgno);
+        }, 1000);
+
+    });
+</script>
+<style>
+    .inactiveicon {
+        color: #ff0000;
+        font-size: 18px;
+    }
+
+    .activicon {
+        color: forestgreen;
+        font-size: 18px;
+    }
+
+    .selecticon {
+        color: #808080;
+        font-size: 18px;
+    }
+
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+</style>
+<div class="row">
+
+    <table id="ClientTable" class="table table-bordered datatables" cellspacing="0" width="100%">
+        <thead style="background-color: #45525F">
+            <tr>
+                <th style="width:12%">Client ID</th>
+                <th>Client Company</th>
+                <th>Contact Person</th>
+                <th>State</th>
+                <th>City</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Distributor</th>
+                <th>Active</th>
+                <th>Action </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var src = "";
+                var status = 0;
+                var dis = "STANDARD";
+                <tr>
+
+                    <td>@item.Client_ID</td>
+                    <td>@item.Client_Company</td>
+                    <td>@item.ContactPerson</td>
+                    <td>@item.State</td>
+                    <td>@item.City</td>
+                    <td>@item.Phone</td>
+                    <td>@item.Email</td>
+                    @if (item.DistributorID == -1 || item.DistributorID == 0)
+                    {
+                        <td>@dis</td>
+                    }
+                    else
+                    {
+                        <td>@item.Distributorname</td>
+                    }
+                    <td>
+                        @if (item.IsActive == false)
+                        {
+                            status = 0;
+                            <span class="glyphicon glyphicon-remove-circle inactiveicon" style=""></span>
+                        }
+                        else
+                        {
+                            status = 1;
+                            <span class="glyphicon glyphicon-ok-circle activicon"></span>
+                        }
+
+                    </td>
+                    <td>
+                        <div style="display:flex;font-size:18px;">
+                            <a href="javascript:void(0);" class="editop" onclick="GetClientInfo('@item.Client_ID');" title="Edit">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                            </a>
+                            <span>
+                                &nbsp;
+                            </span>
+                            <a href="/Client_Master/Populate?clientID=@item.Client_ID" title="Populate">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+    <div id="bootomClients" tabindex="1"></div>
+</div>

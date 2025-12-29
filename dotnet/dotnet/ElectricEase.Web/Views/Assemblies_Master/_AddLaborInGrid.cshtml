@@ -1,0 +1,184 @@
+﻿@model List<ElectricEase.Models.AssembliesLabourDetailsList>
+@{
+    Layout = null;
+    var Grid = new WebGrid(source: Model, canSort: false,canPage:false);
+}
+
+<script>
+    $(document).ready(function () {
+
+        $(".AssembliesLabourGridData").dataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bInfo": false,
+            "bAutoWidth": true,
+            stateSave: true
+
+        });
+    });
+    
+    //
+    // Updates "Select all" control in a data table
+    //
+    //function updateDataTableSelectAllCtrl(table) {
+    //    var $table = table.table().node();
+    //    var $chkbox_all = $('tbody input[type="checkbox"]', $table);
+    //    var $chkbox_checked = $('tbody input[type="checkbox"]:checked', $table);
+    //    var chkbox_select_all = $('thead input[name="select_all"]', $table).get(0);
+
+    //    // If none of the checkboxes are checked
+    //    if ($chkbox_checked.length === 0) {
+
+    //        chkbox_select_all.checked = false;
+    //        if ('indeterminate' in chkbox_select_all) {
+    //            chkbox_select_all.indeterminate = false;
+    //        }
+
+    //        // If all of the checkboxes are checked
+    //    } else if ($chkbox_checked.length === $chkbox_all.length) {
+    //        chkbox_select_all.checked = true;
+    //        if ('indeterminate' in chkbox_select_all) {
+    //            chkbox_select_all.indeterminate = false;
+    //        }
+
+    //        // If some of the checkboxes are checked
+    //    } else {
+    //        chkbox_select_all.checked = true;
+    //        if ('indeterminate' in chkbox_select_all) {
+    //            chkbox_select_all.indeterminate = true;
+    //        }
+    //    }
+    //}
+
+    //$(document).ready(function () {
+    //    alert('funcation calling');
+    //    var rows_selected = [];
+    //    $(".table").dataTable({
+    //        "aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+
+    //        'columnDefs': [{
+    //            'targets': 0,
+    //            'searchable': false,
+    //            'orderable': false,
+    //            'className': 'dt-body-center',
+    //            'render': function (data, type, full, meta) {
+    //                return '<input type="checkbox">';
+    //            }
+    //        }],
+    //        columnDefs: [{
+    //            orderable: false,
+    //            className: 'select-checkbox',
+    //            targets: 0
+    //        }],
+    //        select: {
+    //            style: 'os',
+    //            selector: 'td:first-child'
+    //        },
+    //        order: [[1, 'asc']]
+    //    });
+    //});
+    $(function () {
+        // alert('funcation calling');
+        // $('.edit-mode');
+        $('.edit-user, .cancel-user').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            tr.find('.edit-mode, .display-mode').toggle();
+        });
+    });
+    $(function () {
+        $(function () {
+           // alert("lll");
+            $('#Cost, #ResaleCost').prop(true);
+            var $tblrows = $(".AssembliesLabourGridData tbody tr");
+           // alert("tbl");
+            $tblrows.each(function (index) {
+                var $tblrow = $(this);
+                $tblrow.find('#ResaleCost,#Cost').on('change', function () {
+                    Cost = $tblrow.find('#Cost').val();
+                    floatcost = parseFloat(Cost);
+                    //alert(Cost);
+                    var ResaleCost = $tblrow.find('#ResaleCost').val();;
+                    floatresale = parseFloat(ResaleCost);
+                   // alert(ResaleCost);
+                    message = "ResaleCost shoud be higher than Cost?"
+
+                    if (floatcost > floatresale) {
+                        if (confirm(message)) {
+                            $('#EstimatedHours, #ActualHours').prop('readonly', true);
+                            $("#Cost").focus();
+                            return false;
+                            // $('#EstHours, #ActHours').prop('readonly', true);
+                        }
+                    }
+                    else {
+                        //alert("else");
+                        $('#EstimatedHours, #ActualHours').prop('readonly', false);
+                    }
+                });
+
+            });
+        });
+
+
+    });
+</script>
+<style>
+   
+     table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+    .dataTables_filter {
+
+        padding-bottom: 35px;
+    }
+</style>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+</head>
+<body>
+    <div style="height: 100%; width: 100%;">
+        @using (Html.BeginForm("_AddLaborInGrid", "Assemblies_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+        {
+            <form>
+                <input  type="hidden" name="Assemblies_Name" value="@ViewBag.AssembliesName"/>
+                <input  type="hidden" name="Assemblies_Description" value="@ViewBag.Description"/>
+                @Grid.GetHtml(
+           tableStyle: "table table-bordered datatables AssembliesLabourGridData",
+            // htmlAttributes: new { id = "AssembliesLabourGridData" },
+            alternatingRowStyle: "alt",
+            rowStyle: "webgrid-row-style",
+            columns: Grid.Columns(
+           // Grid.Column(columnName: "Select_ID", header: "Delete", format: @<text><input type="checkbox" name="assignChkBx" value="@item.Client_ID,@item.Laborer_Name" id="assignChkBx" /></text>, style: "delete"),
+         //  Grid.Column("Laborer Name", format: @<text><label id="lblLaborerName" class="edit-mode" style="width: 100px">@item.Laborer_Name</label>
+               // </text>, style: "col1Width"),
+                 Grid.Column(columnName: "Laborer_Name", header: "Laborer Name"),
+                //Grid.Column("Labor Category", format: @<text> <label id="lblLaborCategory" class="edit-mode" style="width:150px"   >@item.Labor_Category</label> </text>, style: "col1Width" ),
+                        Grid.Column("Cost", format: @<text><input type="text" id="Cost" style="width:150px" value="@item.Cost" class="edit-mode" />
+                </text>, style: "col1Width"),
+            Grid.Column("Burden", "Burden", format: @<text><input type="text" id="EstQty" style="width:150px" value="@item.Burden" class="edit-mode" />
+                </text>, style: "col1Width"),
+            Grid.Column("Resale", format: @<text><input type="text" id="ResaleCost" style="width:150px" value="@item.Resale_Cost" class="edit-mode" />
+                </text>, style: "col1Width"),
+                    Grid.Column("Estimated Hours", format: @<text><input type="text" id="EstimatedHours" style="width:150px" value="@item.Estimated_Hour" class="edit-mode" />
+                </text>, style: "col1Width"),
+             Grid.Column("Actual Hours", format: @<text><input type="text" id="ActualHours" style="width:150px" value="@item.Actual_Hours" class="edit-mode" />
+                </text>, style: "col1Width")
+            )
+            )
+
+            </form>
+        }
+        <!-- app content here -->
+    </div>
+</body>
+</html>

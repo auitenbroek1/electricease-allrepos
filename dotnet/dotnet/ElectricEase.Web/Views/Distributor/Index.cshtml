@@ -1,0 +1,465 @@
+﻿@model ElectricEase.Models.Distributor
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<style>
+    div#DistributorTable_paginate {
+        width: 100%;
+    }
+
+        div#DistributorTable_paginate .pagination {
+            float: right;
+        }
+
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    #DistributorTable tr td:nth-child(6) {
+        text-align: center;
+    }
+
+    #DistributorTable tr td:nth-child(7) {
+        text-align: center;
+    }
+</style>
+<div class="app-body" id="Scroll">
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full">
+            <div class="box-row profile-hd">
+                <h7 class="box-heading">
+                    <strong id="title-cont"> &nbsp  Add Distributor </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                        <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                    </span>
+                </h7>
+            </div>
+            <div id="clientInfoDiv">
+                <fieldset>
+                    <div id="accordion">
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            @if (Model.ID != 0)
+                                                            {
+                                                                <input type="hidden" value="@Model.ID" name="ID" id="ID" />
+                                                            }
+                                                            <label for="title"><strong>Distributor Name <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.Company, new { @class = "form-control", @maxlength = "500", @placeholder = "Distributor Name", @style = "text-transform: capitalize;" })
+                                                            @Html.ValidationMessageFor(m => m.Company)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>No Of Clients <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.No_Of_Users, new { @class = "form-control", @maxlength = "9", onkeyup = "checknum(this);", @placeholder = "No Of Users" })
+                                                            @Html.ValidationMessageFor(m => m.No_Of_Users)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Distributor URL :</strong></label>
+                                                            @Html.TextBoxFor(m => m.Company_Url, new { @class = "form-control", @maxlength = "500", @placeholder = "Distributor URL" })
+                                                            @Html.ValidationMessageFor(m => m.Company_Url)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @*<div class="col-md-4">
+                                                        <div class="form-group">
+                                                            @if (Model.Company != 0)
+                                                            {
+                                                                <input type="hidden" value="@Model.Client_ID" name="Client_ID" id="Client_ID" />
+                                                            }
+
+                                                            <label for="title"><strong>Client Company <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.Client_Company, new { @class = "form-control", @maxlength = "500", @placeholder = "Client Company" })
+                                                            @Html.ValidationMessageFor(m => m.Client_Company)
+                                                        </div>
+                                                    </div>*@
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>License Expiry Date <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.Expiry_Date, new { @class = "form-control", @type = "text", @maxlength = "500", @placeholder = "MM/DD/YYYY", @readonly = "readonly" })
+                                                            @Html.ValidationMessageFor(m => m.Expiry_Date)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Email <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @maxlength = "500", @placeholder = "Email" })
+                                                            @Html.ValidationMessageFor(m => m.Email)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Active:</strong></label>
+                                                            @if (Model.ID == 0)
+                                                            {
+                                                                @Html.CheckBoxFor(m => m.IsActive, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                            }
+                                                            else
+                                                            {
+                                                                @Html.CheckBoxFor(m => m.IsActive, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    @if (Model.CompanyLogo == null)
+                                                    {
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="lable"><strong>Company Logo <span class="err">*</span>:</strong></label>
+                                                                @Html.TextBoxFor(m => m.CompanyLogo, new { type = "file", id = "fileupload", onchange = "GetImage(this);" })
+                                                                @Html.ValidationMessageFor(m => m.CompanyLogo)
+                                                                @*<div class="fiuploaderr">
+                                                                    <strong><span class="err" style="float:left;">Note:Logo size should be less then 600kb</span></strong></div>*@
+                                                                <label id="requirdMsg"></label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group" id="dvPreview">
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="lable"><strong>Company Logo<span class="err">*</span> :</strong></label>
+                                                                @Html.TextBoxFor(m => m.CompanyLogo, new { type = "file", id = "fileupload", onchange = "GetImage(this);" })
+                                                                @*<div class="fiuploaderr">
+                                                                        <strong><span class="err" style="float:left;">Note: Logo size should be less then 600kb</span></strong>
+                                                                    </div>*@
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group" id="dvPreview" style="display: none"></div>
+                                                            <div class="form-group" id="firstlogo">
+                                                                <img src="@Model.CompanyLogo" id="upimg" width="80" height="80" style="margin-top:-9px" />
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="row">
+                                                    <div class="pull-right" style="width: 35%">
+                                                        @if (Model.ID == 0)
+                                                        {
+                                                            <button type="submit" value="Submit" class="btn btn-flat updatebtn btn-primary btn-sm" name="addLabour" tabindex="10" style="width: 49%" id="Addbtn" onclick="SaveDistributor();">Save </button>
+                                                            @*<button type="submit" value="Submit" class="btn btn-flat updatebtn btn-primary btn-sm" name="addLabour" tabindex="10" style="width: 49%" id="Addbtn" onclick="CheckClientIsExist();">Save </button>*@
+                                                            <a href="#" class="btn btn-flat btn-default btn-sm" tabindex="11" style="width:49%" id="Reset" onclick="ResetAll();">Clear</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button type="submit" value="Submit" class="btn btn-flat updatebtn btn-primary btn-sm" name="addLabour" tabindex="10" style="width: 49%" id="Addbtn" onclick="SaveDistributor();">Update </button>
+                                                            <a href="#" class="btn btn-flat btn-default btn-sm" tabindex="11" style="width:49%" id="Reset" onclick="Cancel();">Cancel</a>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </div>
+            <div class="box-row profile-hd">
+                <h7 class="box-heading">
+                    <strong> &nbsp  Distributor List </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                        @*<i class="icon ion-chevron-down"></i>*@
+                        <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                    </span>
+                </h7>
+            </div>
+            <div id="DistributorListDiv"></div>
+        </div>
+    </div>
+</div>
+<script>
+    var Dstdate = $("#Expiry_Date").val();
+    $(document).ready(function () {
+
+        $('li').removeClass('active');
+        $("#distributor").addClass('active');
+        $(".content-title").text("Distributor Master");
+        GetDistributorlist();
+        $("#IsActive").bootstrapToggle('on');
+        //$(window).unload(function () {
+        //    Cookies.set('Distributorsearch', '');
+        //});
+        $("#Expiry_Date").datepicker({ minDate: 0 });
+        var id = $("#ID").val();
+        if (id != 0 && id != undefined) {
+            var date = $("#Expiry_Date").val();
+            var dt = new Date(date);
+            var d = dt.getDate;
+            var m = dt.getMonth() + 1;
+            mdate = m + '/' + dt.getDate() + '/' + dt.getFullYear();
+            $("#Expiry_Date").val(mdate);
+            $("#title-cont").text("Edit Distributor");
+
+        }
+        else {
+            Cookies.set('Distributorpageno', "");
+            Cookies.set('Distributordtpagelen', "");
+            Cookies.set('Distributorsearch', "");
+            $("#Expiry_Date").datepicker('setDate', null);
+        }
+
+    });
+    function ExprireDateValidation() {
+
+        var dst = new Date(Dstdate);
+        var mm = dst.getMonth() + 1;
+        var ddate = mm + '/' + dst.getDate() + '/' + dst.getFullYear();
+        var date = $("#Expiry_Date").val();
+        var dt = new Date(date);
+        var d = dt.getDate;
+        var m = dt.getMonth() + 1;
+        var Sdate = m + '/' + dt.getDate() + '/' + dt.getFullYear();
+        if (Sdate < ddate) {
+            DisplayNotification("“License Expiry Date” should be future date! ", "error");
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    function checknum(element) {
+
+        var values = $(element).val();
+        var rgx = /^[0-9]*\.?[0-9]*$/;
+        if (values.match(rgx)) {
+
+        }
+        else {
+            $(element).val(0);
+            //$(element).val($(element).val().replace(/\D/, ''));
+        }
+    }
+    function GetImage(val) {
+        var fileUpload = document.getElementById("fileupload");
+        var uploadfiles = document.getElementById('fileupload').files[0];
+        var file, img;
+        //var _URL = window.URL || window.webkitURL;
+        var upload = $("#fileupload").get(0);
+        file = upload.files;
+        $("#firstlogo").hide();
+        if (uploadfiles.size <= 614400) {
+            $("#dvPreview").html("");
+            //img = new Image();
+            //img.onload = function () {
+            //    var width = this.width;
+            //    var height = this.height;
+            //    if (width != 300 && height != 200) {
+            //        DisplayNotification("image width and height should be 300*200", "error");
+            //        $("#fileupload").val("");
+            //    }
+            //    else
+            //    {
+
+            //    }
+            //};
+            //img.onerror = function () {
+            //    alert("not a valid file: " + file[0].type);
+            //};
+            //img.src = _URL.createObjectURL(file[0]);
+
+            var regex = /\.(jpe?g|png|gif|bmp)$/;
+            if (regex.test($(val).val().toLowerCase())) {
+                if ($.browser.msie && parseFloat(jQuery.browser.version) <= 9.0) {
+                    $("#dvPreview").show();
+                    $("#dvPreview")[0].filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = $(val).val();
+                }
+                else {
+                    if (typeof (FileReader) != "undefined") {
+
+                        $("#dvPreview").show();
+                        $("#dvPreview").append("<img id='upimg' height='75' width='30%' style='margin-top:-8px'/>").attr({ width: '300px', height: '140px' });
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $("#dvPreview img").attr("src", e.target.result);
+                        }
+                        reader.readAsDataURL($(val)[0].files[0]);
+                    } else {
+                        alert("This browser does not support FileReader.");
+                    }
+                }
+            }
+
+
+            else {
+                alert("Please upload JPG,JPEG,GIF,PNG image files only.");
+                $("#fileupload").val("");
+            }
+
+        }
+        else {
+            $("#fileupload").val('');
+
+            //document.getElementById("upimg").src = 'null';
+            DisplayNotification("Uploaded image should be less than 600KB.", "error");
+        }
+    }
+    function SaveDistributor() {
+        var file = $('#fileupload').val();
+        var id = $("#ID").val();
+        if (id != 0 && id != undefined) {
+            file = document.getElementById("upimg").src;
+        }
+        if ($("#Company").val() != "" && $("#No_Of_Users").val() != "" && $("#Email").val() != "" && $("#Expiry_Date").val() != "" && file != "") {
+            if (emailvalidation() == true && ExprireDateValidation() == true && urlvalidation() == true) {
+                var img = document.getElementById("upimg");
+                var imgsrc = document.getElementById("upimg").src;
+                var formData = new FormData();
+                var uploadfiles = document.getElementById('fileupload').files[0];
+                formData.append("uploadfile", uploadfiles);
+                var activestatus = $("#IsActive");
+                var name = $("#Company").val();
+                name = name.toLowerCase().replace(/\b[a-z]/g, function (letter) {
+                    return letter.toUpperCase();
+                });
+                var model = {
+                    'ID': $("#ID").val(),
+                    'Company': name,
+                    'No_Of_Users': $("#No_Of_Users").val(),
+                    'Company_Url': $("#Company_Url").val(),
+                    'Expiry_Date': $("#Expiry_Date").val(),
+                    'Email': $("#Email").val(),
+                    'Logo': imgsrc,
+                    'IsActive': activestatus[0].checked,
+                };
+                formData.append('model', JSON.stringify(model));
+                var btn = $("#Addbtn").text();
+                if (btn == "Save ") {
+                    msg = "Would you like to add this distributor?"
+                }
+                else {
+                    msg = "Would you like to update this distributor?"
+                }
+                if (confirm(msg)) {
+                    $.ajax({
+                        url: '../Distributor/SaveDistributor',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        type: 'POST',
+                        success: function (data) {
+                            if (data == "“Distributor Details” are added successfully." || data == "“Distributor Details” are updated successfully.") {
+                                DisplayNotification(data, "success");
+                                //if (data == "“Distributor Details” are updated successfully.") {
+                                //    window.location.href = '../Distributor/Index'
+                                //}
+                                $("#ID").val('');
+                                $("#Company").val('');
+                                $("#No_Of_Users").val('');
+                                $("#Company_Url").val('');
+                                $("#Expiry_Date").val('');
+                                $("#Email").val('');
+                                $("#dvPreview img:last-child").remove();
+                                $("#fileupload").val("");
+                                GetDistributorlist();
+
+                            }
+                            else {
+                                DisplayNotification(data, "error");
+                            }
+                        },
+                        error: function (err) {
+                        }
+                    })
+                }
+            }
+        }
+        else {
+            DisplayNotification("Please fill “All” required (*) field.", "error");
+        }
+    }
+    function urlvalidation() {
+        if ($('#Company_Url').val() != "" && $('#Company_Url').val() != null) {
+            var url = $('#Company_Url').val()
+            var urlReg = /^(http|https|ftp)?:\/\/[a-zA-Z0-9-\.]+\.[a-z]{2,4}/ || /^(www)?.[a-zA-Z0-9-\.]+\.[a-z]{2,4}/;
+            if (!url.match(urlReg)) {
+                DisplayNotification("“Distributor URL” is invalid!", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+    function emailvalidation() {
+        var email = $('#Email').val()
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+        if (!email.match(emailReg)) {
+            DisplayNotification("“Email” is invalid!", "error");
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    function GetDistributorlist() {
+        $.ajax({
+            url: '../Distributor/GetDistributorList',
+            type: 'GET',
+            success: function (data) {
+                $("#DistributorListDiv").html(data);
+                //$('#DistributorTable').dataTable({
+                //    "aLengthMenu": [[10,25,50,100, -1], [5, 10, 15, 25, "All"]],
+                //    //"sDom": '<"top"flp>rt<"bottom"pri>',
+                //    "order": []
+                //});
+                //var clientdivv = ('#DistributorTable');
+                //$(clientdivv[0].parentElement).removeClass('col-md-12');
+                //$(clientdivv[0].parentElement).addClass('table-responsive');
+
+            }
+        })
+    }
+    function EditDistributorinfo(val) {
+
+        window.location.href = "../Distributor/Index?id=" + val;
+    }
+    function ResetAll() {
+        msg = "Would you like to reset all fields?"
+        if (confirm(msg)) {
+            $("#Company").val("");
+            $("#No_Of_Users").val("");
+            $("#Company_Url").val("");
+            $("#Expiry_Date").datepicker('setDate', null);
+            $("#Email").val("");
+            $("#IsActive").bootstrapToggle('on');
+            $("#dvPreview img:last-child").remove();
+            $("#fileupload").val("");
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    function Cancel() {
+        msg = "Are you sure, do you want to cancel?"
+        if (confirm(msg)) {
+            window.location.href = "../Distributor/Index?id=" + 0;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+</script>

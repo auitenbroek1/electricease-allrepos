@@ -1,0 +1,888 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script src="~/Scripts/PartsList.js"></script>
+
+<script>
+    $(document).ready(function () {
+        //
+        Cookies.set('Partsdtpagelen', '');
+        Cookies.set("partsfilter", '');
+        Cookies.set('partstpageno', '');
+        Cookies.set('Partsearch', '');
+        $('li').removeClass('active');
+        $("#partsmaster").addClass('active');
+        $(".content-title").text("Parts Master");
+        editParts('0', '0');
+        //  getpartslist("");
+        $("#submit").click(function () {
+
+            var intRegex = /^\d+(?:\.\d\d?)?$/;
+
+            var ClientName = $("#Client_ID option:selected").val();
+            message = "Client Field is Required";
+            if (ClientName == 0) {
+                $("#ClietName_Errmsg").html("Required").show();
+                return false;
+            }
+
+            var value = $("#ddlPartCategory option:selected").val();
+            if (value == 0) {
+                $("#Category_errmsg").html("Required").show();
+                return false;
+            }
+
+
+            if ($("#Part_Number").val() == "") {
+                $("#PartNumber_errmsg").html("Required").show();
+                return false;
+            }
+
+            var value = $("#ddlPartCategory option:selected").val();
+
+            var otherCategory = $("#OtherPart_Category").val();
+            othercatgoryMsg = "\"Other Category\" field is required, If you had selected \"Other\" in category field.";
+            if (value == 1 && otherCategory == '') {
+
+                if (confirm(othercatgoryMsg)) {
+                    $("[name=OtherPart_Category]").focus();
+                    return false;
+
+                }
+            }
+
+
+
+            if (!$("#Cost").val().match(intRegex)) {
+                $("#errmsg").html("Number only").show();
+                return false;
+            }
+
+
+            if (!$("#Rcost").val().match(intRegex)) {
+                $("#RCosterrmsg").html("Number only").show();
+                return false;
+            }
+
+
+            var Cost = $("#Cost").val();
+            var ResaleCost = $("#Rcost").val();
+            costMsg = "Resale should be greater  than My Cost";
+            if (parseFloat(ResaleCost) <= parseFloat(Cost)) {
+
+                if (!confirm('“Cost” is greater than the “Resale Cost” in. Press OK to continue.')) {
+                    DisplayNotification("User cancelled the operation!", "error");
+                    $("#Rcost").focus();
+                    return false;
+                }
+
+                //if (confirm(costMsg)) {
+                //    return false;
+                //    $("#Rcost").focus();
+                //}
+                //else {
+                //    return false;
+                //}
+            }
+
+            var Cost = $("#Cost").val();
+            var ResaleCost = $("#Resale_Cost").val();
+            costMsg = "Resale should be greater than My Cost";
+            if (parseFloat(ResaleCost) <= parseFloat(Cost)) {
+                if (confirm(costMsg)) {
+                    return false;
+                    $("#Resale_Cost").focus();
+                }
+                else {
+                    return false;
+
+                }
+            }
+            if (parseFloat(Cost) == 0) {
+                CostZero = "Cost should be greater than 0";
+                var result = confirm(CostZero)
+                if (result == true) {
+                    return false;
+                }
+                else {
+                    return false;
+                }
+            }
+        });
+
+        InitiateColumnSearch();
+        loadGrid();
+        setRegexValidations();
+        $("#Loading").hide();
+    });
+
+    function GetMyPartsCatgory(val) {
+        var clientid = $(val).val();
+        var partnumber = $("#Part_Number").val();
+        if (clientid == "") {
+            $("#ddlPartCategory").attr('disabled', 'disabled');
+        }
+        else {
+
+            $.ajax({
+
+                url: '../Parts_Master/GetMyPartsCatgory?ClientID=' + clientid + '&partnumber=' + partnumber,
+                type: 'Get',
+                success: function (data) {
+
+                    $("#ddlPartCategory").removeAttr('disabled')
+                    dropdownElement = $("#ddlPartCategory");
+                    dropdownElement.find('option[value!=""]').remove();
+                    var $partcatgorylist = $("#ddlPartCategory");
+                    if (partnumber != "" && partnumber != null) {
+                        $.each(data.partcatgoryList, function (i, catgory) {
+                            $('<option>', {
+                                value: catgory.Part_Category
+                            }).html(catgory.Part_Category).appendTo($partcatgorylist);
+                        });
+                        $("#ddlPartCategory").val(data.Part_Category);
+
+                    }
+                    else {
+                        $.each(data, function (i, catgory) {
+                            $('<option>', {
+                                value: catgory.Part_Category
+                            }).html(catgory.Part_Category).appendTo($partcatgorylist);
+
+                        });
+                    }
+
+
+
+                },
+                error: function (err) { }
+
+            });
+        }
+
+
+    }
+
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/PartsMaster.pdf");
+    })
+    function getpartslist(val, showBot) {
+        if (val == "ALL Parts Category")
+            val = "";
+        Cookies.set("partsfilter", val);
+        $("#ptexample").DataTable().ajax.reload(null, false);
+        if (showBot == 1) {
+            $("#bootomParts").focus();
+        }
+        //$.ajax({
+        //    url: '../Parts_Master/PartsList?PartCatgory=' + val,
+        //    type: 'Get',
+        //    success: function (data) {
+
+        //        $('#divpartslist').html(data);
+        //        if (val == "") {
+        //            val = "ALL Parts Category";
+        //            $('#Part_CategoryList').val(val);
+        //        }
+        //        else {
+        //            $('#Part_CategoryList').val(val);
+        //        }
+        //    },
+        //    error: function (err) {
+        //        DisplayNotification("\"Network Error\" Please try later!", "error");
+        //    }
+        //});
+    }
+    function ShowOtherCategory(val) {
+
+        var lstpartnum = "";
+        if (val == "") {
+            val = "ALL";
+        }
+        $('#ddlPartCategory').val(val);
+        $.ajax({
+
+            url: '../Parts_Master/PartsList?PartCatgory=' + val,
+            type: 'Get',
+            success: function (data) {
+                $('#divpartslist').html(data);
+                if (val == "") {
+                    val = "ALL";
+                    $('#Part_CategoryList').val(val);
+                }
+                else {
+                    $('#Part_CategoryList').val(val);
+                }
+
+
+            },
+            Error: function (err) { }
+
+        });
+    }
+
+    function editParts(val1, val2) {
+
+        $.ajax({
+            url: '../Parts_Master/EditPartsDetails?PartsNumber=' + encodeURIComponent(val1) + '&ClientID=' + val2,
+            type: 'Get',
+            success: function (data) {
+
+                if (val2 != "0" && val1 != null) {
+                    if ($("#IsAdmin").val() == "Admin") {
+                        $("#Client_ID").val(val2);
+                        $("#Part_Number").val(val1);
+                        GetMyPartsCatgory("#Client_ID");
+
+                    }
+                    $("#title-cont").text("Edit Parts Details");
+                }
+                $('#divaddparts').html(data);
+                $('#ddlPartCategory').focus();
+
+            },
+            error: function (err) {
+                DisplayNotification("\"Network Error\" Please try later!", "error");
+            }
+        });
+    }
+
+    function PartcatgoryValidate() {
+        var LaborCategory = $('#ddlPartCategory').val() == '' ? $("#hdnPart_CategoryCl").val() : $('#ddlPartCategory').val();
+        if (LaborCategory != "") {
+            var otherCategory = $("#OtherPart_Category").val();
+            othercatgoryMsg = "\"Other Category\" field is required, If you had selected \"Other\" in category field.";
+            if (LaborCategory == "other" && (otherCategory == '' || otherCategory.toLowerCase() == 'other')) {
+                $("#OtherPart_Category").val('');
+                DisplayNotification(othercatgoryMsg, "error");
+                return false;
+
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("\"Part Category\" is required.", "error");
+            return false;
+
+        }
+    }
+    function PartNumberValidate() {
+
+        var PartNumber = $('#Part_Number').val();
+        if (PartNumber != "") {
+            return true;
+        }
+        else {
+            DisplayNotification("\"Part Number\" is required.", "error");
+            return false;
+        }
+    }
+    function CostValidate() {
+        if ($("#Cost").val() != "") {
+            //var intRegex = /^\d+(?:\.\d\d?)?$/;
+            var intRegex = /^(\d*\.?\d+|\d+\.\d*)$/;
+            if (!$("#Cost").val().match(intRegex)) {
+                DisplayNotification("Cost should be a “Number”.", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("“Cost” is required.", "error");
+            return false;
+        }
+
+    }
+    function ResaleValidate() {
+        if ($("#Rcost").val() != "") {
+            // var intRegex = /^\d+(?:\.\d\d?)?$/;
+            var intRegex = /^(\d*\.?\d+|\d+\.\d*)$/;
+            if (!$("#Rcost").val().match(intRegex)) {
+                DisplayNotification("Resale should be a “Number”.", "error");
+                return false;
+            }
+            else {
+                var Cost = $("#Cost").val();
+                var ResaleCost = $("#Rcost").val();
+                if (parseFloat(ResaleCost) <= parseFloat(Cost)) {
+                    if (!confirm("“Resale price” is lesser than “My Cost” price. Press OK to continue.")) {
+                        DisplayNotification("User cancelled the operation!", "error");
+                        $("#Rcost").focus();
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+                }
+                else {
+                    return true;
+                }
+
+            }
+        }
+        else {
+            DisplayNotification("“Resale” is required.", "error");
+            return false;
+        }
+
+    }
+    function ClientNamevalidate() {
+
+        if ($("#IsAdmin").val() == "Admin") {
+            var valueid = $('#Client_ID').val();
+            if ($('#Client_ID').val() == "") {
+                DisplayNotification("“Client Name” is required.", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            $('#Client_ID').val(0);
+            return true;
+        }
+    }
+    function partnameValidate(val) {
+        var partname = $(val).val();
+        //var characterReg = /^[A-Za-z\d=#$%...-]+$/;
+        var characterReg = /^[-"/'_ a-zA-Z0-9]+$/;
+        //if (!characterReg.test(partname)) {
+        //    $("#partnumsg").text("special characters are not allowed");
+        //    $('#Part_Number').focus();
+        //    return false;
+        //}
+        //else {
+        //    $("#partnumsg").text("");
+        //    return true;
+        //}
+
+    }
+    function nameValidate(val) {
+        var partname = val;
+        //var characterReg = /^[A-Za-z\d=#$%...-]+$/;
+        //var characterReg = /^[-"/'_ a-zA-Z0-9]+$/;
+        //if (!characterReg.test(partname)) {
+        //    $("#partnumsg").text("special characters are not allowed");
+        //    $('#Part_Number').focus();
+        //    return false;
+        //}
+        //else {
+        //    $("#partnumsg").text("");
+        //    return true;
+        //}
+        return true;
+    }
+    function Cancel() {
+        msg = "Are you sure, do you want to cancel?"
+        if (confirm(msg)) {
+            editParts('0', '0');
+            getpartslist(" ");
+            $("#title-cont").text("Add Parts Details")
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    function saveParts() {
+        if (PartcatgoryValidate() == true && PartNumberValidate() == true && nameValidate($('#Part_Number').val()) == true && CostValidate() == true && ResaleValidate() == true && ClientNamevalidate() == true) {
+            var Model = {
+                "Client_ID": $("#Client_ID").val(),
+                "Part_Category": $('#ddlPartCategory').val() == '' ? $("#hdnPart_CategoryCl").val() : $('#ddlPartCategory').val(),
+                "OtherPart_Category": $('#OtherPart_Category').val(),
+                "Part_Number": $('#Part_Number').val(),
+                "Cost": $('#Cost').val(),
+                "Resale_Cost": $('#Rcost').val(),
+                "Purchased_From": $('#Purchased_From').val(),
+                "Description": $('#Description').val(),
+                "Client_Description": $('#Client_Description').val(),
+                "UOM": $('#UOM').val(),
+                "LaborUnit": $('#LaborUnit').val(),
+            }
+
+            $.ajax({
+                url: '../Parts_Master/CheckIsExistPartNumber',
+                data: Model,
+                type: 'POST',
+                success: function (data) {
+
+                    if (data == "Already Exists") {
+                        msg = "Part already exists. Would you like to update it?"
+                        if (confirm(msg)) {
+
+                            SavePartsDetails(Model)
+                        }
+                        else {
+                            $('#Part_Number').focus();
+                        }
+
+                    }
+                    else {
+                        msg = "Would you like to add this part?"
+                        if (confirm(msg)) {
+
+                            SavePartsDetails(Model)
+                        }
+                    }
+                }
+            })
+
+        }
+        else {
+
+        }
+    }
+    //function saveParts() {
+    //    var value = $("#ddlPartCategory option:selected").val();
+    //    if (value == 0) {
+    //        DisplayNotification("“Category” is required.", "error");
+    //    }
+    //    else {
+    //        var Cost = $("#Cost").val();
+    //        var ResaleCost = $("#Rcost").val();
+    //        if (Cost.trim() == "" || Cost.trim() == "0" || Cost.trim() == "0.00" || ResaleCost.trim() == "" || ResaleCost.trim() == "0" || ResaleCost.trim() == "0.00") {
+    //            DisplayNotification("Cost and Resale “Cost” is required., also it cannot be 0", "error");
+    //        }
+    //        else {
+    //            costMsg = "Resale should be  Higher than My Cost";
+    //            if (parseFloat(ResaleCost) <= parseFloat(Cost)) {
+    //                DisplayNotification("Resale cost should be higher than cost ", "error");
+    //                $("#Resale_Cost").focus();
+    //            }
+    //            else {
+    //                var Model = {
+    //                    "Client_ID": $("#Client_ID").val(),
+    //                    "Part_Category": $('#ddlPartCategory').val(),
+    //                    "OtherPart_Category": $('#OtherPart_Category').val(),
+    //                    "Part_Number": $('#Part_Number').val(),
+    //                    "Cost": $('#Cost').val(),
+    //                    "Resale_Cost": $('#Rcost').val(),
+    //                    "Purchased_From": $('#Purchased_From').val(),
+    //                    "Description": $('#Description').val(),
+    //                    "Client_Description": $('#Client_Description').val()
+    //                }
+
+    //                $.ajax({
+    //                    url: '../Parts_Master/CheckIsExistPartNumber',
+    //                    data: Model,
+    //                    type: 'POST',
+    //                    success: function (data) {
+    //
+    //                        if (data == "Already Exists") {
+    //                            msg = "Part Number is Already Exists!Do u want update?"
+    //                            if (confirm(msg)) {
+    //
+    //                                SavePartsDetails(Model)
+    //                            }
+    //                            else
+    //                            {
+    //                                editParts('0', '0');
+    //                                getpartslist();
+    //                            }
+
+    //                        }
+    //                        else
+    //                        {
+    //                            SavePartsDetails(Model)
+    //                        }
+    //                    }
+    //                })
+    //            }
+    //        }
+    //    }
+    //}
+    function checknum(element) {
+        var values = $(element).val();
+        var rgx = /^[0-9]*\.?[0-9]*$/;
+        if (values.match(rgx)) {
+
+        }
+        else {
+            $(element).val(0);
+            //$(element).val($(element).val().replace(/\D/, ''));
+        }
+    }
+    function SavePartsDetails(Model) {
+        $.ajax({
+            url: '../Parts_Master/AddPartsDetails',
+            data: Model,
+            type: 'POST',
+            success: function (data) {
+                if (data == "“New Parts” has been added successfully.") {
+                    DisplayNotification("“New Parts” have been added.", "success");
+                    editParts('0', '0');
+                    if (Cookies.get('partsfilter') != null && Cookies.get('partsfilter') != "")
+                        //getpartslist(Cookies.get('partsfilter'), 1);
+                        ClientPartsMasterDataTable.ajax.reload(null, false);
+                    else
+                        //getpartslist("", 1);
+                        ClientPartsMasterDataTable.ajax.reload(null, false);
+
+                }
+                else if (data == "“Parts” are updated successfully.") {
+                    DisplayNotification("“Part” has been updated successfully.", "success");
+                    editParts('0', '0');
+                    if (Cookies.get('partsfilter') != null && Cookies.get('partsfilter') != "")
+                        //getpartslist(Cookies.get('partsfilter'), 1);
+                        ClientPartsMasterDataTable.ajax.reload(null, false);
+                    else
+                        //getpartslist("", 1);
+                        ClientPartsMasterDataTable.ajax.reload(null, false);
+                }
+
+                else {
+                    DisplayNotification(data, "error");
+                }
+            },
+            error: function (err) {
+            }
+        });
+    }
+
+    $("#alert").click(function () {
+        msg = "Are Sure Want To Delete this Parts?"
+        if (confirm(msg)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    })
+
+    function deleteParts(val1, val2) {
+        msg = "Would you like to delete this part?"
+        if (confirm(msg)) {
+            $.ajax({
+                url: '../Parts_Master/DeletePartsDetails',
+                data: { PartsNumber: val1.replace(/\"/g, '\\"').replace(/\\/g, "\\\\").replace("'", "\'"), ClientID: val2 },
+                type: 'POST',
+                success: function (data) {
+                    if (data != "“Deleted” successfully.") {
+                        DisplayNotification(data, "error");
+                    }
+                    else {
+                        var spinner;
+                        var opts = {
+                            lines: 14, // The number of lines to draw
+                            length: 10, // The length of each line
+                            width: 6, // The line thickness
+                            radius: 30, // The radius of the inner circle
+                            corners: 1, // Corner roundness (0..1)
+                            rotate: 0, // The rotation offset
+                            direction: 1, // 1: clockwise, -1: counterclockwise
+                            color: '#3D81BD', // #rgb or #rrggbb or array of colors
+                            speed: 1, // Rounds per second
+                            trail: 60, // Afterglow percentage
+                            shadow: true, // Whether to render a shadow
+                            hwaccel: false, // Whether to use hardware acceleration
+                            className: 'spinner', // The CSS class to assign to the spinner
+                            zIndex: 2e9, // The z-index (defaults to 2000000000)
+                            top: '50%', // Top position relative to parent
+                            left: '50%' // Left position relative to parent
+                        };
+
+                        spinner = new Spinner(opts).spin(document.getElementById('Loading'));
+                        editParts('0', '0');
+                        //getpartslist();
+                        if (Cookies.get('partsfilter') != null && Cookies.get('partsfilter') != "")
+                            //getpartslist(Cookies.get('partsfilter'));
+                            ClientPartsMasterDataTable.ajax.reload(null, false);
+                        else
+                            //getpartslist("");
+                            ClientPartsMasterDataTable.ajax.reload(null, false);
+
+                        //var table = $('#example').DataTable();
+                        //var tablerow = $("#partsbody tr")
+                        //if ($("#IsAdmin").val() == "Admin")
+                        //{
+                        //    for (i = 0; i < tablerow.length; i++) {
+                        //        if (tablerow[i].cells[3].innerText == val1) {
+                        //            tablerow[i].closest('tr').remove();
+                        //        }
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    for (i = 0; i < tablerow.length; i++) {
+                        //        if (tablerow[i].cells[2].innerText == val1) {
+                        //            tablerow[i].closest('tr').remove();
+                        //        }
+                        //    }
+                        //}
+
+                        //var info = table.page.info();
+                        //$('#example_info').html(
+                        //    'Showing ' + (info.page + 1) + ' of ' + info.pages+ ' entires.'
+                        //);
+                        DisplayNotification("“Parts details” are deleted successfully.", "success");
+                        spinner.stop();
+                    }
+                },
+                error: function (err) { }
+
+            });
+        }
+        //else {
+        //    return false;
+        //}
+    }
+    function ShowOtherCategory(value) {
+        $('#ddlPartCategory').val(value);
+        if (value == "other") {
+            $("[name=OtherPart_Category]").removeAttr("disabled");
+        }
+        else {
+            $("OtherPart_Category").val('');
+            $("[name=OtherPart_Category]").attr("disabled", "disabled");
+        }
+    }
+    function GetClientName() {
+        if ($("#IsAdmin").val() == "Admin") {
+            var valueid = $('#Client_ID').val();
+            if ($('#Client_ID').val() == "" || $('#Client_ID').val() == "0") {
+                DisplayNotification("“Client Name” is required.,Please choose a Client Name", "error");
+                $('#Client_ID').focus();
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            $('#Client_ID').val(0);
+            return true;
+        }
+    }
+    function confirmImport() {
+        $("#importfile").val("").clone(true);
+        swal({
+            title: "Are you sure, want to \"Import\" parts?",
+            showCancelButton: true,
+            confirmButtonClass: "btn btn-success",
+            confirmButtonText: "Yes",
+            cancelButtonText: "No"
+        }, function () {
+            if (GetClientName() == true) {
+                $('#importfile').click();
+            }
+        });
+        //if (confirm('Are you sure, do you want to \"Import\" parts?')) {
+        //    if (GetClientName() == true) {
+        //        $('#importfile').click();
+        //    }
+        //}
+    }
+    function ImportParts() {
+        if (GetClientName() == true) {
+            var ClientID = $('#Client_ID').val();
+            if ($("#IsAdmin").val() != "Admin") {
+                ClientID = "0";
+            }
+            $("#failedbtn").hide();
+            var formdata = new FormData();
+            var doc = document.getElementById('importfile');
+            if (doc.files.length > 0) {
+                formdata.append('partsheet', doc.files[0]);
+                $("#Loading").show();
+                var target = $("body");
+                var spinner;
+                var opts = {
+                    lines: 14, // The number of lines to draw
+                    length: 10, // The length of each line
+                    width: 6, // The line thickness
+                    radius: 30, // The radius of the inner circle
+                    corners: 1, // Corner roundness (0..1)
+                    rotate: 0, // The rotation offset
+                    direction: 1, // 1: clockwise, -1: counterclockwise
+                    color: '#3D81BD', // #rgb or #rrggbb or array of colors
+                    speed: 1, // Rounds per second
+                    trail: 60, // Afterglow percentage
+                    shadow: true, // Whether to render a shadow
+                    hwaccel: false, // Whether to use hardware acceleration
+                    className: 'spinner', // The CSS class to assign to the spinner
+                    zIndex: 2e9, // The z-index (defaults to 2000000000)
+                    top: '50%', // Top position relative to parent
+                    left: '50%' // Left position relative to parent
+                };
+                //spinner = new Spinner(opts).spin(document.getElementById('Loading'));
+                $.ajax({
+                    //url: '../Parts_Master/Importparts?ClientID=' + ClientID,
+                    url: '../Parts_Master/ImportParts',
+                    data: formdata,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (data) {
+                        $("#Loading").hide();
+                        if (data.includes("Error")) {
+                            if (Cookies.get('partsfilter') != null && Cookies.get('partsfilter') != "") {
+                                ClientPartsMasterDataTable.ajax.reload(null, false);
+                            }
+                            else {
+                                ClientPartsMasterDataTable.ajax.reload(null, false);
+                            }
+                            DisplayNotification(data, 'error');
+                        }
+                        else {
+                            DisplayNotification("\"Import Parts\" completed. Please check the report for status.", 'success');
+                            $('#failedbtn').show();
+                            $('#lblreport').html(data);
+                            if (Cookies.get('partsfilter') != null && Cookies.get('partsfilter') != "") {
+                                ClientPartsMasterDataTable.ajax.reload(null, false);
+                            }
+                            else {
+                                ClientPartsMasterDataTable.ajax.reload(null, false);
+                            }
+                        }
+                        //if (data != "Please import the valid template, the file should be \"xlsx\" format only!" && data != "Please import the valid template") {
+                        //    DisplayNotification("\"Import Parts\" completed. Please check the report for status.", 'success');
+                        //    $('#failedbtn').show();
+                        //    $('#lblreport').html(data);
+                        //    //editParts('0', '0');
+                        //    if (Cookies.get('partsfilter') != null && Cookies.get('partsfilter') != "")
+                        //        //getpartslist(Cookies.get('partsfilter'));
+                        //        ClientPartsMasterDataTable.ajax.reload(null, false);
+                        //    else
+                        //        //getpartslist("");
+                        //        ClientPartsMasterDataTable.ajax.reload(null, false);
+                        //    //spinner.stop();
+                        //}
+                        //else {
+                        //    //editParts('0', '0');
+                        //    if (Cookies.get('partsfilter') != null && Cookies.get('partsfilter') != "")
+                        //        //getpartslist(Cookies.get('partsfilter'));
+                        //        ClientPartsMasterDataTable.ajax.reload(null, false);
+                        //    else
+                        //        //getpartslist("");
+                        //        ClientPartsMasterDataTable.ajax.reload(null, false);
+                        //    //spinner.stop();
+                        //    DisplayNotification(data, 'error');
+                        //    //$('#lblreport').html(data);
+                        //    //$('#failedbtn').hide();
+                        //}
+
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        $("#Loading").hide();
+                        DisplayNotification(xhr.status, "error");
+                    }
+                });
+            }
+        }
+    }
+
+    function GenerateExcelReport() {
+        $.ajax({
+            url: '../Parts_Master/GenerateExcelReport',
+            type: 'POST',
+            success: function () { },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $("#Loading").hide();
+                DisplayNotification(xhr.status, "error");
+            }
+        });
+    }
+
+    function ResetParts() {
+        msg = "Are you sure, do you want to “Clear” all fields?"
+        if (confirm(msg)) {
+            $("#Client_ID").val("");
+            $("#ddlPartCategory").val("");
+            $("#OtherPart_Category").val("");
+            $("#Part_Number").val("");
+            $("#Cost").val("");
+            $("#Rcost").val("");
+            $("#Description").val("");
+            $("#Client_Description").val("");
+            $("#Purchased_From").val("");
+            $("#ddlPartCategory").val('').trigger('change');
+            if ($("#IsAdmin").val() == "Admin") {
+                $("#ddlPartCategory").attr('disabled', 'disabled');
+            }
+
+            $("#OtherPart_Category").attr('disabled', 'disabled');
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+</script>
+
+
+<div class="app-body" id="Scroll">
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full" id="">
+            <fieldset>
+                <div id="accordion" class="partsmobile">
+                    <div class="box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong id="title-cont"> &nbsp Add Part Details  </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+                    </div>
+                    <div id="divaddparts"></div>
+                    <div class="box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp  Parts List </strong> <span id="togglecont" class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+                    </div>
+                    <table id="ClientPartsMasterDataTable" class="table table-bordered datatables" cellspacing="0" width="100%">
+                        <thead style="background-color: #45525F">
+                            <tr>
+                                <th>Part Category</th>
+                                <th>Description</th>
+                                <th>Part Number</th>
+                                <th>Cost</th>
+                                <th>Resale</th>
+                                <th>UOM</th>
+                                <th>Purchased From</th>
+                                <th>Type</th>
+                                <th>Updated Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    @*<div id="divpartslist">
+                            @Html.Partial("_PartsList")
+                        </div>*@
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<div id="failedreport" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 50%; margin-left: 30%; margin-top: 60px;">
+        <div class="modal-header" style="background-color: #333333; height: 35px;">
+            <button type="button" class="close" data-dismiss="modal" id="SowPreviewpopupclose" style="color: white !important; opacity: 0.9;">&times;</button>
+            <h4 class="modal-title" id="sowhead" style="color: #FFF !important;">Parts Import Report</h4>
+        </div>
+        <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+            <div class="col-md-12">
+                <div id="lblreport" style="color:#000"></div>
+                <div>Please click @Html.ActionLink(linkText: "here", actionName: "GenerateExcelReport", controllerName: "Parts_Master") for status report.</div>
+            </div>
+            <div class="pull-right popup-btn">
+                <button value="Submit" data-dismiss="modal" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" onclick="">Ok</button>
+            </div>
+        </div>
+
+    </div>
+</div>

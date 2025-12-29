@@ -1,0 +1,689 @@
+﻿@model ElectricEase.Models.EditClient_MasterInfo
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+
+            //var Grid = new WebGrid(source: Model.ClientList, canPage: false, canSort: false, ajaxUpdateContainerId: "container-grid");
+}
+@*<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>*@
+
+
+<script>
+    $.ajax({
+        url: "/Ajax/GetMyClienListinCM",
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            //alert("ajx");
+            //alert(data);
+            assignToEventsColumns(data);
+        }
+    });
+
+
+
+    function assignToEventsColumns(data) {
+        var table = $('#example').dataTable({
+            "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+            //"dom": 'C<"clear">lfrtip',
+            "bAutoWidth": false,
+            "aaData": data,
+            //"aaSorting": [],
+            "aoColumnDefs": [
+               {
+                   "aTargets": [0],
+                   //"bSearchable": false,
+                   //"bSortable": false,
+                   //"bSort": false,
+                   "mData": "EventTypeId",
+                   "mRender": function (event) {
+                       //return  '<input class="childCheck" type="checkbox" id="childCheckBoxes" value="' + event + '">';
+
+                       return event;
+                   }
+               },
+
+               {
+                   "aTargets": [1],
+                   "mData": "EventType"
+               }
+            ], "aoColumns": [
+
+             { "mData": "Client_ID" },
+             { "mData": "Client_Company" },
+            { "mData": "City" },
+            { "mData": "State" },
+            { "mData": "Phone" },
+            { "mData": "Email" },
+            {
+                "mDataProp": function (source, type, val) {
+                    return '<a href="/Client_Master/EditClientMaster?id=' + source.Client_ID + '"><span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert  href="/Client_Master/DeleteClient?id=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+                }
+            }
+            ]
+        });
+
+    }
+
+    $(document).ready(function () {
+        //alert("jiii");
+        $('li').removeClass('active');
+        $("#clientmaster").addClass('active');
+        //alert("active");
+        //To change content tittles
+        $(".content-title").text("Client Master");
+    });
+
+    $(document).on('click', '.confirm', function () {
+        message = "Are sure want to delete this client?"
+        if (confirm(message))
+            return true;
+        else
+            return false;
+
+    });
+    $(function () {
+        $("#fileupload").change(function () {
+            $("#firstlogo").hide();
+            // alert("kkkkk");
+            $("#dvPreview").html("");
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.jpg|.jpeg|.gif|.png|.bmp)$/;
+            if (regex.test($(this).val().toLowerCase())) {
+
+                if ($.browser.msie && parseFloat(jQuery.browser.version) <= 9.0) {
+                    $("#dvPreview").show();
+                    $("#dvPreview")[0].filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = $(this).val();
+                }
+                else {
+                    if (typeof (FileReader) != "undefined") {
+                        //var size = parseFloat(fileUpload.files[0].size / 1024).toFixed(2);
+                        //alert(size + " KB.");
+                        $("#dvPreview").show();
+                        $("#dvPreview").append("<img style=width:20% ;height:30px />").attr({ width: '300px', height: '150px' });
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            //Initiate the JavaScript Image object.
+                            var image = new Image();
+
+                            //Set the Base64 string return from FileReader as source.
+                            image.src = e.target.result;
+
+                            ////Validate the File Height and Width.
+                            //image.onload = function () {
+                            //    var height = this.height;
+                            //    var width = this.width;
+                            //    if (height > 100 || width > 100) {
+                            //        alert("Height and Width must not exceed 100px.");
+                            //        return false;
+                            //    }
+                            //    alert("Uploaded image has valid Height and Width.");
+                            //    return true;
+                            //};
+                            $("#dvPreview img").attr("src", e.target.result);
+                        }
+                        reader.readAsDataURL($(this)[0].files[0]);
+                    } else {
+                        alert("This browser does not support FileReader.");
+                    }
+                }
+            } else {
+                alert("Please upload a valid image file.");
+            }
+        });
+    });
+
+    $(function () {
+        $('.delete-link').click(function () {
+            alert("dlete");
+            deleteLinkObj = $(this);  //for future use
+            $('#delete-dialog').dialog('open');
+            return false; // prevents the default behaviour
+        });
+    });
+
+    $(function () {
+        $('#SuperUser').click(function () {
+
+            alert("Cannot be Modify once you have Created!");
+        });
+
+    })
+    $(function () {
+        $("#Reset").click(function () {
+            $("#Client_Company").val("");
+            $("#Client_Logo").val("");
+            $("#Address").val("");
+            $("#Address2").val("");
+            $("#City").val("");
+            $("#State").val("");
+            $("#ZipCode").val("");
+            $("#Phone").val("");
+            $("#Mobile").val("");
+            $("#Fax").val("");
+            $("#Email").val("");
+            $("#Contact_person").val("");
+            $("#SuperUser").val("");
+            $("#SuperUser_Pwd").val("");
+            $("#fileupload").val("");
+
+            $("#dvPreview img:last-child").remove()
+        });
+
+    });
+    $(function () {
+
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+    $(function () {
+        
+        $("#updatebtn").click(function () {
+            
+
+            
+
+            var characterReg = /^[0-9-+]+$/;
+            // var reg = /^[2-9]\d{2}-\d{3}-\d{4}$/;
+            var phoneno = $("#Phone").val();
+            if (phoneno != "") {
+                if (phoneno.length < 10) {
+                    DisplayNotification("Invalid “Phone Number”!", "error");
+                    return false;
+                }
+                if (!phoneno.match(characterReg)) {
+                    DisplayNotification("Invalid “Phone Number”!", "error");
+                    return false;
+                }
+            }
+            else {
+                DisplayNotification("“Phone Number” is required!", "error");
+                return false;
+            }
+           
+            var email = $("#Email").val();
+            var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+            if (email!="")
+            {
+                 if (!email.match(emailReg)) {
+                     DisplayNotification("“Email” is invalid!", "error");
+                return false;
+            }
+            }
+           
+           
+            //var characterReg = /^[0-9-+]+$/;
+            var reg = /^[2-9]\d{2}-\d{3}-\d{4}$/;
+            var mobileno = $("#Mobile").val();
+            if (mobileno != "") {
+                if (mobileno.length < 10) {
+
+                    DisplayNotification("Invalid “Mobile Number”!", "error");
+                    return false;
+                }
+                if (!mobileno.match(characterReg)) {
+
+                    DisplayNotification("Invalid “Mobile Number”!", "error");
+                    return false;
+                }
+            }
+
+
+            if ($("#Client_Company").val() != "" && $("#Contact_person").val() != "" && $("#Phone").val() != ""  ) {
+                return true;
+            }
+            else {
+                DisplayNotification("Please fill “All” required (*) field.", "error");
+                return false;
+            }
+
+        });
+    });
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: #34495e;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+
+    .dataTables_filter {
+        /*padding-bottom: 70px;*/
+    }
+</style>
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        @if (ViewBag.UpdateErrorMsg != null)
+        { 
+              <script>
+                  DisplayNotification("An error occurred while updating “Client Details”!", "error");
+                </script>
+        }
+        <div class="box magic-element width-full">
+            <fieldset>
+                <div id="accordion">
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp  Edit Client Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                    </div>
+                    @*                    <h7 class="box-heading"><strong> Edit Client Details</strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                        <span class="pull-right apse a">
+                                        <i class="icon ion-chevron-up"></i></span>
+
+                                    </a>
+                                </h7>
+                    <hr>*@
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        @using (Html.BeginForm("EditClientMaster", "Client_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+                        {
+                            @Html.ValidationSummary(true);
+                                
+                            <div class="row" id="EditContent">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div>
+                                                <div class="panel-body">
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Client Company <span class="err">*</span> :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Client_Company, new { @class = "form-control", @maxlength = "500", @placeholder = "Client Company" })
+                                                                <input type="hidden" name="Client_ID" value="@Model.Client_ID"/>
+                                                                @Html.ValidationMessageFor(m => m.Client_Company)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Contact Person <span class="err">*</span> :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Contact_person, new { @class = "form-control", @maxlength = "100", @placeholder = "Contact Person" })
+                                                                @Html.ValidationMessageFor(m => m.Contact_person)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Address :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Address, new { @class = "form-control", @maxlength = "200", @placeholder = "Address" })
+                                                                @Html.ValidationMessageFor(m => m.Address)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Address2 :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Address2, new { @class = "form-control", @maxlength = "200", @placeholder = "Address2" })
+                                                                @Html.ValidationMessageFor(m => m.Address2)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>City :</strong></label>
+                                                                @Html.TextBoxFor(m => m.City, new { @class = "form-control", @maxlength = "100", @placeholder = "City" })
+                                                                @Html.ValidationMessageFor(m => m.City)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>State :</strong></label>
+                                                                @Html.TextBoxFor(m => m.State, new { @class = "form-control", @maxlength = "100", @placeholder = "State" })
+                                                                @Html.ValidationMessageFor(m => m.State)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Zip Code :</strong></label>
+                                                                @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control", @maxlength = "10", @placeholder = "ZipCode" })
+                                                                @Html.ValidationMessageFor(m => m.ZipCode)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Phone <span class="err">*</span>:</strong></label>
+                                                                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", @maxlength = "50", @placeholder = "Phone" })
+                                                                @Html.ValidationMessageFor(m => m.Phone)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Mobile :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Mobile, new { @class = "form-control", @maxlength = "50", @placeholder = "Mobile" })
+                                                                @Html.ValidationMessageFor(m => m.Mobile)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Fax :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Fax, new { @class = "form-control", @maxlength = "50", @placeholder = "Fax" })
+                                                                @Html.ValidationMessageFor(m => m.Fax)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Email <span class="err">*</span>:</strong></label>
+                                                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @maxlength = "100", @placeholder = "Email" })
+                                                                @Html.ValidationMessageFor(m => m.Email)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (Model.Client_Logo == null)
+                                                    {
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="lable"><strong>Company Logo :</strong></label>
+                                                                    @*@Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })*@
+                                                                    @*<input type="file" id="fileupload" name="File" />*@
+                                                                    @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                    <strong><span class="err">Note:Image size should be less then 600kb</span></strong>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+
+                                                            <div class="form-group" id="dvPreview"></div>
+
+                                                            @* <div class="form-group" >
+                                        </div>*@
+
+                                                        </div>
+                                                    }
+                                                    @if (Model.Client_Logo != null)
+                                                    {
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="lable"><strong>Company Logo :</strong></label>
+                                                                    @*@Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })*@
+                                                                     @*<input type="file" id="fileupload" name="File" />*@
+                                                                    @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                     <strong><span class="err">Note:Image size should be less then 600kb</span></strong>
+                                                                  </div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="form-group" id="dvPreview" style="display: none"></div>
+                                                                <div class="form-group" id="firstlogo">
+                                                                    <img src="data:image;base64,@System.Convert.ToBase64String(Model.Client_Logo)"  name="UploadedFile" width="100" height="100" style="height: 80px; width: 50%;"/>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    }
+                                                </div>
+                                                
+                                                <div class="panel-footer clearfix">
+                                                    <div class="pull-left" style="color: #000; font-size: 10px; font-weight: 700;">
+                                                        <div>
+                                                            <label>Created By  :@Model.Created_By on<span></span> @Model.Created_Date</label>
+                                                            <input type="hidden" value="@Model.Created_By" name="Created_By" id="Created_By"/>
+                                                            <input type="hidden" name="Created_Date" value="@Model.Created_Date"  />
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="pull-right" style="color: #000; font-size: 10px; font-weight: 700;">
+                                                        <div>
+                                                            <label>Updated By  :@Model.Updated_By on<span></span> @Model.Updated_Date</label>
+                                                            <input type="hidden"name="Updated_By" value="@Model.Updated_By"  />
+                                                            <input type="hidden"  name="Updated_Date" value="@Model.Updated_Date"  />
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                       
+
+                  
+
+                     <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> &nbsp Config Details</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+               
+            </div>
+          <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                 <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Client Admin ID:</strong></label>
+                                                                @Html.TextBoxFor(m => m.SuperUser, new { @class = "form-control", @readonly = "readonly", @maxlength = "100", @placeholder = "Client Admin" })
+                                                                @Html.ValidationMessageFor(m => m.SuperUser)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Password :</strong></label>
+                                                                @Html.PasswordFor(m => m.SuperUser_Pwd, new { @class = "form-control", @maxlength = "100", @placeholder = "Password" })
+                                                                @Html.ValidationMessageFor(m => m.SuperUser_Pwd)
+                                                                @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                <div class="row-fluid">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="title"><strong>JobID Preffix  :</strong></label>
+                                                    @Html.TextBoxFor(m => m.JobIDPreffix, new { @class = "form-control", @maxlength = "3", @placeholder = "Preffix", @readonly = "readonly" })
+                                                    @Html.ValidationMessageFor(m => m.JobIDPreffix)
+                                                    @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                <div class="row-fluid">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="title"><strong>Sender Email Address  :</strong></label>
+                                                    @Html.TextBoxFor(m => m.Sender_EmailAddress, new { @class = "form-control", @maxlength = "100", @placeholder = "Sender Email" })
+                                                    @Html.ValidationMessageFor(m => m.Sender_EmailAddress)
+                                                    @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                <div class="row-fluid">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="title"><strong>Sender Email Password  :</strong></label>
+                                                    @Html.PasswordFor(m => m.Sender_EmailPassword, new { @class = "form-control", @maxlength = "100", @placeholder = " Sender Password" })
+                                                    @Html.ValidationMessageFor(m => m.Sender_EmailPassword)
+                                                    @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                <div class="row-fluid">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="title"><strong>Domain Name  :</strong></label>
+                                                    @Html.TextBoxFor(m => m.DomainName, new { @class = "form-control", @maxlength = "100", @placeholder = "Domain Name" })
+                                                    @Html.ValidationMessageFor(m => m.DomainName)
+                                                    @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                <div class="row-fluid" style="display:none">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="title"><strong>SMTP Host  :</strong></label>
+                                                    @Html.TextBoxFor(m => m.SMTP_Host, new { @class = "form-control", @maxlength = "100", @placeholder = "Host" })
+                                                    @Html.ValidationMessageFor(m => m.SMTP_Host)
+                                                    @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                <div class="row-fluid" style="display:none">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="title"><strong>SMTP Port  :</strong></label>
+                                                    @Html.TextBoxFor(m => m.SMTP_Port, new { @class = "form-control", @maxlength = "100", @placeholder = " Port " })
+                                                    @Html.ValidationMessageFor(m => m.SMTP_Port)
+                                                    @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                <div class="row-fluid" style="display:none">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="title"><strong>Auto Save Time(Secs) :</strong></label>
+                                                    @Html.TextBoxFor(m => m.AutoSaveTime_InSecs, new { @class = "form-control", @maxlength = "4", @placeholder = "Seconds" })
+                                                    @Html.ValidationMessageFor(m => m.AutoSaveTime_InSecs)
+                                                    @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                
+                                </div>
+                            <div class="panel-footer clearfix">
+                                                    <div class="pull-right" style="width:35%">
+                                                        @*<button type="submit">Upload Image</button>*@
+                                                       @* <span class="glyphicon glyphicon-upload"></span>*@
+                                                        <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm pull-right" name="addLabour" id="updatebtn" tabindex="10" style="width:49%">Update  </button>
+                                                        @* <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset">Clear</a>*@
+
+                                                    </div>
+
+
+                                                </div>
+
+
+                             
+                            </div>
+                        </div>
+              </div>
+            }
+  </div>
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp  Client Listing </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                    </div>
+                    @*<h7 class="box-heading"><strong>Client Listing</strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                    <span class="pull-right apse b">
+                                    <i class="icon ion-chevron-up"></i></span>
+                                    </a>
+                                    </h7>
+                        <hr>*@
+
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+
+
+                        <table id="example" class="table table-bordered datatables" cellspacing="0" width="100%">
+                            <thead style="background-color: #45525F">
+                                <tr>
+                                    <th>Client ID</th>
+                                    <th>Client Company</th>
+                                    <th>State</th>
+                                    <th>City</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+
+                                    <th>Action </th>
+
+                                </tr>
+
+                            </thead>
+
+                        </table>
+                        @* @Grid.GetHtml(
+                           tableStyle: "table table-bordered datatables",
+                            alternatingRowStyle: "alt",
+                           columns: Grid.Columns(
+                           Grid.Column(columnName: "Client_ID", header: "Client ID"),
+                           Grid.Column(columnName: "Client_Company", header: "Client Company"),
+                    //Grid.Column(columnName:"Client_Logo",header:"Client Logo"),
+                           Grid.Column(columnName: "Address", header: "Address"),
+                    //Grid.Column(columnName:"Address2",header:"Address2 "),
+                           Grid.Column(columnName: "City", header: "City"),
+                           Grid.Column(columnName: "State", header: "State"),
+                           Grid.Column(columnName: "ZipCode", header: "ZipCode"),
+                           Grid.Column(columnName: "Phone", header: "Phone"),
+                           Grid.Column(header: "Action", format: @<text><a href="/Client_Master/EditClientMaster?id=@item.Client_ID"> <span class="glyphicon glyphicon-pencil"></span></a>&nbsp;&nbsp;&nbsp;<a id="deletebtn" href="/Client_Master/DeleteClient?id=@item.Client_ID"><i class="icon ion-ios7-trash"></i></a></text>)
+                    //Grid.Column(columnName:"Mobile",header:"Mobile"),
+                    //Grid.Column(columnName:"Fax",header:"Fax"),
+                    //Grid.Column(columnName:"Email",header:"Email"),
+                    //Grid.Column(columnName:"Contact_person",header:"Contact Person"),
+                    //Grid.Column(columnName:"Created_By",header:"Created_By"),
+                    //Grid.Column(columnName:"Created_Date",header:"Created_Date"),
+                    //            Grid.Column(columnName: "Updated_By", header: "Updated_By"),
+                    //            Grid.Column(columnName: "Updated_Date", header: "Updated_Date"),
+                    //            Grid.Column(columnName: "Created_Date", header: "Created_Date")
+
+                           )
+                           )*@
+
+                    </div>
+
+                </div>
+            </fieldset>
+
+        </div>
+    </div>
+</div>

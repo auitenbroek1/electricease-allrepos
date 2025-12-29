@@ -1,0 +1,184 @@
+﻿@model List<ElectricEase.Models.Legal_DetailsInfoList>
+
+@{
+    ViewBag.Title = "AddNewPartsinAssembliesDetails";
+    Layout = null;
+    var LegalGrid = new WebGrid(source: Model, canPage: false, canSort: false);
+}
+
+<script>
+    $(document).ready(function () {
+      
+        var rows_selected = [];
+        $("#checkableLegalGrid").dataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+            'columnDefs': [{
+                'targets': 0,
+                'searchable': false,
+                'orderable': false,
+                'className': 'dt-body-center',
+                'render': function (data, type, full, meta) {
+                    return '<input type="checkbox">';
+                }
+            }],
+            columnDefs: [{
+                orderable: false,
+                className: 'select-checkbox',
+                targets: 0
+            }],
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
+            order: [[1, 'asc']]
+        });
+
+
+
+        // 1st replace first column header text with checkbox
+
+        $("#checkableLegalGrid th").each(function () {
+            if ($.trim($(this).text().toString().toLowerCase()) === "{checkall}") {
+                $(this).text('');
+                $("<input/>", { type: "checkbox", id: "cbSelectAll", value: "" }).appendTo($(this));
+                $(this).append("<span>Select All</span>");
+            }
+            var totalRows = $("#checkableLegalGrid td :checkbox").length;
+            var checked = $("#checkableLegalGrid td :checkbox:checked").length;
+
+            if (checked == totalRows) {
+                $("#checkableLegalGrid").find("input:checkbox").each(function () {
+                    this.checked = true;
+                });
+            }
+            else {
+                $("#cbSelectAll").removeAttr("checked");
+            }
+        });
+
+        //2nd click event for header checkbox for select /deselect all
+        $("#cbSelectAll").live("click", function () {
+            var ischecked = this.checked;
+            $('#checkableLegalGrid').find("input:checkbox").each(function () {
+                this.checked = ischecked;
+            });
+        });
+
+
+        //3rd click event for checkbox of each row
+        $("input[name='assignChkBx']").click(function () {
+            var totalRows = $("#checkableLegalGrid td :checkbox").length;
+            var checked = $("#checkableLegalGrid td :checkbox:checked").length;
+
+            if (checked == totalRows) {
+                $("#checkableLegalGrid").find("input:checkbox").each(function () {
+                    this.checked = true;
+                });
+            }
+            else {
+                $("#cbSelectAll").removeAttr("checked");
+            }
+        });
+    });
+
+    function selectvalues() {
+        var partnumber = "";
+        $("input[type=checkbox]:checked").each(function () {
+            //alert($(this).attr('data-partnumber'));
+            if ($(this).attr('data-partnumber') != undefined) {
+                partnumber = partnumber + (partnumber != "" ? "," : "") + $(this).attr('data-partnumber');
+            }
+        });
+        return partnumber;
+    }
+
+    $("#submit").click(function () {
+
+        var values = selectvalues();
+       // alert(values);
+        LoadContent($("#PartsPatialView"), "/Jobs/AddPartsInAssembliesDetails?SelectedCheckBx=" + values + "");
+    });
+
+</script>
+
+<div class="modal-content" style="height: 600px; width: 100%; overflow: scroll;">
+    <div class="modal-header" style="background-color: #3D81BD; height: 35px;">
+        <button type="button" class="close" data-dismiss="modal" style="color: #fff !important;">&times;</button>
+        <h4 class="modal-title" style="color: #FFF !important;">Add Parts Details</h4>
+    </div>
+     @using (Html.BeginForm("AddLegalDetailsInJob", "Jobs", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+    {
+        <div class="modal-body">
+            <div class="app-body" id="Scroll">
+
+                <!-- app content here -->
+
+                <div class="magic-layoutz">
+                    <div class="box magic-element width-full">
+                        <fieldset>
+                            <div id="accordion">
+                                <div class="row">
+                                    <div class="row-fluid">
+
+                                        <div class="pull-right">
+                                            <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" id="submit" tabindex="10">Submit</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+
+                                    <div class="col-md-12">
+                                        <div class="panel panel-default">
+                                            <div class="panel-body">
+
+                                                <input type="hidden" name="Partnumber" id="Partnumber" />
+                                                <input  type="hidden" name="Assemblies_Name" value="@ViewBag.AssembliesName"/>
+                                                <input  type="hidden" name="Assemblies_Description" value="@ViewBag.Description"/>
+
+
+                                                @LegalGrid.GetHtml(
+                                                                       tableStyle: "table table-bordered datatables",
+                                                                       htmlAttributes: new { id = "checkableLegalGrid" },
+                                                                        alternatingRowStyle: "alt",
+                                                                       columns: LegalGrid.Columns(
+                                                                       LegalGrid.Column(columnName: "Select_ID", style: "null", header: "{checkall}", format: @<text><input type="checkbox" name="assignChkBx" checked="@item.isChekced" value="@item.Client_ID"="assignChkBx" data-partnumber="@item.Client_ID" /></text>),
+                                                                       LegalGrid.Column(columnName: "Legal_Detail", header: "Legal Detail"),
+                                                                       LegalGrid.Column(columnName: "Legal_Category", header: "Legal Category")
+                                                                       )
+                                                                       )
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="row-fluid">
+
+
+                                    <div class="pull-right">
+                                        <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" id="submit" tabindex="10">Submit</button>
+
+                                    </div>
+
+
+                                </div>
+
+
+
+                            </div>
+                        </fieldset>
+
+                    </div>
+
+                </div>
+                <!-- app content here -->
+            </div>
+            <!-- app content here -->
+        </div>
+     }
+</div>

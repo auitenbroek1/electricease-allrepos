@@ -1,0 +1,287 @@
+﻿@model List< ElectricEase.Models.Labor_DetailsInfoList>
+
+@{
+    // Layout = null;
+    //var Grid = new WebGrid(source: Model, canSort:true);
+    //var PartsGrid = new WebGrid(source: Model.PartsListData, canPage: false, canSort: false);
+    var LabourGrid = new WebGrid(source: Model, canPage: false, canSort: false);
+}
+<script>
+    $(document).ready(function () {
+
+        $(".JobLabourGridData").dataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bInfo": false,
+            "bAutoWidth": true,
+            stateSave: true
+
+        });
+    });
+ 
+    function updateDataTableSelectAllCtrl(table) {
+        var $table = table.table().node();
+        var $chkbox_all = $('tbody input[type="checkbox"]', $table);
+        var $chkbox_checked = $('tbody input[type="checkbox"]:checked', $table);
+        var chkbox_select_all = $('thead input[name="select_all"]', $table).get(0);
+
+        // If none of the checkboxes are checked
+        if ($chkbox_checked.length === 0) {
+
+            chkbox_select_all.checked = false;
+            if ('indeterminate' in chkbox_select_all) {
+                chkbox_select_all.indeterminate = false;
+            }
+
+            // If all of the checkboxes are checked
+        } else if ($chkbox_checked.length === $chkbox_all.length) {
+            chkbox_select_all.checked = true;
+            if ('indeterminate' in chkbox_select_all) {
+                chkbox_select_all.indeterminate = false;
+            }
+
+            // If some of the checkboxes are checked
+        } else {
+            chkbox_select_all.checked = true;
+            if ('indeterminate' in chkbox_select_all) {
+                chkbox_select_all.indeterminate = true;
+            }
+        }
+    }
+
+    $(function () {
+        $('#ExpLaborGrandTotal, #LabExpTotal').prop('readonly', true);
+        var $tblrows = $("#grid tbody tr");
+        jobPartGrandTotal = 0;
+        jobPartGrandTotalsum = 0;
+        ExpTotalsum = 0;
+        ExpTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#Cost, #ActHours, #Burden').on('keyup', function () {
+                var actHours = $tblrow.find("[name=ActHours]").val();
+                var cost = $tblrow.find("[name=Cost]").val();
+                var burden = $tblrow.find("[name=Burden]").val();
+                var costBurn = parseFloat(cost) + parseFloat(burden);
+                ExpTotal = (parseFloat(cost) + parseFloat(burden)) * parseFloat(actHours);
+                ExpTotal = isNaN(ExpTotal) ? 0 : ExpTotal;
+                if (cost != 0 && actHours != 0 && actHours != "") {
+                    jobPartGrandTotal = 0;
+                    if (!isNaN(ExpTotal)) {
+                        $tblrow.find('#LabExpTotal').val(ExpTotal.toFixed(2));
+                        $("#LabExpTotal").each(function () {
+                            jobPartGrandTotal += parseFloat(ExpTotal);
+                            ii = ii + 1;
+                        });
+                        $('#ExpLaborGrandTotal').val(0);
+                        var $tblrowssum = $('#grid tbody tr');
+                        var sum = 0;
+                        jobPartGrandTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $tblrowssum.each(function () {
+                            var $tblrowsum = $(this);
+                            var ActHoursSum = $tblrowsum.find("[name=ActHours]").val();
+                            var costsum = $tblrowsum.find("[name=Cost]").val();
+                            var burdensum = $tblrowsum.find("[name=Burden]").val();
+                            if (costsum != 0 && ActHoursSum != 0 && ActHoursSum != "") {
+                                ExpTotalsum = (parseFloat(costsum) + parseFloat(burdensum)) * parseFloat(ActHoursSum);
+                                if (!isNaN(ExpTotalsum)) {
+                                    jobPartGrandTotalsum += parseFloat(ExpTotalsum);
+                                }
+                            }
+                        });
+                        $('#ExpLaborGrandTotal').val(jobPartGrandTotalsum.toFixed(2));
+                    }
+                }
+            });
+        });
+    });
+
+    $(function () {
+        $('#EstLaborGrandTotal, #LabEstTotal').prop('readonly', true);
+        var $tblrows = $("#grid tbody tr");
+        jobPartGrandEstTotal = 0;
+        jobPartGrandEstTotalsum = 0;
+        EstTotalsum = 0;
+        EstTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#Resale, #EstHours').on('keyup', function () {
+                var estHours = $tblrow.find("[name=EstHours]").val();
+                var Resale = $tblrow.find("[name=Resale]").val();
+                EstTotal = Resale * estHours;
+                EstTotal = isNaN(EstTotal) ? 0 : EstTotal;
+                if (Resale != 0 && estHours != 0) {
+                    if (!isNaN(EstTotal)) {
+                        $tblrow.find('#LabEstTotal').val(EstTotal.toFixed(2));
+                        $("#LabEstTotal").each(function () {
+                            jobPartGrandEstTotal += parseFloat(EstTotal);
+                            ii = ii + 1;
+                        });
+                        $('#EstLaborGrandTotal').val(0);
+                        var $tblrowssum = $('#grid tbody tr');
+                        var sum = 0;
+                        jobPartGrandEstTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $tblrowssum.each(function () {
+                            var $tblrowsum = $(this);
+                            var EstHourssum = $tblrowsum.find("[name=EstHours]").val();
+                            var Resalesum = $tblrowsum.find("[name=Resale]").val();
+                            if (Resalesum != 0 && EstHourssum != 0) {
+                                EstTotalsum = Resalesum * EstHourssum;
+                                if (!isNaN(EstTotalsum)) {
+                                    jobPartGrandEstTotalsum += parseFloat(EstTotalsum);
+                                }
+                            }
+                        });
+                        $('#EstLaborGrandTotal').val(jobPartGrandEstTotalsum.toFixed(2));
+                    }
+                }
+            });
+        });
+    });
+
+    $(function () {
+        $('#ActLaborGrandTotal, #LabActTotal').prop('readonly', true);
+        var $tblrows = $("#grid tbody tr");
+        jobPartGrandEstTotal = 0;
+        jobPartGrandEstTotalsum = 0;
+        EstTotalsum = 0;
+        ActTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#Resale, #ActHours, #ActTotal').on('keyup', function () {
+                var estHours = $tblrow.find("[name=ActHours]").val();
+                var Resale = $tblrow.find("[name=Resale]").val();
+                ActTotal = Resale * estHours;
+                ActTotal = isNaN(ActTotal) ? 0 : ActTotal;
+                if (Resale != 0) {
+                    if (!isNaN(ActTotal)) {
+                        $tblrow.find('#LabActTotal').val(ActTotal.toFixed(2));
+                        $("#LabActTotal").each(function () {
+                            jobPartGrandEstTotal += parseFloat(ActTotal);
+                            ii = ii + 1;
+                        });
+                        $('#ActLaborGrandTotal').val(0);
+                        var $tblrowssum = $('#grid tbody tr');
+                        var sum = 0;
+                        jobPartGrandEstTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $tblrowssum.each(function () {
+                            var $tblrowsum = $(this);
+                            var EstHourssum = $tblrowsum.find("[name=ActHours]").val();
+                            var Resalesum = $tblrowsum.find("[name=Resale]").val();
+                            if (Resalesum != 0) {
+                                EstTotalsum = Resalesum * EstHourssum;
+                                if (!isNaN(EstTotalsum)) {
+                                    jobPartGrandEstTotalsum += parseFloat(EstTotalsum);
+                                }
+                            }
+                        });
+                        $('#ActLaborGrandTotal').val(jobPartGrandEstTotalsum.toFixed(2));
+                    }
+                }
+            });
+        });
+    });
+</script>
+<style>
+   
+     table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+    .dataTables_filter {
+
+        padding-bottom: 35px;
+    }
+</style>
+ 
+
+
+  
+ <div class="col-md-20">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="ajax-refresh2">
+
+                                 @LabourGrid.GetHtml(
+            tableStyle: "table table-bordered datatables JobLabourGridData",
+            alternatingRowStyle: "alt",
+            htmlAttributes: new {id = "grid"},
+            rowStyle: "webgrid-row-style",
+            columns: LabourGrid.Columns(
+           // Grid.Column(columnName: "Select_ID", header: "Delete", format: @<text><input type="checkbox" name="assignChkBx" value="@item.Client_ID,@item.Laborer_Name" id="assignChkBx" /></text> ),
+            LabourGrid.Column("Laborer Name", format: @<text><label id="lblLaborerName" class="edit-mode" style="width:100px" >@item.Laborer_Name</label> </text>),
+            LabourGrid.Column("Cost", format: (item) => {
+                var cost = item.Value as ElectricEase.Models.Labor_DetailsInfoList;
+            return Html.TextBox("Cost", cost.Cost, new { @class = "col-md-10", @data_value = cost.Cost, @id = "Cost", });
+            }),
+            LabourGrid.Column("Burden", format: (item) => {
+                var burden = item.Value as ElectricEase.Models.Labor_DetailsInfoList;
+            return Html.TextBox("Burden", burden.Burden, new { @class = "col-md-10", @data_value = burden.Burden, @id = "Burden", });
+            }),
+            LabourGrid.Column("Resale", format: (item) => {
+                var resaleCost = item.Value as ElectricEase.Models.Labor_DetailsInfoList;
+            return Html.TextBox("Resale", resaleCost.Resale_Cost, new { @class = "col-md-10", @data_value = resaleCost.Resale_Cost, @id = "Rcost" });
+            }),
+            LabourGrid.Column("Est Hours", format: (item) => {
+                var resaleCost = item.Value as ElectricEase.Models.Labor_DetailsInfoList;
+            return Html.TextBox("EstHours", resaleCost.Estimated_Hour, new { @class = "col-md-10", @data_value = resaleCost.Estimated_Hour, @id = "EstHours" });
+            }),
+            LabourGrid.Column("Act Hours", format: (item) => {
+                var resaleCost = item.Value as ElectricEase.Models.Labor_DetailsInfoList;
+            return Html.TextBox("ActHours", resaleCost.Actual_Hours, new { @Labor_DetailsInfoList = "col-md-10", @data_value = resaleCost.Actual_Hours, @id = "ActHours" });
+            }),
+            LabourGrid.Column("Exp Total", format: (item) => {
+                var expTotal = item.Value as ElectricEase.Models.Labor_DetailsInfoList;
+                return Html.TextBox("ExpTotal", expTotal.Expected_Total, new { @class = "col-md-10", @data_value = expTotal.Expected_Total, @id = "LabExpTotal" });
+            }),
+            LabourGrid.Column("Est Total", format: (item) => {
+                var estTotal = item.Value as ElectricEase.Models.Labor_DetailsInfoList;
+                return Html.TextBox("EstTotal", estTotal.Estimated_Total, new { @class = "col-md-10", @data_value = estTotal.Estimated_Total, @id = "LabEstTotal" });
+            }),
+            LabourGrid.Column("Act Total", format: (item) => {
+                var actTotal = item.Value as ElectricEase.Models.Labor_DetailsInfoList;
+                return Html.TextBox("ActTotal", actTotal.Actual_Total, new { @class = "col-md-10", @data_value = actTotal.Actual_Total, @id = "LabActTotal" });
+                
+        })
+            )
+            )
+
+            <!-- app content here -->
+
+
+    <table class="table table-bordered datatables">
+                                <tr class=".webgrid-row-style">
+                                    <td style="padding-right:628px" >
+                                        <label for="label" id="lblTotal"><strong>Total</strong></label>
+                                    </td>
+                                    <td>
+                                       <input type="text" id="ExpLaborGrandTotal" class = "col-md-10" />
+                                    </td>
+                                    <td>
+                                       <input type="text" id="EstLaborGrandTotal" class = "col-md-10" />
+                                    </td>
+                                    <td>
+                                       <input type="text" id="ActLaborGrandTotal" class = "col-md-10" />
+                                    </td>
+                                </tr>
+                            </table>
+       
+                                </div>
+                            </div>
+                        </div>
+     </div>  
+
+    

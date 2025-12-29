@@ -1,0 +1,440 @@
+﻿@model List<ElectricEase.Models.Job_MasterInfoList>
+
+@{
+    ViewBag.Title = "JobDetailsList";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<style>
+    div#Loading {
+        display: none;
+    }
+</style>
+<script>
+    var isloaded = false;
+    $(document).ready(function () {
+        Cookies.set('Jobdtpageno', "");
+        Cookies.set('Jobdtpagelen', "");
+        Cookies.set('Jobsearch', "");
+        $('li').removeClass('active');
+        $("#jobList").addClass('active');
+
+        $(".content-title").text("Job List");
+        var assemdropdwn = document.getElementsByName("Jobtable_length");
+        var searchbox = $('#Jobtable_filter input');
+        var pagno = Cookies.get('Jobdtpageno');
+        if (pagno == null || pagno == "") {
+            pagno = 0;
+        }
+        var pagelen = Cookies.get('Jobdtpagelen');
+        if (typeof pagelen != 'undefined' && pagelen != null && pagelen != "") {
+            pagelen = Number(pagelen);
+        }
+        else {
+            pagelen = 5;
+        }
+        var table = null;
+        if (Cookies.get('Jobdtpagelen') != null && Cookies.get('Jobdtpagelen') != "") {
+            var tab = $("#Jobtable").dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "iDisplayLength": pagelen,
+                "order": [[1, "desc"]]
+            });
+            table = tab;
+            pagno = Number(pagno);
+            var total = $('.paginate_button');
+            if (total.length == 3) {
+                pagno = 0;
+            }
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('Jobsearch') != null && Cookies.get('Jobsearch') != "") {
+                tab.fnFilter(Cookies.get('Jobsearch'));
+            }
+        }
+        else {
+            var tab = $("#Jobtable").dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "order": [[1, "desc"]]
+
+            });
+            table = tab;
+            pagno = Number(pagno);
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('Jobsearch') != null && Cookies.get('Jobsearch') != "") {
+                tab.fnFilter(Cookies.get('Jobsearch'));
+            }
+        }
+        if (isloaded) {
+            //setTimeout(function () {
+            //    var ddl = $("select[name=Assemblies_Category]");
+            //    var ddlopt = $("select[name=Assemblies_Category] option");
+            //    var opt = "";
+
+            //    for (var i = 0; i < ddlopt.length; i++) {
+            //        if ($(ddlopt[i]).val() != null && $(ddlopt[i]).val() != "" && $(ddlopt[i]).val() != "1") {
+            //            $('#lstassembly_cat').append("<option value='" + $(ddlopt[i]).val() + "'>" + $(ddlopt[i]).val() + "</options>");
+            //        }
+            //    }
+            //}, 2000)
+            isloaded = true;
+        }
+        $($('#Jobtable_length')[0].parentElement).removeClass('col-sm-12')
+        $($('#Jobtable_length')[0].parentElement).addClass('table-responsive')
+        //var jobdiv = $('#Jobtable');
+        //$(jobdiv[0].parentElement).removeClass('col-sm-12');
+        //$(jobdiv[0].parentElement).addClass('table-responsive');
+        $(assemdropdwn).change(function () {
+            var len = this.value;
+            Cookies.set('Jobdtpagelen', len);
+        });
+        $('#Jobtable_filter input').on("keyup", function () {
+            Cookies.set('Jobsearch', $(this).val());
+        });
+        $('#Jobtable').on('page.dt', function () {
+            var info = this;
+            setTimeout(function () {
+                var ss = $('.paginate_button.active');
+                var pgno = ss[0].innerText;
+                if (pgno != "" && pgno != "0") {
+                    pgno = Number(pgno) - Number(1);
+                }
+                Cookies.set('Jobdtpageno', pgno);
+            }, 1000);
+            var ss = $('.paginate_button.active');
+        });
+        //var assembdiv = $('#DataTables_Table_0');
+        //$(assembdiv[0].parentElement).removeClass('col-md-12');
+        //$(assembdiv[0].parentElement).addClass('table-responsive');
+    });
+
+
+
+
+
+
+
+    //$('#Jobtable').dataTable({
+    //    "deferRender": true,
+    //    "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+    //    "sDom": '<"top"flp>rt<"bottom"pri>',
+    //    "order": [[0, "desc"]],
+    //    "responsive": true
+    //});
+
+
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/JobMaster.pdf");
+    });
+    function DeleteJobDetail(val) {
+
+        if (confirm("Are you sure you want to delete this job?")) {
+            $.ajax({
+                url: '../Job/DeleteJobDetails?JobId=' + val,
+                type: 'GET',
+                success: function (data) {
+                    if (data == "Success") {
+                        DisplayNotification(" “Job Details” deleted successfully.", "success");
+                        setTimeout(function () { window.location.reload(); }, 1000);
+                        isloaded = true;
+                        //var tablerow = $("#JoblistBody tr")
+
+                        //for (i = 0; i < tablerow.length; i++)
+                        //{
+                        //    if (tablerow[i].cells[1].innerText == val)
+                        //    {
+                        //        tablerow[i].closest('tr').remove();
+                        //    }
+                        //}
+                        //var table = $('#Jobtable').DataTable();
+                        //var info = table.page.info();
+                        //$('#Jobtable_info').html(
+                        //    'Showing ' + (info.page + 1) + ' of ' + info.pages+ ' entires.'
+                        //);
+                    }
+                    else {
+                        if (data.indexOf("can't be deleted") > 0) {
+                            alert(data);
+                        }
+                        DisplayNotification(data, "error");
+                        setTimeout(function () { window.location.reload(); }, 1000);
+                    }
+
+                },
+                error: function (err) {
+                    //DisplayNotification("success", "success")
+                }
+            });
+        }
+        else {
+            return false;
+
+        }
+    }
+    function Updatejob(val) {
+        if (confirm("Are you sure, you would like to update this job’s pricing to the most current prices in your database?")) {
+            $.ajax({
+                url: '../Job/UpdateJobDetails?JobID=' + val,
+                type: 'GET',
+                success: function (data) {
+
+                    if (data == "Success") {
+                        DisplayNotification(" “Job Parts” details updated successfully.", "success");
+                        setTimeout(function () { window.location.reload(); }, 1000);
+                        isloaded = true;
+
+                    }
+                    else {
+                        DisplayNotification(data, "error");
+                        setTimeout(function () { window.location.reload(); }, 1000);
+                    }
+                },
+                error: function (err) {
+
+                }
+            });
+        }
+
+    }
+
+    var currentJobID;
+    function ExportJobParts(Format) {
+        $.ajax({
+            url: '../Job/ExportJobParts',
+            data: { JobId: currentJobID, Format: Format },
+            type: 'post',
+            success: function () {
+                currentJobID = "";
+            },
+            error: function (err) {
+                currentJobID = "";
+            }
+        });
+    }
+    
+    function SetIdToExportJobParts(jobId) {
+        $("#HdnJobId").val(jobId); 
+    }
+
+</script>
+
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+
+    #UserColor {
+        border: none;
+        width: 20px;
+        float: right;
+        background-color: transparent;
+    }
+
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+
+    div.dataTables_paginate {
+        margin-top: 10px;
+    }
+</style>
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+
+            <!-- app content here -->
+
+            <fieldset>
+                <div id="accordion">
+
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp Job List </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+
+                    </div>
+                    <div class="row">
+                        <div id="collapseTwo" class="panel-collapse collapse in">
+                            <div class="col-md-20">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div class="ajax-refresh2">
+                                            <div class="panel-body">
+                                                <div style="max-height: 500px;">
+                                                    <table class="table table-bordered datatables" id="Jobtable">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width:8%">Job ID</th>
+                                                                <th hidden></th>
+                                                                <th style="width:8%">Job Number</th>
+                                                                <th style="width:10%">Client Name</th>
+                                                                <th style="width:10%">Job Description</th>
+                                                                <th style="width:10%">Address</th>
+                                                                <th style="width:8%">City</th>
+                                                                <th style="width:10%">Job Status</th>
+                                                                <th style="width:5%">Temp Pole</th>
+                                                                <th style="width:8%">Prices As Of</th>
+                                                                <th style="width:8%">Update Prices</th>
+                                                                <th style="width:15%">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="JoblistBody">
+                                                            @{string pricedet = "Never"; }
+                                                            @foreach (var item in Model)
+                                                            {
+                                                                <tr>
+                                                                    <td style="width:10%">
+                                                                        <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.JobDisplayId</a>
+                                                                    </td>
+                                                                    <td hidden>
+                                                                        <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.Job_ID</a>
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.Job_Number</a>
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.Client_Name</a>
+                                                                    </td>
+                                                                    <td>
+                                                                        @{
+                                                                            string desc = "";
+                                                                            desc = item.Job_Description == null ? "" : item.Job_Description;
+                                                                            if (desc.Length > 100)
+                                                                            {
+                                                                                desc = desc.Substring(0, 50) + "...";
+                                                                            }
+                                                                            <span>@desc</span>
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        @{
+                                                                            if (item.Work_Address == "" || item.Work_Address == null)
+                                                                            {
+                                                                                <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.Client_Address</a>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.Work_Address</a>
+                                                                            }
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        @{
+                                                                            if (item.Work_City == "" || item.Work_City == null)
+                                                                            {
+                                                                                <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.Client_City</a>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.Work_City</a>
+                                                                            }
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.Job_Status </a> &nbsp;&nbsp;
+                                                                        @if (item.JobAssignedList.Count > 0)
+                                                                        {
+                                                                            <img id="UserColor" src="../AppImges/assigncolor.png" />
+                                                                        }
+                                                                        @*<input type="text" name="UserColor" id="UserColor" style="border-bottom: 3px solid @color.UserColor;display:inline" class="form-control" disabled /> <br />*@
+                                                                    </td>
+                                                                    <td style="text-align:center">
+                                                                        @if (item.TempPole == true)
+                                                                        {
+                                                                            <span class="glyphicon glyphicon-ok" style="color:#5B94C7; font-size:19px;"></span>
+                                                                        }
+                                                                        @* @Html.CheckBox("TempPole", @item.TempPole, new { @class = "form-control", @readonly = "readonly" }) *@
+                                                                        @*<input type="checkbox" value="@item.TempPole" name="TempPole" id="TempPole" class="form-control"/>*@
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (item.IsPriceUpdate == true)
+                                                                        {
+                                                                            <a href="/Job/JobsIndex?JobID=@item.Job_ID">@item.PriceUpdatedDate.ToShortDateString()</a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a href="/Job/JobsIndex?JobID=@item.Job_ID">@pricedet</a>
+                                                                        }
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="#" class="confirm" onclick="Updatejob(@item.Job_ID);"><span style="font-size:17px;" class="glyphicon glyphicon-refresh"></span></a>
+                                                                    </td>
+                                                                    <td>
+                                                                        <a href="/Job/JobsIndex?JobID=@item.Job_ID"><span class="glyphicon glyphicon-pencil"></span></a>
+                                                                        <a class="confirm" id="deletebtn" href="#" onclick="DeleteJobDetail(@item.Job_ID);"><i class="icon ion-ios7-trash"></i></a>
+                                                                        <a class="confirm" data-toggle="modal" data-target="#exportModal-@item.Job_ID"  id="exportBtn" href="#"><i class="icon ion-ios7-download"></i></a>
+
+                                                                    </td>
+                                                                </tr>
+                                                                <div class="download-popup modal fade" id="exportModal-@item.Job_ID" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                                                                    <div class="modal-dialog" role="document">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                                                <h4 class="modal-title" id="myModalLabel">Parts Export - Choose the format</h4>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <ul class="list-inline">
+                                                                                    <li class="csv">
+                                                                                        @Html.ActionLink(linkText: "CSV", actionName: "ExportJobParts", controllerName: "Job", routeValues: new { JobId = @item.Job_ID, Format = "csv" }, htmlAttributes: new {  })
+                                                                                    </li>
+                                                                                    <li class="pdf">
+                                                                                        @*<a onclick="ExportJobParts('pdf')" href=""><img src="~/Images/pdf.png" alt="" /></a>*@
+                                                                                        @Html.ActionLink(linkText: "PDF", actionName: "ExportJobParts", controllerName: "Job", routeValues: new { JobId = @item.Job_ID, Format = "pdf" }, htmlAttributes: new {  })
+                                                                                    </li>
+                                                                                    <li class="excel">
+                                                                                        @*<a onclick="ExportJobParts('excel')" href=""><img src="~/Images/Excel-icon.png" alt="" /></a>*@
+                                                                                        @Html.ActionLink(linkText: "XLSX", actionName: "ExportJobParts", controllerName: "Job", routeValues: new { JobId = @item.Job_ID, Format = "xlsx" }, htmlAttributes: new {  })
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->

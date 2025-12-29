@@ -1,0 +1,234 @@
+﻿@model List<ElectricEase.Models.AssembliesLabourDetailsList>
+
+@{
+    Layout = null;
+    var Grid = new WebGrid(source: Model, canPage: false, canSort: false);
+}
+
+<script>
+
+    //
+    // Updates "Select all" control in a data table
+    //
+    function updateDataTableSelectAllCtrl(table) {
+        var $table = table.table().node();
+        var $chkbox_all = $('tbody input[type="checkbox"]', $table);
+        var $chkbox_checked = $('tbody input[type="checkbox"]:checked', $table);
+        var chkbox_select_all = $('thead input[name="select_all"]', $table).get(0);
+
+        // If none of the checkboxes are checked
+        if ($chkbox_checked.length === 0) {
+
+            chkbox_select_all.checked = false;
+            if ('indeterminate' in chkbox_select_all) {
+                chkbox_select_all.indeterminate = false;
+            }
+
+            // If all of the checkboxes are checked
+        } else if ($chkbox_checked.length === $chkbox_all.length) {
+            chkbox_select_all.checked = true;
+            if ('indeterminate' in chkbox_select_all) {
+                chkbox_select_all.indeterminate = false;
+            }
+
+            // If some of the checkboxes are checked
+        } else {
+            chkbox_select_all.checked = true;
+            if ('indeterminate' in chkbox_select_all) {
+                chkbox_select_all.indeterminate = true;
+            }
+        }
+    }
+
+    $(document).ready(function () {
+        // alert('funcation calling');
+        var rows_selected = [];
+        $("#LabourGird").dataTable({
+            //"aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+            //"aLengthMenu": [[-1, 5, 10, 25], ["All", 5, 10, 25]],
+            "bPaginate": false,
+           // scrollY: '100vh',
+            "bLengthChange": false,
+            'columnDefs': [{
+                'targets': 0,
+                'searchable': false,
+                'orderable': false,
+                'className': 'dt-body-center',
+                'render': function (data, type, full, meta) {
+                    return '<input type="checkbox">';
+                }
+            }],
+            columnDefs: [{
+                orderable: false,
+                className: 'select-checkbox',
+                targets: 0
+            }],
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
+            order: [[1, 'asc']]
+        });
+    });
+
+    $(document).ready(function () {
+
+        // 1st replace first column header text with checkbox
+
+        $("#LabourGird th").each(function () {
+            if ($.trim($(this).text().toString().toLowerCase()) === "{checkall}") {
+                $(this).text('');
+                $("<input/>", { type: "checkbox", id: "cbSelectAll", value: "" }).appendTo($(this));
+                $(this).append("<span>Select All</span>");
+            }
+            var totalRows = $("#LabourGird td :checkbox").length;
+            var checked = $("#LabourGird td :checkbox:checked").length;
+
+            if (checked == totalRows) {
+                $("#LabourGird").find("input:checkbox").each(function () {
+                    this.checked = true;
+                });
+            }
+            else {
+                $("#cbSelectAll").removeAttr("checked");
+            }
+        });
+
+        //2nd click event for header checkbox for select /deselect all
+        $("#cbSelectAll").live("click", function () {
+            var ischecked = this.checked;
+            $('#LabourGird').find("input:checkbox").each(function () {
+                this.checked = ischecked;
+            });
+        });
+
+
+        //3rd click event for checkbox of each row
+        $("input[name='assignChkBx']").click(function () {
+            var totalRows = $("#LabourGird td :checkbox").length;
+            var checked = $("#LabourGird td :checkbox:checked").length;
+
+            if (checked == totalRows) {
+                $("#LabourGird").find("input:checkbox").each(function () {
+                    this.checked = true;
+                });
+            }
+            else {
+                $("#cbSelectAll").removeAttr("checked");
+            }
+        });
+
+    });
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+</head>
+<body>
+    @{
+            //  var parts = TempData["MyParts"];
+    }
+
+    <div class="modal-content" style="height: 600px; width: 100%; overflow: scroll;">
+        <div class="modal-header" style="background-color: #3D81BD; height: 35px;">
+            <button type="button" class="close" data-dismiss="modal" style="color: #fff !important;">&times;</button>
+            <h4 class="modal-title" style="color: #FFF !important;">Add Labour Details</h4>
+        </div>
+        @using (Html.BeginForm("AddLaborDetailsInWebGrid", "Assemblies_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+        {
+            <div class="modal-body">
+
+                <div class="app-body" id="Scroll">
+
+                    <!-- app content here -->
+
+                    <div class="magic-layoutz">
+
+                        <div class="box magic-element width-full">
+                            <fieldset>
+                                <div id="accordion">
+                                     <div class="row">
+                                    <div class="row-fluid">
+                                         
+                                                <div class="pull-right">
+                                                    <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" id="submit" tabindex="10">Submit</button>
+                                            </div>
+                                              
+                                        </div>
+                                         </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="panel panel-default">
+                                                 
+                                                <div class="panel-body">
+                                                    <input  type="hidden" name="Assemblies_Name" value="@ViewBag.AssembliesName"/>
+                                                    <input  type="hidden" name="Assemblies_Description" value="@ViewBag.Description"/>
+                                                   
+                                                    @Grid.GetHtml(
+                                                       tableStyle: "table table-bordered datatables",
+                                                       htmlAttributes: new { id = "LabourGird" },
+                                                        alternatingRowStyle: "alt",
+                                                       columns: Grid.Columns(
+                                                       Grid.Column(columnName: "Select_ID", style: "null", header: "{checkall}", format: @<text><input type="checkbox" name="assignChkBx" checked="@item.isChekced" value="@item.Client_ID,@item.Laborer_Name" id="assignChkBx" /></text>),
+                // Grid.Column(columnName: "Client_ID", header: "Client Company"),
+                                                       Grid.Column(columnName: "Laborer_Name", header: "Laborer Name"),
+                                                       Grid.Column(columnName: "Labor_Category", header: "Labor Category"),
+                                                        Grid.Column(columnName: "Cost", header: "Cost"),
+                                                       Grid.Column(columnName: "Resale_Cost", header: "Resale Cost"),
+                                                       Grid.Column(columnName: "Burden", header: "Burden")
+                //Grid.Column(columnName: "Purchased_From", header: "Purchased_From")
+                //Grid.Column(header: "Action", format: @<text><a href="/Client_Master/EditClientMaster?id=@item.Client_ID">  <span class="glyphicon glyphicon-pencil"></span></a>&nbsp;&nbsp;&nbsp;<a id="deletebtn" href="/Client_Master/DeleteClient?id=@item.Client_ID"><span class="glyphicon glyphicon-trash"></span></a></text>)
+
+                                                       )
+                                                       )
+
+                                                    
+                                               
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                        
+
+                                    <div class="row-fluid">
+                                                <div class="pull-right">
+                                                    <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" id="submit" tabindex="10">Submit</button>
+                                            </div>
+                                       
+                                    </div>
+                                    </div>
+                                    </div>
+                            </fieldset>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- app content here -->
+                </div>
+            </div>
+        }
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,244 @@
+﻿@*@model ElectricEase.Models.Client_MasterInfo*@
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+
+                //var Grid = new WebGrid(source: Model.ClientList, canPage: false, canSort: false, ajaxUpdateContainerId: "container-grid");
+}
+
+
+
+<script type="text/javascript"> 
+    $(document).on('click', '.confirm', function () {
+        message = "Are you sure, you want to Delete this user?"
+        if (confirm(message))
+            return true;
+        else
+            return false;
+
+    });
+
+
+    $(document).ready(function () {
+        Cookies.set('Clientdtpagelen', "");
+        Cookies.set('Clienttpageno', "");
+        Cookies.set('Clientearch', "");
+        //alert("jiii");
+        $('li').removeClass('active');
+        $("#clientmaster").addClass('active');
+        //alert("active");
+        //To change content tittles
+        $(".content-title").text("Client Master");
+
+    });
+    $("#Ljob").click(function () {
+        //alert("dsfsdfsdf");
+        $(this).addClass('active').siblings().removeClass('active');
+
+        $(".content-title").hide();
+        //var activepage = $('a', this).attr("href");
+        //$(activepage).show();
+        // document.title = $('h1', activepage).first().text();
+        // $('title').text(document.title);
+        return false;
+    });
+
+    $(function () {
+        $("#deletebtn").click(function () {
+            alert("Are sure Want To Delete This Client?");
+            return true;
+        });
+    });
+
+
+    $(function () {
+        
+        $("#Addbtn").click(function () {
+            
+
+            if ($("#SuperUser").val() == "") {
+                DisplayNotification("“Client Admin ID” is required!", "error");
+                return false;
+            }
+            if ($("#SuperUser_Pwd").val() == "") {
+                DisplayNotification("“Password” is required!", "error");
+                return false;
+            }
+
+            if ($("#Client_Company").val() == "") {
+                DisplayNotification("“Client Company” is required!", "error");
+                return false;
+            }
+            if ($("#Contact_person").val() == "") {
+                DisplayNotification("“Contact Person” is required!", "error");
+                return false;
+            }
+
+            var characterReg = /^[0-9-+]+$/;
+            // var reg = /^[2-9]\d{2}-\d{3}-\d{4}$/;
+            var phoneno = $("#Phone").val();
+            if (phoneno != "") {
+                if (phoneno.length < 10) {
+                    DisplayNotification("Invalid “Phone Number”!", "error");
+                    return false;
+                }
+                if (!phoneno.match(characterReg)) {
+                    DisplayNotification("Invalid “Phone Number”!", "error");
+                    return false;
+
+                }
+            }
+            else {
+                DisplayNotification("“Phone Number” is required!", "error");
+                return false;
+            }
+            if ($("#Email").val() == "") {
+                DisplayNotification("Email  is Required", "error");
+                return false;
+            }
+            var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+            var email = $("#Email").val();
+            if (!email.match(emailReg))
+            {
+                DisplayNotification("“Email” is invalid!", "error");
+                return false;
+            }
+
+            if (validateEmail($("#Email").val())) {
+                
+                DisplayNotification("“Email Logo” is required!", "error");
+                return false;
+            }
+            if ($("#fileupload").val() == "") {
+                DisplayNotification("“Client Logo” is required!", "error");
+                return false;
+            }
+            
+            //var characterReg = /^[0-9-+]+$/;
+            var reg = /^[2-9]\d{2}-\d{3}-\d{4}$/;
+            var mobileno = $("#Mobile").val();
+            if (mobileno != "") {
+                if (mobileno.length < 10) {
+
+                    DisplayNotification("Invalid “Mobile Number”!", "error");
+                    return false;
+                }
+                if (!mobileno.match(characterReg)) {
+
+                    DisplayNotification("Invalid “Mobile Number”!", "error");
+                    return false;
+                }
+            }
+
+
+            if ($("#Client_Company").val() != "" && $("#Contact_person").val() != "" && $("#Phone").val() != "" && $("#Email").val() != "" && $("#fileupload").val() != "" && $("#SuperUser").val() != "" && $("#SuperUser_Pwd").val() != "") {
+                return true;
+            }
+            else {
+                DisplayNotification("Please fill “All” required (*) field.", "error");
+                return false;
+            }
+
+        });
+    });
+</script>
+<style>
+    .controls > input,
+    .controls > select,
+    .controls > .row,
+    .controls > .input-group,
+    .controls > .form-group > .input-group {
+        margin-bottom: 15px;
+    }
+
+    /*#example tr.alt td {
+        color: #000000;
+        background-color: #E4E9F5;
+    }
+
+    .alt {
+        background-color: #34495e;
+        color: #000;
+    }*/
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+</style>
+
+
+
+
+
+
+
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+
+
+            @*<form class="form-horizontal" role="form">*@
+            @if (ViewBag.SuccessMsg != null)
+            { 
+                <script>
+                    DisplayNotification("@ViewBag.SuccessMsg", "success");
+                </script>
+            }
+            @if (ViewBag.DeleteSucessMsg != null)
+            { 
+                <script>
+                    DisplayNotification("@ViewBag.DeleteSucessMsg", "success");
+                </script>
+            }
+            @if (ViewBag.UpdateErrorMsg != null)
+            { 
+                <script>
+                    DisplayNotification("@ViewBag.UpdateErrorMsg", "error");
+                </script>
+            }
+            @if (ViewBag.UpdateSucessMsg != null)
+            { 
+                <script>
+                    DisplayNotification("@ViewBag.UpdateSucessMsg", "success");
+                </script>
+            }
+
+            @if (ViewBag.DeleteFailMsg != null)
+            { 
+                <script>
+                    DisplayNotification("@ViewBag.DeleteFailMsg", "error");
+                </script>
+            }
+
+            @if (ViewBag.ADDFailMsg != null)
+            { 
+                <script>
+                    DisplayNotification("@ViewBag.ADDFailMsg", "error");
+                </script>
+            }
+
+
+            @if (ViewBag.Edit == "Edit")
+            {
+                // @Html.Partial("_EditClientMaster", new ElectricEase.Models.EditClient_MasterInfo())
+                <div id="editContent">
+                    Html.RenderAction("EditClientMaster", "Client_Master");
+
+                </div>
+
+            }
+            else
+            {
+                @Html.Partial("_AddNewClient", new ElectricEase.Models.Client_MasterInfo())
+            }
+
+        </div>
+    </div>
+</div>

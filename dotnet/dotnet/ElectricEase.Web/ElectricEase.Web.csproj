@@ -1,0 +1,1238 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{38E97166-9078-41AE-893B-D8DADEF1AFB2}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ElectricEase.Web</RootNamespace>
+    <AssemblyName>ElectricEase.Web</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <MvcProjectUpgradeChecked>true</MvcProjectUpgradeChecked>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>4.0</OldToolsVersion>
+    <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ClosedXML, Version=0.94.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClosedXML.0.94.2\lib\net40\ClosedXML.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.7.2.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.7.2\lib\net40\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="FastMember, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FastMember.1.3.0\lib\net45\FastMember.dll</HintPath>
+    </Reference>
+    <Reference Include="GridMvc">
+      <HintPath>..\packages\Grid.Mvc.3.0.0\lib\net40\GridMvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Ionic.Zip, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ionic.Zip.1.9.1.8\lib\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="Ionic.Zlib, Version=1.9.1.5, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ionic.Zlib.1.9.1.5\lib\Ionic.Zlib.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.1, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.1\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.pdfa, Version=5.5.13.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itextsharp.pdfa.5.5.13\lib\itextsharp.pdfa.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.xmlworker, Version=5.5.13.1, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itextsharp.xmlworker.5.5.13.1\lib\itextsharp.xmlworker.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>Resource\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.DataVisualization, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.DataVisualization.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Design, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.Design.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.ProcessingObjectModel.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebDesign, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.WebDesign.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebForms, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.WebForms.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WinForms, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.WinForms.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Types.11.0.1\lib\net20\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PredicateBuilder, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PredicateBuilder.1.0.0\lib\netstandard1.0\PredicateBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Data">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.Entity">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Cors, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Cors.5.2.7\lib\net45\System.Web.Cors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.DynamicData">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Entity">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.ApplicationServices">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Core">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.Cors, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Cors.5.2.7\lib\net45\System.Web.Http.Cors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Extensions">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Abstractions">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Routing">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Configuration">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Transactions">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Services">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.EnterpriseServices">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20710.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.0.0\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.20710.0\lib\net40\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="WebMatrix.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.Data.2.0.20710.0\lib\net40\WebMatrix.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.WebPages.OAuth, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.OAuth.2.0.20710.0\lib\net40\Microsoft.Web.WebPages.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="WebMatrix.WebData, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.WebData.2.0.20710.0\lib\net40\WebMatrix.WebData.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.AspNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\DotNetOpenAuth.AspNet.4.0.3.12153\lib\net40-full\DotNetOpenAuth.AspNet.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\DotNetOpenAuth.Core.4.0.3.12153\lib\net40-full\DotNetOpenAuth.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.OAuth.Consumer, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\DotNetOpenAuth.OAuth.Consumer.4.0.3.12153\lib\net40-full\DotNetOpenAuth.OAuth.Consumer.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.OAuth, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\DotNetOpenAuth.OAuth.Core.4.0.3.12153\lib\net40-full\DotNetOpenAuth.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.OpenId, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\DotNetOpenAuth.OpenId.Core.4.0.3.12153\lib\net40-full\DotNetOpenAuth.OpenId.dll</HintPath>
+    </Reference>
+    <Reference Include="DotNetOpenAuth.OpenId.RelyingParty, Version=4.0.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\DotNetOpenAuth.OpenId.RelyingParty.4.0.3.12153\lib\net40-full\DotNetOpenAuth.OpenId.RelyingParty.dll</HintPath>
+    </Reference>
+    <Reference Include="WebGrease">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.1.0\lib\WebGrease.dll</HintPath>
+    </Reference>
+    <Reference Include="Antlr3.Runtime">
+      <Private>True</Private>
+      <HintPath>..\packages\WebGrease.1.1.0\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\AuthConfig.cs" />
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Authorozation\CustomAuthorization.cs" />
+    <Compile Include="ClientEstimationReport.aspx.cs">
+      <DependentUpon>ClientEstimationReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ClientEstimationReport.aspx.designer.cs">
+      <DependentUpon>ClientEstimationReport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Controllers\Account_MasterController.cs" />
+    <Compile Include="Controllers\AjaxController.cs" />
+    <Compile Include="Controllers\AppController.cs" />
+    <Compile Include="Controllers\Assemblies_MasterController.cs" />
+    <Compile Include="Controllers\Client_MasterController.cs" />
+    <Compile Include="Controllers\DistributorAssemblyController.cs" />
+    <Compile Include="Controllers\DistributorController.cs" />
+    <Compile Include="Controllers\DistributorPartsController.cs" />
+    <Compile Include="Controllers\JobController.cs" />
+    <Compile Include="Controllers\JobsController.cs" />
+    <Compile Include="Controllers\Labour_MasterController.cs" />
+    <Compile Include="Controllers\Legal_MasterController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\MasterController.cs" />
+    <Compile Include="Controllers\MobileAppController.cs" />
+    <Compile Include="Controllers\NationwideAssemblyController.cs" />
+    <Compile Include="Controllers\NationwidePartsController.cs" />
+    <Compile Include="Controllers\PartsExcelExportController.cs" />
+    <Compile Include="Controllers\Parts_MasterController.cs" />
+    <Compile Include="Controllers\ReportsController.cs" />
+    <Compile Include="Controllers\TimeSheetController.cs" />
+    <Compile Include="ElectricEaseDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ElectricEaseDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="ElectricEaseDataSet1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ElectricEaseDataSet1.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="ElectricEaseDataSetClient.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ElectricEaseDataSetClient.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="ElectricEaseDataSetClients.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ElectricEaseDataSetClients.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="JobAssemblyPartsDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JobAssemblyPartsDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="JobLaborDataSet.cs">
+      <DependentUpon>JobLaborDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="JobLaborDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JobLaborDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="JobLaborDataSet1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JobLaborDataSet1.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="JobPartsDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JobPartsDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="JobReportAttachment.cs">
+      <DependentUpon>JobReportAttachment.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="JobReportAttachment.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JobReportAttachment.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlServerTypes\Loader.cs" />
+    <Compile Include="Views\Shared\ClientEstimationReportView.aspx.cs">
+      <DependentUpon>ClientEstimationReportView.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Shared\ClientEstimationReportView.aspx.designer.cs">
+      <DependentUpon>ClientEstimationReportView.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Shared\JobDescriptionReportView.aspx.cs">
+      <DependentUpon>JobDescriptionReportView.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Shared\JobDescriptionReportView.aspx.designer.cs">
+      <DependentUpon>JobDescriptionReportView.aspx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\packages\Microsoft.SqlServer.Types.11.0.1\nativeBinaries\x64\msvcr100.dll">
+      <Link>SqlServerTypes\x64\msvcr100.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\packages\Microsoft.SqlServer.Types.11.0.1\nativeBinaries\x64\SqlServerSpatial110.dll">
+      <Link>SqlServerTypes\x64\SqlServerSpatial110.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\packages\Microsoft.SqlServer.Types.11.0.1\nativeBinaries\x86\msvcr100.dll">
+      <Link>SqlServerTypes\x86\msvcr100.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\packages\Microsoft.SqlServer.Types.11.0.1\nativeBinaries\x86\SqlServerSpatial110.dll">
+      <Link>SqlServerTypes\x86\SqlServerSpatial110.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="AppImges\activeicon.png" />
+    <Content Include="AppImges\admin.jpg" />
+    <Content Include="AppImges\arrow.png" />
+    <Content Include="AppImges\assigncolor.png" />
+    <Content Include="AppImges\bg-signin.png" />
+    <Content Include="AppImges\bg-signin1.jpg" />
+    <Content Include="AppImges\bg-signinold.jpg" />
+    <Content Include="AppImges\bg.jpg" />
+    <Content Include="AppImges\brand-md_old.png" />
+    <Content Include="AppImges\Brand.gif" />
+    <Content Include="AppImges\brand.png" />
+    <Content Include="AppImges\brand2.png" />
+    <Content Include="AppImges\brand_logo.png" />
+    <Content Include="AppImges\brand_old.png" />
+    <Content Include="AppImges\calendar.gif" />
+    <Content Include="AppImges\calender.png" />
+    <Content Include="AppImges\cover-blur.jpg" />
+    <Content Include="AppImges\cover.jpg" />
+    <Content Include="AppImges\cross_icon.jpg" />
+    <Content Include="AppImges\eaee.jpe" />
+    <Content Include="AppImges\easeelectric.gif" />
+    <Content Include="AppImges\eease1.png" />
+    <Content Include="AppImges\eee.jpg" />
+    <Content Include="AppImges\ElectricEase.png" />
+    <Content Include="AppImges\es.jpg" />
+    <Content Include="AppImges\fa-check-circle.png" />
+    <Content Include="AppImges\help.jpg" />
+    <Content Include="AppImges\imageedit_19_4632053613.jpg" />
+    <Content Include="AppImges\inactiveicon.png" />
+    <Content Include="AppImges\kbElectric.png" />
+    <Content Include="AppImges\kblogo.jpg" />
+    <Content Include="AppImges\logo-left.gif" />
+    <Content Include="AppImges\logo.png" />
+    <Content Include="AppImges\logo_electricease.jpg" />
+    <Content Include="AppImges\logo_electricease.png" />
+    <Content Include="AppImges\minus.png" />
+    <Content Include="AppImges\plus.png" />
+    <Content Include="AppImges\plusgrey.png" />
+    <Content Include="AppImges\product.png" />
+    <Content Include="AppImges\Productold.png" />
+    <Content Include="AppImges\profile1.png" />
+    <Content Include="AppImges\red balck.jpg" />
+    <Content Include="AppImges\showcase.png" />
+    <Content Include="AppImges\sidebar.jpg" />
+    <Content Include="AppImges\signin1.png" />
+    <Content Include="AppImges\signin2.png" />
+    <Content Include="AppImges\signinimg.png" />
+    <Content Include="AppImges\sortascdesc.png" />
+    <Content Include="AppImges\sorting_both.png" />
+    <Content Include="AppImges\sort_asc.png" />
+    <Content Include="AppImges\sort_asc_disabled.png" />
+    <Content Include="AppImges\sort_both.jpe" />
+    <Content Include="AppImges\sort_desc.png" />
+    <Content Include="AppImges\sort_desc_disabled.png" />
+    <Content Include="AppImges\thumb1.jpg" />
+    <Content Include="AppImges\thumb10.jpg" />
+    <Content Include="AppImges\thumb11.jpg" />
+    <Content Include="AppImges\thumb12.jpg" />
+    <Content Include="AppImges\thumb2.jpg" />
+    <Content Include="AppImges\thumb3.jpg" />
+    <Content Include="AppImges\thumb4.jpg" />
+    <Content Include="AppImges\thumb5.jpg" />
+    <Content Include="AppImges\thumb6.jpg" />
+    <Content Include="AppImges\thumb7.jpg" />
+    <Content Include="AppImges\thumb8.jpg" />
+    <Content Include="AppImges\top_arr.png" />
+    <Content Include="AppImges\upload.png" />
+    <Content Include="AppImges\Visen.jpg" />
+    <Content Include="AppImges\wplus.png" />
+    <Content Include="ClientEstimationReport.aspx" />
+    <Content Include="Content\all.css" />
+    <Content Include="Content\boot.theme.css" />
+    <Content Include="Content\bootstrap-colorpicker.min.css" />
+    <Content Include="Content\bootstrap-datetimepicker.min.css" />
+    <Content Include="Content\bootstrap-markdown.min.css" />
+    <Content Include="Content\bootstrap-toggle.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\bootstrap3-wysihtml5.css" />
+    <Content Include="Content\buttons.css" />
+    <Content Include="Content\chosen.min.css" />
+    <Content Include="Content\common.css" />
+    <Content Include="Content\components.css" />
+    <Content Include="Content\Datable.Bootstrap.css" />
+    <Content Include="Content\DataTable.min.css" />
+    <Content Include="Content\datatables.css" />
+    <Content Include="Content\daterangepicker-bs3.css" />
+    <Content Include="Content\dependencies.css" />
+    <Content Include="Content\dropzone.css" />
+    <Content Include="Content\flat\_all.css" />
+    <Content Include="Content\font-awesome.css" />
+    <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\fonts\ionicons.svg" />
+    <Content Include="Content\forms.css" />
+    <Content Include="Content\fullcalendar.css" />
+    <Content Include="Content\fullcalendar.min.css" />
+    <Content Include="Content\fullcalendar.print.css" />
+    <Content Include="Content\fullcalender.print.css" />
+    <Content Include="Content\futurico\futurico.css" />
+    <Content Include="Content\Gridmvc.css" />
+    <Content Include="Content\helper.css" />
+    <Content Include="Content\ionicons.min.css" />
+    <Content Include="Content\jquery.dropdown.css" />
+    <Content Include="Content\line\_all.css" />
+    <Content Include="Content\main-desktop.css" />
+    <Content Include="Content\main-large-desktop.css" />
+    <Content Include="Content\main-phone.css" />
+    <Content Include="Content\main-tablet.css" />
+    <Content Include="Content\main.css" />
+    <Content Include="Content\messenger-theme-air.css" />
+    <Content Include="Content\messenger-theme-flat.css" />
+    <Content Include="Content\messenger-theme-future.css" />
+    <Content Include="Content\messenger.css" />
+    <Content Include="Content\minimal\_all.css" />
+    <Content Include="Content\multi-select.css" />
+    <Content Include="Content\polaris\polaris.css" />
+    <Content Include="Content\select2.css" />
+    <Content Include="Content\select2.min.css" />
+    <Content Include="Content\square\_all.css" />
+    <Content Include="Content\sweetalert.css" />
+    <Content Include="Content\syrena-admin-theme-default.css" />
+    <Content Include="Content\syrena-admin.css" />
+    <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Content\themes\base\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Content\themes\base\images\ui-icons_222222_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_454545_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_888888_256x240.png" />
+    <Content Include="Content\themes\base\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Content\themes\base\jquery-ui.css" />
+    <Content Include="Content\themes\base\jquery.ui.accordion.css" />
+    <Content Include="Content\themes\base\jquery.ui.all.css" />
+    <Content Include="Content\themes\base\jquery.ui.autocomplete.css" />
+    <Content Include="Content\themes\base\jquery.ui.base.css" />
+    <Content Include="Content\themes\base\jquery.ui.button.css" />
+    <Content Include="Content\themes\base\jquery.ui.core.css" />
+    <Content Include="Content\themes\base\jquery.ui.datepicker.css" />
+    <Content Include="Content\themes\base\jquery.ui.dialog.css" />
+    <Content Include="Content\themes\base\jquery.ui.progressbar.css" />
+    <Content Include="Content\themes\base\jquery.ui.resizable.css" />
+    <Content Include="Content\themes\base\jquery.ui.selectable.css" />
+    <Content Include="Content\themes\base\jquery.ui.slider.css" />
+    <Content Include="Content\themes\base\jquery.ui.tabs.css" />
+    <Content Include="Content\themes\base\jquery.ui.theme.css" />
+    <Content Include="Content\themes\base\minified\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Content\themes\base\minified\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Content\themes\base\minified\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Content\themes\base\minified\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Content\themes\base\minified\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Content\themes\base\minified\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Content\themes\base\minified\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Content\themes\base\minified\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Content\themes\base\minified\images\ui-icons_222222_256x240.png" />
+    <Content Include="Content\themes\base\minified\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Content\themes\base\minified\images\ui-icons_454545_256x240.png" />
+    <Content Include="Content\themes\base\minified\images\ui-icons_888888_256x240.png" />
+    <Content Include="Content\themes\base\minified\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Content\themes\base\minified\jquery-ui.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.accordion.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.autocomplete.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.button.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.core.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.datepicker.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.dialog.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.progressbar.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.resizable.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.selectable.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.slider.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
+    <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
+    <Content Include="Content\typography.css" />
+    <Content Include="Content\wickedpicker.css" />
+    <Content Include="Content\wickedpicker.min.css" />
+    <Content Include="css\animate.css" />
+    <Content Include="css\bootstrap-theme.css" />
+    <Content Include="css\bootstrap-theme.min.css" />
+    <Content Include="css\bootstrap.css" />
+    <Content Include="css\bootstrap.min.css" />
+    <Content Include="css\dataTables.tableTools.css" />
+    <Content Include="css\font-awesome.css" />
+    <Content Include="css\font-awesome.min.css" />
+    <Content Include="css\fonts\fontawesome-webfont.svg" />
+    <Content Include="css\style-responsive.css" />
+    <Content Include="DistributorImages\300x200.png" />
+    <Content Include="DistributorImages\img1.png" />
+    <Content Include="dist\css\bootstrap-colorpicker.css" />
+    <Content Include="dist\css\bootstrap-colorpicker.min.css" />
+    <Content Include="dist\img\bootstrap-colorpicker\alpha-horizontal.png" />
+    <Content Include="dist\img\bootstrap-colorpicker\alpha.png" />
+    <Content Include="dist\img\bootstrap-colorpicker\hue-horizontal.png" />
+    <Content Include="dist\img\bootstrap-colorpicker\hue.png" />
+    <Content Include="dist\img\bootstrap-colorpicker\saturation.png" />
+    <Content Include="dist\js\bootstrap-colorpicker.js" />
+    <Content Include="dist\js\bootstrap-colorpicker.min.js" />
+    <Content Include="EmailTempLates\AssembliesExp.html" />
+    <Content Include="EmailTempLates\ForgetPassowrd.html" />
+    <Content Include="EmailTempLates\Registration.html" />
+    <Content Include="favicon1.ico" />
+    <Content Include="fonts\dash-icons.svg" />
+    <Content Include="fonts\dashicons.svg" />
+    <Content Include="fonts\fontawesome-webfont.svg" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Global.asax" />
+    <Content Include="Content\fonts\ionicons.eot" />
+    <Content Include="Content\fonts\ionicons.ttf" />
+    <Content Include="Content\fonts\ionicons.woff" />
+    <Content Include="Grid.mvc.readme" />
+    <Content Include="css\bootstrap-theme.css.map" />
+    <Content Include="css\bootstrap.css.map" />
+    <Content Include="contact.php" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="ElectricEaseDataSet.xsc">
+      <DependentUpon>ElectricEaseDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="css\fonts\fontawesome-webfont.eot" />
+    <Content Include="css\fonts\fontawesome-webfont.ttf" />
+    <Content Include="css\fonts\fontawesome-webfont.woff" />
+    <Content Include="css\fonts\fontawesome-webfont.woff2" />
+    <Content Include="css\fonts\FontAwesome.otf" />
+    <Content Include="css\scss\font-awesome.scss" />
+    <Content Include="css\scss\_animated.scss" />
+    <Content Include="css\scss\_bordered-pulled.scss" />
+    <Content Include="css\scss\_core.scss" />
+    <Content Include="css\scss\_fixed-width.scss" />
+    <Content Include="css\scss\_icons.scss" />
+    <Content Include="css\scss\_larger.scss" />
+    <Content Include="css\scss\_list.scss" />
+    <Content Include="css\scss\_mixins.scss" />
+    <Content Include="css\scss\_path.scss" />
+    <Content Include="css\scss\_rotated-flipped.scss" />
+    <Content Include="css\scss\_stacked.scss" />
+    <Content Include="css\scss\_variables.scss" />
+    <Content Include="css\less\animated.less" />
+    <Content Include="css\less\bordered-pulled.less" />
+    <Content Include="css\less\core.less" />
+    <Content Include="css\less\fixed-width.less" />
+    <Content Include="css\less\font-awesome.less" />
+    <Content Include="css\less\icons.less" />
+    <Content Include="css\less\larger.less" />
+    <Content Include="css\less\list.less" />
+    <Content Include="css\less\mixins.less" />
+    <Content Include="css\less\path.less" />
+    <Content Include="css\less\rotated-flipped.less" />
+    <Content Include="css\less\stacked.less" />
+    <Content Include="css\less\variables.less" />
+    <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="Content\bootstrap-theme.min.css.map" />
+    <Content Include="Content\bootstrap.css.map" />
+    <Content Include="Content\bootstrap.min.css.map" />
+    <Content Include="css\bootstrap-colorpicker.css.map" />
+    <Content Include="dist\css\bootstrap-colorpicker.css.map" />
+    <Content Include="dist\css\bootstrap-colorpicker.min.css.map" />
+    <Content Include="Content\ExcelFiles\TimeSheet.xlsx" />
+    <Content Include="Content\ExcelFiles\TimeSheet_TS0008_from_2018-12-31_to_2019-01-06.xlsx" />
+    <None Include="ElectricEaseDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ElectricEaseDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="ElectricEaseDataSet.xss">
+      <DependentUpon>ElectricEaseDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="ElectricEaseDataSet1.xsc">
+      <DependentUpon>ElectricEaseDataSet1.xsd</DependentUpon>
+    </Content>
+    <None Include="ElectricEaseDataSet1.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ElectricEaseDataSet1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="ElectricEaseDataSet1.xss">
+      <DependentUpon>ElectricEaseDataSet1.xsd</DependentUpon>
+    </Content>
+    <Content Include="Images\482.gif" />
+    <Content Include="Images\active-bg.png" />
+    <Content Include="Images\arrow-down-2.ico" />
+    <Content Include="Images\arrow-up-2.png" />
+    <Content Include="Images\background02.jpg" />
+    <Content Include="Images\background1.jpg" />
+    <Content Include="Images\background1.png" />
+    <Content Include="Images\background2.jpg" />
+    <Content Include="Images\csv.png" />
+    <Content Include="Images\default_logo.png" />
+    <Content Include="Images\del.png" />
+    <Content Include="Images\delete-photo.png" />
+    <Content Include="Images\delete.png" />
+    <Content Include="Images\deleteicon.png" />
+    <Content Include="favicon.ico" />
+    <Content Include="Images\direction_arrow_blue_down.png" />
+    <Content Include="Images\direction_arrow_blue_up.png" />
+    <Content Include="Images\down-arrow.png" />
+    <Content Include="Images\download.png" />
+    <Content Include="Images\download.svg" />
+    <Content Include="Images\edit.svg" />
+    <Content Include="Images\eeicon_new.png" />
+    <Content Include="Images\Excel-icon.png" />
+    <Content Include="Images\logo-sticky.png" />
+    <Content Include="Images\logo1.png" />
+    <Content Include="Images\mmenu.png" />
+    <Content Include="Images\pdf.png" />
+    <Content Include="Images\Percent-128.png" />
+    <Content Include="Images\trash.svg" />
+    <Content Include="Images\up-arrow.png" />
+    <Content Include="Images\upload.png" />
+    <Content Include="Images\view.png" />
+    <Content Include="Images\view.svg" />
+    <Content Include="JobPartsDataSet.xsc">
+      <DependentUpon>JobPartsDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="JobLaborDataSet.xsc">
+      <DependentUpon>JobLaborDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="JobAssemblyPartsDataSet.xsc">
+      <DependentUpon>JobAssemblyPartsDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="ElectricEaseDataSetClient.xsc">
+      <DependentUpon>ElectricEaseDataSetClient.xsd</DependentUpon>
+    </Content>
+    <None Include="ElectricEaseDataSetClient.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ElectricEaseDataSetClient.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="ElectricEaseDataSetClient.xss">
+      <DependentUpon>ElectricEaseDataSetClient.xsd</DependentUpon>
+    </Content>
+    <Content Include="ElectricEaseDataSetClients.xsc">
+      <DependentUpon>ElectricEaseDataSetClients.xsd</DependentUpon>
+    </Content>
+    <None Include="ElectricEaseDataSetClients.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ElectricEaseDataSetClients.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="ElectricEaseDataSetClients.xss">
+      <DependentUpon>ElectricEaseDataSetClients.xsd</DependentUpon>
+    </Content>
+    <Content Include="fonts\dash-icons.eot" />
+    <Content Include="fonts\dash-icons.ttf" />
+    <Content Include="HelpPdf\AssemblyMaster.pdf" />
+    <Content Include="HelpPdf\ClientMaster.pdf" />
+    <Content Include="HelpPdf\ElectricEaseUserGuide.pdf" />
+    <Content Include="HelpPdf\JobMaster.pdf" />
+    <Content Include="HelpPdf\LaborMaster.pdf" />
+    <Content Include="HelpPdf\LegalMaster.pdf" />
+    <Content Include="HelpPdf\PartsMaster.pdf" />
+    <Content Include="HelpPdf\UserMaster.pdf" />
+    <Content Include="fonts\fontawesome-webfont.eot" />
+    <Content Include="fonts\fontawesome-webfont.ttf" />
+    <Content Include="fonts\fontawesome-webfont.woff" />
+    <Content Include="fonts\fontawesome-webfont.woff2" />
+    <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="fonts\dashicons.eot" />
+    <Content Include="fonts\dashicons.ttf" />
+    <None Include="JobAssemblyPartsDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>JobAssemblyPartsDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="JobAssemblyPartsDataSet.xss">
+      <DependentUpon>JobAssemblyPartsDataSet.xsd</DependentUpon>
+    </Content>
+    <None Include="JobLaborDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>JobLaborDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="JobLaborDataSet.xss">
+      <DependentUpon>JobLaborDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="JobLaborDataSet1.xsc">
+      <DependentUpon>JobLaborDataSet1.xsd</DependentUpon>
+    </Content>
+    <None Include="JobLaborDataSet1.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>JobLaborDataSet1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="JobLaborDataSet1.xss">
+      <DependentUpon>JobLaborDataSet1.xsd</DependentUpon>
+    </Content>
+    <None Include="JobPartsDataSet.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>JobPartsDataSet.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <Content Include="JobPartsDataSet.xss">
+      <DependentUpon>JobPartsDataSet.xsd</DependentUpon>
+    </Content>
+    <Content Include="js\bootstrap-colorpicker.js" />
+    <Content Include="js\jquery.min2.js" />
+    <Content Include="Logs\1lic\Feb-2019.txt" />
+    <Content Include="Logs\abc\Feb-2019.txt" />
+    <Content Include="Logs\Admin\Dec-2018.txt" />
+    <Content Include="Logs\Admin\Feb-2019.txt" />
+    <Content Include="Logs\Admin\Jan-2019.txt" />
+    <Content Include="Logs\Admin\Oct-2018.txt" />
+    <Content Include="Logs\Boyd\Feb-2019.txt" />
+    <Content Include="Logs\C1\Feb-2019.txt" />
+    <Content Include="Logs\Dec-2018.txt" />
+    <Content Include="Logs\Demo\Jan-2019.txt" />
+    <Content Include="Logs\DT C2\Feb-2019.txt" />
+    <Content Include="Logs\Feb-2019.txt" />
+    <Content Include="Logs\Jan-2019.txt" />
+    <Content Include="Logs\k-electrics\Feb-2019.txt" />
+    <Content Include="Logs\k-electrics\Jan-2019.txt" />
+    <Content Include="Logs\KB-Electric\Feb-2019.txt" />
+    <Content Include="Logs\KB-Electric\Jan-2019.txt" />
+    <Content Include="Logs\KB-Electric\Oct-2018.txt" />
+    <Content Include="Logs\Kevin Test Co 3\Feb-2019.txt" />
+    <Content Include="Logs\ksnelectronics\Feb-2019.txt" />
+    <Content Include="Logs\QA-S1\Jan-2019.txt" />
+    <Content Include="Logs\QA1\6\19\Feb-2019.txt" />
+    <Content Include="Logs\snkelectricals\Dec-2018.txt" />
+    <Content Include="Logs\snkelectricals\Jan-2019.txt" />
+    <Content Include="Logs\sun Eletricals\Dec-2018.txt" />
+    <Content Include="Logs\sun Eletricals\Jan-2019.txt" />
+    <Content Include="Logs\TOM Elec\Dec-2018.txt" />
+    <Content Include="Logs\TSS\Feb-2019.txt" />
+    <Content Include="Logs\Vision Electricals\Dec-2018.txt" />
+    <Content Include="Logs\Vision Electricals\Jan-2019.txt" />
+    <Content Include="Logs\Vs-Electric\Dec-2018.txt" />
+    <Content Include="Logs\Vs-Electric\Jan-2019.txt" />
+    <Content Include="Parts_Data_Template.xlsx" />
+    <Content Include="JobReportAttachment.xsc">
+      <DependentUpon>JobReportAttachment.xsd</DependentUpon>
+    </Content>
+    <None Include="JobReportAttachment.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>JobReportAttachment.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="JobReportAttachment.xss">
+      <DependentUpon>JobReportAttachment.xsd</DependentUpon>
+    </Content>
+    <Content Include="Distributor_Parts_Data_Template.xlsx" />
+    <Content Include="Nation_Parts_Data_Template.xlsx" />
+    <None Include="Properties\PublishProfiles\default.pubxml" />
+    <None Include="Properties\PublishProfiles\Local deploy package.pubxml" />
+    <None Include="Properties\PublishProfiles\publish.pubxml" />
+    <None Include="Properties\PublishProfiles\Visen.pubxml" />
+    <Content Include="Images\background.jpg" />
+    <Content Include="Images\logo.png" />
+    <Content Include="Images\menu_bg.png" />
+    <Content Include="js\bootstrap.js" />
+    <Content Include="js\bootstrap.min.js" />
+    <Content Include="js\jquery-1.11.1-.min.js" />
+    <Content Include="js\jquery.countdown.min.js" />
+    <Content Include="js\jquery.nicescroll.min.js" />
+    <Content Include="js\jquery.smooth-scroll.js" />
+    <Content Include="js\script.js" />
+    <Content Include="js\wow.min.js" />
+    <Content Include="Resource\log4net.dll" />
+    <Content Include="Scripts\AssemblyExport.js" />
+    <Content Include="Scripts\bootstrap-select.min.js" />
+    <Content Include="Scripts\bootstrap-toastr\toastr-icon.png" />
+    <Content Include="Scripts\bootstrap-toastr\toastr.css" />
+    <Content Include="Scripts\bootstrap-toastr\toastr.js" />
+    <Content Include="Scripts\bootstrap-toastr\toastr.min.css" />
+    <Content Include="Scripts\bootstrap-toastr\toastr.min.js" />
+    <Content Include="Scripts\chosen.jquery.min.js" />
+    <Content Include="Scripts\ClientAssemblyMaster.js" />
+    <Content Include="Scripts\Common.js" />
+    <Content Include="Scripts\dataTables.tableTools.js" />
+    <Content Include="Scripts\date.min.js" />
+    <Content Include="Scripts\DistributorAssemblyExport.js" />
+    <Content Include="Scripts\Distributorparts.js" />
+    <Content Include="Scripts\distributor_assembly.js" />
+    <Content Include="Scripts\exportjs.js" />
+    <Content Include="Scripts\filterDropDown.js" />
+    <Content Include="Scripts\fullcalendar.js" />
+    <Content Include="Scripts\fullcalendar.min.js" />
+    <Content Include="Scripts\gcal.js" />
+    <Content Include="Scripts\Job.js" />
+    <Content Include="Scripts\jquery-1.11.1-.min.js" />
+    <Content Include="Scripts\bootstrap-colorpicker.min.js" />
+    <Content Include="Scripts\bootstrap-confirmation.min.js" />
+    <Content Include="Scripts\bootstrap-datetimepicker.min.js" />
+    <Content Include="Scripts\bootstrap-toggle.min.js" />
+    <Content Include="Scripts\Bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\bootstrap2.min.js" />
+    <Content Include="Scripts\bootstrap3-wysihtml5.all.min.js" />
+    <Content Include="Scripts\Datable.Bootstrap.js" />
+    <Content Include="Scripts\DataTable.min.js" />
+    <Content Include="Scripts\dataTables.bootstrap.min.js" />
+    <Content Include="Scripts\datatables.js" />
+    <Content Include="Scripts\daterangepicker.js" />
+    <Content Include="Scripts\ElectricEase.Load.js" />
+    <Content Include="Scripts\fileinput.js" />
+    <Content Include="Scripts\form_elements.js" />
+    <Content Include="Scripts\gridmvc.js" />
+    <Content Include="Scripts\gridmvc.lang.ru.js" />
+    <Content Include="Scripts\gridmvc.min.js" />
+    <Content Include="Scripts\inputmask.js" />
+    <Content Include="Scripts\jquery-1.11.3.min.js" />
+    <Content Include="Scripts\jquery-2.1.0.min.js" />
+    <Content Include="Scripts\jquery-ui-1.8.11.js" />
+    <Content Include="Scripts\jquery.dropdown.js" />
+    <Content Include="Scripts\jquery.limitkeypress.js" />
+    <Content Include="Scripts\jquery.spin.min.js" />
+    <Content Include="Scripts\js.cookie.js" />
+    <Content Include="Scripts\lang-all.js" />
+    <Content Include="Scripts\multiupload.js" />
+    <Content Include="Scripts\NationAssembly.js" />
+    <Content Include="Scripts\Nationwideparts.js" />
+    <Content Include="Scripts\PartsList.js" />
+    <Content Include="Scripts\spin.min.js" />
+    <Content Include="Content\timepicki.css" />
+    <Content Include="Scripts\sweetalert.min.js" />
+    <Content Include="Scripts\timepicki.js" />
+    <Content Include="Scripts\Upload.min.js" />
+    <Content Include="Scripts\wickedpicker.js" />
+    <Content Include="Scripts\wickedpicker.min.js" />
+    <Content Include="SqlServerTypes\readme.htm" />
+    <Content Include="Views\Parts_Master\_AddPartsDetails.cshtml" />
+    <Content Include="Views\Parts_Master\_EditPartsDetails.cshtml" />
+    <Content Include="Views\Reports\ClientEstimationReport.cshtml" />
+    <Content Include="Views\Reports\Index.cshtml" />
+    <Content Include="Views\Reports\JobDescriptionReport.cshtml" />
+    <Content Include="Views\Reports\RSIndex.cshtml" />
+    <Content Include="Scripts\bootstrap-toastr\README.md" />
+    <Content Include="Scripts\bootstrap-toastr\toastr.less" />
+    <Content Include="Scripts\bootstrap-toastr\toastr.min.js.map" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <None Include="Scripts\jquery-1.8.3.intellisense.js" />
+    <Content Include="Scripts\jquery-1.8.3.js" />
+    <Content Include="Scripts\jquery-1.8.3.min.js" />
+    <Content Include="Scripts\jquery-ui-1.10.3.min.js" />
+    <Content Include="Scripts\jquery-ui-1.8.20.js" />
+    <Content Include="Scripts\jquery-ui-1.8.20.min.js" />
+    <Content Include="Scripts\jquery.dataTables.min.js" />
+    <Content Include="Scripts\jquery.icheck.min.js" />
+    <Content Include="Scripts\jquery.isotope.min.js" />
+    <Content Include="Scripts\jquery.js" />
+    <Content Include="Scripts\jquery.min.js" />
+    <Content Include="Scripts\jquery.multi-select.js" />
+    <Content Include="Scripts\jquery.simplecolorpicker.js" />
+    <Content Include="Scripts\jquery.tagsinput.min.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\knockout-2.1.0.debug.js" />
+    <Content Include="Scripts\knockout-2.1.0.js" />
+    <Content Include="Scripts\main.js" />
+    <Content Include="Scripts\markdown.js" />
+    <Content Include="Scripts\modernizr-2.5.3.js" />
+    <Content Include="Scripts\moment.min.js" />
+    <Content Include="Scripts\morris.min.js" />
+    <Content Include="Scripts\prettify.js" />
+    <Content Include="Scripts\raphael-2.1.0.min.js" />
+    <Content Include="Scripts\select2.min.js" />
+    <Content Include="Scripts\to-markdown.js" />
+    <Content Include="Scripts\transition.js" />
+    <Content Include="Scripts\verge.min.js" />
+    <Content Include="style.css" />
+    <Content Include="Views\Shared\ClientEstimationReportView.aspx" />
+    <Content Include="Views\Shared\JobDescriptionReportView.aspx" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Content\Site.css" />
+    <Content Include="Scripts\_references.js" />
+    <Content Include="Images\accent.png" />
+    <Content Include="Images\bullet.png" />
+    <Content Include="Images\heroAccent.png" />
+    <Content Include="Images\orderedList0.png" />
+    <Content Include="Images\orderedList1.png" />
+    <Content Include="Images\orderedList2.png" />
+    <Content Include="Images\orderedList3.png" />
+    <Content Include="Images\orderedList4.png" />
+    <Content Include="Images\orderedList5.png" />
+    <Content Include="Images\orderedList6.png" />
+    <Content Include="Images\orderedList7.png" />
+    <Content Include="Images\orderedList8.png" />
+    <Content Include="Images\orderedList9.png" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Web.config" />
+    <Content Include="Views\Shared\_estimLayout.cshtml" />
+    <Content Include="Views\Shared\_estimLoginLayout.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Client_Master\Index.cshtml" />
+    <Content Include="Views\Client_Master\_EditClientMaster.cshtml" />
+    <Content Include="Views\App\Index.cshtml" />
+    <Content Include="Views\Login\Login.cshtml" />
+    <Content Include="Views\Master\Client_Master.cshtml" />
+    <Content Include="Views\Master\Account_Master.cshtml" />
+    <Content Include="Views\Master\Labour_Master.cshtml" />
+    <Content Include="Views\Master\Legal_Master.cshtml" />
+    <Content Include="Views\Master\Parts_Master.cshtml" />
+    <Content Include="Views\Account_Master\AMIndex.cshtml" />
+    <Content Include="Views\Account_Master\_AddNewUser.cshtml" />
+    <Content Include="Views\Account_Master\_EditUserDetails.cshtml" />
+    <Content Include="Views\Account_Master\sampp.cshtml" />
+    <Content Include="Views\Account_Master\_EditProfileIn_WithoutAMRights.cshtml" />
+    <Content Include="Views\Account_Master\MyProfileDetail.cshtml" />
+    <Content Include="Views\Login\ForgotPasswordSent.cshtml" />
+    <Content Include="Views\Login\ForgotPassword.cshtml" />
+    <Content Include="Views\Account_Master\ViewProfile.cshtml" />
+    <Content Include="Views\Master\NR_Parts_Master.cshtml" />
+    <Content Include="Views\Client_Master\check.cshtml" />
+    <Content Include="Views\Parts_Master\_PartsList.cshtml" />
+    <Content Include="Views\Labour_Master\LMIndex.cshtml" />
+    <Content Include="Views\Labour_Master\_AddLabourDetails.cshtml" />
+    <Content Include="Views\Labour_Master\_EditLabourDetails.cshtml" />
+    <Content Include="Views\Legal_Master\LGMIndex.cshtml" />
+    <Content Include="Views\Legal_Master\_AddLegalDetails.cshtml" />
+    <Content Include="Views\Legal_Master\_EditLegalDetails.cshtml" />
+    <Content Include="Views\Labour_Master\LabourListIndex.cshtml" />
+    <Content Include="Views\Legal_Master\LegalListIndex.cshtml" />
+    <Content Include="Views\App\list.cshtml" />
+    <Content Include="Views\Account_Master\_UsersList.cshtml" />
+    <Content Include="Views\Account_Master\AddNewUser.cshtml" />
+    <Content Include="Views\Shared\_GridPager.cshtml" />
+    <Content Include="Views\Shared\_Grid.cshtml" />
+    <Content Include="Views\Assemblies_Master\_AddPartsInGrid.cshtml" />
+    <Content Include="Views\Assemblies_Master\_AddLaborInGrid.cshtml" />
+    <Content Include="Views\Assemblies_Master\_AssembliesList.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\AddNewPartsinAssembliesDetails.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_AddNewLegalDetails.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\AddNewLabourinAssembliesDetails.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\AddJobDetails.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Views\Labour_Master\Jobs\AddNewPartsInJob.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_PartsListInJob.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\AddNewLabourInJob.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_LabourListInJob.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_MyLegalListDetails.cshtml" />
+    <Content Include="Views\Shared\index.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Views\Labour_Master\Jobs\AddNewAssembliesPartsListPopUp.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_JobAssembliesPartsDetailsInGrid.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_JobAssembliesLaborDetailsInGrid.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\JobList.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\EditJobDetails.cshtml" />
+    <Content Include="Views\Assemblies_Master\Index.cshtml" />
+    <Content Include="Views\Assemblies_Master\_AssemblyInfo.cshtml" />
+    <Content Include="Views\Assemblies_Master\_Partslaborinfo.cshtml" />
+    <Content Include="Views\Assemblies_Master\_showallParts.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\JobsIndex.cshtml" />
+    <Content Include="Views\Login\ChagePassword.cshtml" />
+    <Content Include="Views\Login\_ForgotPasswordSent.cshtml" />
+    <Content Include="Views\Assemblies_Master\_PreviousDescriptionList.cshtml" />
+    <Content Include="Views\App\_JobDescriptionReport.cshtml" />
+    <Content Include="Views\Login\SessionTimout.cshtml" />
+    <Content Include="Views\Parts_Master\Index.cshtml" />
+    <Content Include="Views\Legal_Master\Index.cshtml" />
+    <Content Include="Views\Legal_Master\_AddLegalDetails1.cshtml" />
+    <Content Include="Views\Legal_Master\_LegalList.cshtml" />
+    <Content Include="Views\Labour_Master\Index.cshtml" />
+    <Content Include="Views\Labour_Master\_LabourList.cshtml" />
+    <Content Include="Views\Account_Master\_AddNewUserDetails.cshtml" />
+    <Content Include="Views\Account_Master\Index.cshtml" />
+    <Content Include="Views\Client_Master\_AddClientDetails.cshtml" />
+    <Content Include="Views\Client_Master\_ClientList.cshtml" />
+    <Content Include="Views\Client_Master\CMindex.cshtml" />
+    <Content Include="Views\Assemblies_Master\_assemblyList.cshtml" />
+    <Content Include="Views\Reports\_ShowAssociatedFiles.cshtml" />
+    <Content Include="Views\Reports\_Viewfile.cshtml" />
+    <Content Include="Views\Job\JobDetailsList.cshtml" />
+    <Content Include="Views\Job\JobsIndex.cshtml" />
+    <Content Include="Views\Job\Job_CalenderEvents.cshtml" />
+    <Content Include="Views\Job\_Attachments.cshtml" />
+    <Content Include="Views\Job\_JobInfo.cshtml" />
+    <Content Include="Views\Job\_JobSheduleList.cshtml" />
+    <Content Include="Views\Job\_PervoiusSOWList.cshtml" />
+    <Content Include="Views\Job\_PreviousJobDesc.cshtml" />
+    <Content Include="Views\Job\_PreviousList.cshtml" />
+    <Content Include="Views\Job\_SelectedAssembliesListDetails.cshtml" />
+    <Content Include="Views\Job\_SelectedLaborListDetails.cshtml" />
+    <Content Include="Views\Job\_SelectedLegalListDetails.cshtml" />
+    <Content Include="Views\Job\_SelectedPartsListDetails.cshtml" />
+    <Content Include="Views\Job\_ShowAllLaborList.cshtml" />
+    <Content Include="Views\Job\_ShowAllLegalList.cshtml" />
+    <Content Include="Views\Job\_ShowAllPartsList.cshtml" />
+    <Content Include="Views\Job\_Showallpartslistassembly.cshtml" />
+    <Content Include="Views\Job\_ShowAssembliesListDetails.cshtml" />
+    <Content Include="Views\Job\_AssembliesDetailsInfo.cshtml" />
+    <Content Include="Views\Job\_GetsowList.cshtml" />
+    <Content Include="Views\Distributor\Index.cshtml" />
+    <Content Include="Views\Distributor\_GetDistributorList.cshtml" />
+    <Content Include="Views\NationwideParts\Index.cshtml" />
+    <Content Include="Views\NationwideParts\_GetNationalPartsList.cshtml" />
+    <Content Include="Views\DistributorParts\Index.cshtml" />
+    <Content Include="Views\DistributorParts\_AddDistributorPartsDetails.cshtml" />
+    <Content Include="Views\DistributorParts\_DistributorPartsList.cshtml" />
+    <Content Include="Views\NationwideParts\ExportParts.cshtml" />
+    <Content Include="Views\NationwideParts\_GetNationalparts.cshtml" />
+    <Content Include="Views\NationwideAssembly\_AssembliesList.cshtml" />
+    <Content Include="Views\NationwideAssembly\Index.cshtml" />
+    <Content Include="Views\NationwideAssembly\_Partslaborinfo.cshtml" />
+    <Content Include="Views\NationwideAssembly\_showallParts.cshtml" />
+    <Content Include="Views\NationwideAssembly\_AssemblyInfo.cshtml" />
+    <Content Include="Views\NationwideAssembly\_PreviousDescriptionList.cshtml" />
+    <Content Include="Views\NationwideAssembly\AssemblyExport.cshtml" />
+    <Content Include="Views\NationwideAssembly\_GetNationAssembliesList.cshtml" />
+    <Content Include="Views\DistributorAssembly\_DistributorAssemblyInfo.cshtml" />
+    <Content Include="Views\DistributorAssembly\_DistributorAssembliesList.cshtml" />
+    <Content Include="Views\DistributorAssembly\_showallParts.cshtml" />
+    <Content Include="Views\DistributorAssembly\_PreviousDescriptionList.cshtml" />
+    <Content Include="Views\DistributorAssembly\Index.cshtml" />
+    <Content Include="Views\DistributorAssembly\_Partslaborinfo.cshtml" />
+    <Content Include="Views\DistributorAssembly\DistributorAssemblyExport.cshtml" />
+    <Content Include="Views\DistributorAssembly\_GetDistributorAssembliesList.cshtml" />
+    <Content Include="Views\PartsExcelExport\Index.cshtml" />
+    <Content Include="Views\TimeSheet\Index.cshtml" />
+    <Content Include="Views\TimeSheet\NewTimeSheet.cshtml" />
+    <Content Include="Views\TimeSheet\_TimeSheetDetails.cshtml" />
+    <Content Include="Views\TimeSheet\_TimeSheetMasterDetails.cshtml" />
+    <Content Include="Upload\Copy of Electric Ease _ Test Cases _ CR- 10051.xlsx" />
+    <Content Include="Upload\Copy of EstimateChamp_WorkDetails.xlsx" />
+    <Content Include="Upload\Electric- Ease bugs.xlsx" />
+    <Content Include="Upload\Nation_Parts_Data_Template.xlsx" />
+    <Content Include="Upload\Parts_Data_Template %281%29.xlsx" />
+    <Content Include="Upload\Parts_Data_Template.xlsx" />
+    <Content Include="Upload\Parts_Data_Templatevi.xlsx" />
+    <Content Include="Upload\Sai-e.xlsx" />
+    <Content Include="Views\Assemblies_Master\AddAssembliesLaborDetails.cshtml" />
+    <Content Include="Views\Assemblies_Master\AddAssembliesLaborDetailsInEdit.cshtml" />
+    <Content Include="Views\Assemblies_Master\AddAssemblyParts.cshtml" />
+    <Content Include="Views\Assemblies_Master\AddAssemblyPartsInEdit.cshtml" />
+    <Content Include="Views\Assemblies_Master\AddPartsInGridView.cshtml" />
+    <Content Include="Views\Assemblies_Master\ASMIndex.cshtml" />
+    <Content Include="Views\Assemblies_Master\EditAssembliesDetails.cshtml" />
+    <Content Include="Views\Client_Master\_AddNewClient.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_AddNewPartsToAssemblies.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_AssembliesLabourDetailsList.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_AssembliesList Details.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\_AssembliesPartsDetailsList.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\AssignToRM.cshtml" />
+    <Content Include="Views\Labour_Master\Jobs\Upload.cshtml" />
+    <Content Include="Views\Login\WelcomeIndex.cshtml" />
+    <Content Include="Views\Parts_Master\PartsListIndex.cshtml" />
+    <Content Include="Views\Parts_Master\PMIndex.cshtml" />
+    <Content Include="Views\Shared\_BodyLayout.cshtml" />
+    <Content Include="Views\Shared\_LoginPartial.cshtml" />
+    <Content Include="Views\NationwideAssembly\_AssembliesDatatable.cshtml" />
+    <Content Include="Views\Client_Master\Populate.cshtml" />
+    <Content Include="Views\Job\_JobInfoBidSummary.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="bin\" />
+    <Folder Include="Views\NewFolder1\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ElectricEase.BLL\ElectricEase.BLL.csproj">
+      <Project>{bbce4a39-a1b9-4c86-a15b-361d0a432472}</Project>
+      <Name>ElectricEase.BLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ElectricEase.Data\ElectricEase.Data.csproj">
+      <Project>{509408e1-10f9-4f27-aab6-6f75b5565c96}</Project>
+      <Name>ElectricEase.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ElectricEase.Helpers\ElectricEase.Helpers.csproj">
+      <Project>{d7591af6-2a60-4d67-9d4e-baf0d41b1d04}</Project>
+      <Name>ElectricEase.Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ElectricEase.Models\ElectricEase.Models.csproj">
+      <Project>{28cfd7ff-dd88-48e3-8103-8ae79afc6594}</Project>
+      <Name>ElectricEase.Models</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Report\ClientEstimation.rdlc" />
+    <EmbeddedResource Include="Report\JobDescription.rdlc" />
+    <EmbeddedResource Include="Report\LaborDetails.rdlc" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:49785/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

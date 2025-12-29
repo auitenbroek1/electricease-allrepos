@@ -1,0 +1,584 @@
+﻿@model ElectricEase.Models.EditAccount_MasterInfo
+
+@{
+    ViewBag.Title = "MyProfileDetail";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+
+<script>
+    $(document).ready(function () {
+        //alert("jiii");
+        $("#Loading").hide();
+        $('li').removeClass('active');
+        $("#accountmaster").addClass('active');
+        //alert("active");
+        //To change content tittles
+        $(".content-title").text("User Master");
+    });
+    $("#Ljob").click(function () {
+        //alert("dsfsdfsdf");
+        $(this).addClass('active').siblings().removeClass('active');
+
+        $(".content-title").hide();
+        //var activepage = $('a', this).attr("href");
+        //$(activepage).show();
+        // document.title = $('h1', activepage).first().text();
+        // $('title').text(document.title);
+        return false;
+    });
+    $(function () {
+
+        $("#fileupload").change(function () {
+            $("#firstlogo").hide();
+            $("#dvPreview").html("");
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.jpg|.jpeg|.gif|.png|.bmp)$/;
+            if (regex.test($(this).val().toLowerCase())) {
+                if ($.browser.msie && parseFloat(jQuery.browser.version) <= 9.0) {
+                    $("#dvPreview").show();
+                    $("#dvPreview")[0].filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = $(this).val();
+                }
+                else {
+                    if (typeof (FileReader) != "undefined") {
+                        $("#dvPreview").show();
+                        $("#dvPreview").append("<img height='88' width='30%' id='CompanyLogosrc'/>").attr({ width: '300px', height: '150px' });
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $("#dvPreview img").attr("src", e.target.result);
+                        }
+                        reader.readAsDataURL($(this)[0].files[0]);
+                    } else {
+                        alert("This browser does not support FileReader.");
+                    }
+                }
+            } else {
+                alert("Please upload a valid image file.");
+            }
+        });
+    });
+
+    $(function () {
+        $("#Reset").click(function () {
+            //$("#First_Name").val("");
+            //$("#Last_Name").val("");
+            //$("#Phone").val("");
+            //$("#Photo").val("");
+            ////$("#User_ID").val("");
+            //$("#E_Mail").val("");
+            //$("#Password").val("");
+            //$("#Site_Administrator").removeClass("data-on");
+            //$("#Account_Administrator").attr('checked', false);
+            //$("#Job_Administrator").attr('checked', false);
+            //$("#Part_Administrator").attr('checked', false);
+            //$("#Labor_Administrator").attr('checked', false);
+            //$("#Legal_Adminstrator").attr('checked', false);
+            //$("#SuperUser").val("");
+            //$("#SuperUser_Pwd").val("");
+            //$("#fileupload").val("");
+
+            //$("#dvPreview img:last-child").remove()
+        });
+
+    });
+    $(function () {
+        $('#User_ID').click(function () {
+
+            alert("Cannot be Modify once you have Created!");
+        });
+
+    })
+    function ZipcodeValidate() {
+        var intRegex = /^\d+(?:\.\d\d?)?$/;
+        var zip = $("#ZipCode").val();
+        if (zip != "") {
+            if (!zip.match(intRegex)) {
+                DisplayNotification("“Zip Code” is invalid!", "error");
+                return false;
+            }
+            else {
+                return true;
+
+            }
+        }
+        else {
+            return true;
+        }
+
+    }
+    function phonevalidation() {
+
+        var phoneno = $("#Phone").val();
+        if (phoneno.length > 0) {
+            var characterReg = /^[0-9-+]+$/;
+
+            if (characterReg.test(phoneno) == false || phoneno.length < 10) {
+                DisplayNotification("Invalid “Phone Number”!", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            return true;
+        }
+
+
+
+    }
+    function mobilevalidate() {
+
+        var characterReg = /^[0-9-+]+$/;
+        var reg = /^[2-9]\d{2}-\d{3}-\d{4}$/;
+        var mobileno = $("#Mobile").val();
+        if (mobileno.length > 0) {
+            if (characterReg.test(mobileno) == false || mobileno.length < 10) {
+                DisplayNotification("Invalid “Mobile Number”!", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            return true;
+        }
+
+    }
+    function UpdateProfile() {
+        if ($("#isfirst").val() == "true") {
+            if ($('#Address').val() != "" && $('#Client_State').val() != "" && $('#City').val() != "" && $('#ZipCode').val() != "") {
+                var formData = new FormData();
+                var uploadfiles = document.getElementById('fileupload').files[0];
+                var img = document.getElementById("CompanyLogosrc").src;
+                formData.append("uploadfile", uploadfiles);
+                var activestatus = $("#activateStatus");
+                var Model = {
+                    "First_Name": $("#First_Name").val(),
+                    "Last_Name": $("#Last_Name").val(),
+                    "Client_Company": $("#Client_Company").val(),
+                    "Contactperson": $('#Contactperson').val(),
+                    "Address": $('#Address').val(),
+                    "Address2": $('#Address2').val(),
+                    "Client_State": $('#Client_State').val(),
+                    "City": $('#City').val(),
+                    "ZipCode": $('#ZipCode').val(),
+                    "Phone": $('#Phone').val(),
+                    "Mobile": $('#Mobile').val(),
+                    "Fax": $('#Fax').val(),
+                    "E_Mail": $('#E_Mail').val(),
+
+                    //"UploadedFile": formData.append("UploadedFile", uploadfiles),
+                    "Imagesrc": img,
+                    "User_ID": $('#User_ID').val(),
+                    "Password": $('#Password').val(),
+                    "JobIDPreffix": $('#JobIDPreffix').val()
+                }
+                formData.append('Model', JSON.stringify(Model));
+                if (phonevalidation() == true && mobilevalidate() == true && ZipcodeValidate() == true) {
+                    $.ajax({
+                        url: '../Account_Master/MyProfileDetails',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        type: 'POST',
+                        success: function (data) {
+
+                            if (data == "Your “Changes” have been modified successfully.") {
+                                DisplayNotification(data, "success");
+                                window.location.href = "../Account_Master/MyProfileDetail";
+
+                            }
+                            else {
+                                DisplayNotification(data, "error");
+                            }
+                        },
+                        error: function (err) {
+                        }
+                    })
+                }
+            }
+            else {
+                DisplayNotification("Please enter “Address, State, City & Zip Code”!", "error");
+            }
+        }
+        else {
+            var formData = new FormData();
+            var uploadfiles = document.getElementById('fileupload').files[0];
+            formData.append("uploadfile", uploadfiles);
+            var activestatus = $("#activateStatus");
+            var Model = {
+                "First_Name": $("#First_Name").val(),
+                "Last_Name": $("#Last_Name").val(),
+                "Phone": $('#Phone').val(),
+                "E_Mail": $('#E_Mail').val(),
+                "User_ID": $('#User_ID').val(),
+                "Password": $('#Password').val(),
+
+            }
+            formData.append('Model', JSON.stringify(Model));
+            $.ajax({
+                url: '../Account_Master/MyProfileDetails',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (data) {
+
+                    if (data == "Your “Changes” have been modified successfully.") {
+                        DisplayNotification(data, "success");
+                        window.location.href = "../Account_Master/MyProfileDetail";
+
+                    }
+                    else {
+                        DisplayNotification(data, "error");
+                    }
+                },
+                error: function (err) {
+                }
+            })
+        }
+
+    }
+
+
+</script>
+<div class="app-body" id="Scroll">
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full">
+            @if (ViewBag.MyUpdateSuccessMsg != null)
+            {
+                <script>
+                    DisplayNotification("“Profile” updated successfully.", "success");
+                </script>
+            }
+            @if (ViewBag.MyUpdateErorMsg != null)
+            {
+                <script>
+                     DisplayNotification( "@ViewBag.MyUpdateErorMsg", "error");
+                </script>
+            }
+            <fieldset>
+                <div id="accordion">
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp  Profile Details  </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        @*@using (Html.BeginForm("MyProfileDetail", "Account_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data", id = "Addform" }))
+                            {*@
+                        @*@Html.ValidationSummary(true);*@
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div>
+                                            <div class="panel-body">
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>First Name :</strong></label>
+                                                            @Html.TextBoxFor(m => m.First_Name, new { @class = "form-control", @maxlength = "50", @placeholder = "First Name" })
+                                                            @Html.ValidationMessageFor(m => m.First_Name)
+                                                            <input type="hidden" value="@Model.Client_ID" name="Client_ID" />
+                                                            @if (Model.CreatedBy_SuperUser == true)
+                                                            {
+                                                                <input type="hidden" value="true" id="isfirst" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <input type="hidden" value="false" id="isfirst" />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Last Name:</strong></label>
+                                                            @Html.TextBoxFor(m => m.Last_Name, new { @class = "form-control", @maxlength = "50", @placeholder = "Last Name" })
+                                                            @Html.ValidationMessageFor(m => m.Last_Name)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Phone :</strong></label>
+                                                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", @maxlength = "50", @placeholder = "Phone" })
+                                                            @Html.ValidationMessageFor(m => m.Phone)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Email :</strong></label>
+                                                            @Html.TextBoxFor(m => m.E_Mail, new { @class = "form-control", @maxlength = "50", @placeholder = "Email" })
+                                                            @Html.ValidationMessageFor(m => m.E_Mail)
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Client User Name :</strong></label>
+                                                            @Html.TextBoxFor(m => m.User_ID, new { @class = "form-control", @readonly = "readonly", @maxlength = "50", @placeholder = "User Name " })
+                                                            <input type="hidden" id="userid" name="User_ID" value="@Model.User_ID" />
+                                                            @Html.ValidationMessageFor(m => m.User_ID)
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Password :</strong></label>
+                                                            @Html.TextBoxFor(m => m.Password, new { @class = "form-control", @maxlength = "50", @placeholder = "Password", type = "password" })
+                                                            @Html.ValidationMessageFor(m => m.Password)
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if (Model.CreatedBy_SuperUser == false)
+                                                {
+                                                    if (Model.Photo == null)
+                                                    {
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="lable"><strong>Company Logo :</strong></label>
+                                                                    @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                    @*<input type="file" id="fileupload" name="File" />*@
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+
+                                                            <div class="form-group" id="dvPreview"></div>
+                                                        </div>
+                                                    }
+                                                    if (Model.Photo != null)
+                                                    {
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="lable"><strong>Company Logo :</strong></label>
+                                                                    @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                    @*<input type="file" id="fileupload" name="File" />*@
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="form-group" id="dvPreview" style="display: none"></div>
+                                                                <div class="form-group" id="firstlogo">
+                                                                    <img src="data:image;base64,@System.Convert.ToBase64String(Model.Photo)" width="80" height="80" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    }
+                                                }
+                                            </div>
+
+
+
+                                        </div>
+                                        @if (Model.CreatedBy_SuperUser == true)
+                                        {
+                                            <div class="box-row profile-hd" style="margin-top:13px;">
+                                                <h7 class="box-heading">
+                                                    <strong> &nbsp  Client Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                    </span>
+                                                </h7>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            @if (Model.Client_ID != 0)
+                                                            {
+                                                                <input type="hidden" value="@Model.Client_ID" name="Client_ID" id="Client_ID" />
+                                                            }
+
+                                                            <label for="title"><strong>Client Company <span class="err">*</span>:</strong></label>
+                                                            @if (Model.isfirst == true)
+                                                            {
+                                                                @Html.TextBoxFor(m => m.Client_Company, new { @class = "form-control", @maxlength = "500", @placeholder = "Client Company" })
+                                                                @Html.ValidationMessageFor(m => m.Client_Company)
+                                                            }
+                                                            else
+                                                            {
+                                                                @Html.TextBoxFor(m => m.Client_Company, new { @class = "form-control", @maxlength = "500", @placeholder = "Client Company", disabled = "disabled" })
+                                                                @Html.ValidationMessageFor(m => m.Client_Company)
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Contact Person <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.Contactperson, new { @class = "form-control", @maxlength = "100", @placeholder = "Contact Person" })
+                                                            @Html.ValidationMessageFor(m => m.Contactperson)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Address <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.Address, new { @class = "form-control", @maxlength = "200", @placeholder = "Address" })
+                                                            @Html.ValidationMessageFor(m => m.Address)
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Address2:</strong></label>
+                                                            @Html.TextBoxFor(m => m.Address2, new { @class = "form-control", @maxlength = "200", @placeholder = "Address2" })
+                                                            @Html.ValidationMessageFor(m => m.Address2)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>City <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.City, new { @class = "form-control", @maxlength = "100", @placeholder = "City" })
+                                                            @Html.ValidationMessageFor(m => m.City)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>State <span class="err">*</span>:</strong></label>
+                                                            @Html.DropDownListFor(m => m.Client_State, ViewBag.State as SelectList, "Select", new { @class = "form-control" })
+                                                            @Html.ValidationMessageFor(m => m.Client_State)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Zip Code <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control", @maxlength = "10", @placeholder = "ZipCode" })
+                                                            @Html.ValidationMessageFor(m => m.ZipCode)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Mobile <span class="err">*</span>:</strong></label>
+                                                            @Html.TextBoxFor(m => m.Mobile, new { @class = "form-control", @maxlength = "50", @placeholder = "Mobile" })
+                                                            <span id="Mobile_errmsg" class="error"></span>
+                                                            @Html.ValidationMessageFor(m => m.Mobile)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>Fax :</strong></label>
+                                                            @Html.TextBoxFor(m => m.Fax, new { @class = "form-control", @maxlength = "50", @placeholder = "Fax" })
+                                                            @Html.ValidationMessageFor(m => m.Fax)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="title"><strong>JobID Preffix  :</strong></label>
+                                                            @Html.TextBoxFor(m => m.JobIDPreffix, new { @class = "form-control", @maxlength = "3", @placeholder = "Preffix" })
+                                                            @Html.ValidationMessageFor(m => m.JobIDPreffix)
+                                                            @*<input type="text" class="form-control" name="LabourName" id="LabourName" autofocus maxlength="50" placeholder="Labour Name" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if (Model.Photo == null)
+                                                {
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="lable"><strong>Company Logo :</strong></label>
+                                                                @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                @*<input type="file" id="fileupload" name="File" />*@
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+
+                                                        <div class="form-group" id="dvPreview"></div>
+                                                    </div>
+                                                }
+                                                @if (Model.Photo != null)
+                                                {
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="lable"><strong>Company Logo :</strong></label>
+                                                                @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                @*<input type="file" id="fileupload" name="File" />*@
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group" id="dvPreview" style="display: none"></div>
+                                                            <div class="form-group" id="firstlogo">
+                                                                <img src="data:image;base64,@System.Convert.ToBase64String(Model.Photo)" id="CompanyLogosrc" width="80" height="80" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                }
+                                            </div>
+                                        }
+                                        <div class="panel-footer clearfix">
+                                            <div class="pull-right" style="width:35%">
+
+                                                <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm pull-right" name="addLabour" tabindex="10" id="Addbtn" style="width:49%" onclick="UpdateProfile();">Update</button>
+                                                @*<a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset" style="width: 49%" onclick="Cancel();">Cancel </a>*@
+
+                                            </div>
+                                        </div>
+
+                                        <div class="panel-footer clearfix">
+
+                                            <div class="pull-left" style="font-size: x-small;">
+                                                <div>
+                                                    <label style="color: #3D81BD !important;">Created By  : &nbsp @Model.Created_By on<span></span> @Model.Created_Date</label>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="pull-right" style=" font-size: x-small;">
+                                                <div>
+                                                    <label style="color: #3D81BD !important;">Updated By  : &nbsp @Model.Updated_By on<span></span> @Model.Updated_Date</label>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*}*@
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>

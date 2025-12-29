@@ -1,0 +1,1923 @@
+﻿@model ElectricEase.Models.Job_MasterInfo
+
+@{
+    ViewBag.Title = "EditJobDetails";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+
+<script>
+       $(function () {
+
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+    $(document).ready(function () {
+        $("button").click(function () {
+            $("p").slideToggle();
+
+        });
+
+
+    });
+
+    $(function () {
+
+        $("#Assemblies_Name").change(function () {
+            var item = $(this);
+           // alert("as");
+            var Assemblies_Name = item.val();
+           // alert(Assemblies_Name);
+            if ( Assemblies_Name != 0)
+            {
+                $("#AssembliesName").val(Assemblies_Name);
+                $("#addnewPartsBtn").hide();
+                $("#addnewlabourBtn").hide();
+                //LoadContent($("#AssembliesDetails"), "/Jobs/GetAssembliesDetails?Assemblies_Name=" + Assemblies_Name + "");
+                LoadContent($("#PartsPatialView"), "/Jobs/GetAssembliesPartsDetails?Assemblies_Name=" + Assemblies_Name + "");
+                LoadContent($("#LabourPatialView"), "/Jobs/GetAssembliesLbourDetails?Assemblies_Name=" + Assemblies_Name + "");
+               // LoadContent($("#AssembliesPartsPatialView"), "/Jobs/AddNewAssembliesPartsListPopUp?Assemblies_Name=" + Assemblies_Name + "");
+            }
+            else
+            {
+                Msg = " Select  one Assemblies Name"
+                if (confirm(Msg))
+                {
+                    return false;
+                }
+                else
+                {
+                    return false;
+                }
+
+            }
+        });
+
+    });
+
+
+    @*function GetAssembliesList(Assemblies_Name) {
+        // alert("called");
+        var url = '@Url.Action("GetAssembliesDetails")';*@
+
+    //    $.ajax({
+    //        type: "POST",
+    //        url: url,
+    //        contentType: "application/json; charset=utf-8",
+    //        data: "{'Assemblies_Name':'" + Assemblies_Name + "'}",
+    //        // dataType: "json",
+    //        success: function (data) {
+    //            JSON.stringify(data)
+    //           // alert("Success");
+    //            ("#divPartialView").html(data);
+    //            //assignPartsListEventsColumns(data.PartsListData)
+    //            // parts=$(".PartsListGrid").html(data.PartsListData);
+    //            SetData(data.PartsListData);
+
+    //        },
+    //        error: function (request, status, error) {
+    //            //  alert("Fail");
+    //            // alert("Request: " + request + " Status: " + status + " Error: " + error);
+    //        }
+    //    });
+    //}
+
+
+    function SetData(data) {
+        // alert("PartsCalled");
+        $("#divPartialView").html(data); // HTML DOM replace
+    }
+
+
+
+
+
+    function assignPartsListEventsColumns(data) {
+        // alert("Partslist");
+        var table = $('#example').dataTable({
+            //"aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+            //"dom": 'C<"clear">lfrtip',
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bInfo": false,
+            "bAutoWidth": false,
+            "aaData": data,
+            //"aaSorting": [],
+            "aoColumnDefs": [
+               {
+
+                   "mData": "EventTypeId",
+                   "mRender": function (event) {
+                       return event;
+                   }
+               },
+               {
+                   "aTargets": [1],
+                   "mData": "EventType"
+               }
+
+            ], "aoColumns": [
+            { "mData": "Part_Number" },
+            { "mData": "Part_Cost" },
+              { "mData": "Resale_Cost" },
+            { "mData": "Estimated_Qty" },
+            { "mData": "Actual_Qty" },
+
+            ]
+        });
+
+    }
+    function AddNewAssembliesParts() {
+        var JobID = $("#Job_ID").val();
+        var JobStatus = $("#Job_Status").val();
+        var JobDescription = $("#Job_Description").val();
+        var ClientName = $("#Client_Name").val();
+        var OtherClientName = $("#Other_ClientName").val();
+        var ClientContactPerson = $("#Client_ContactPerson").val();
+        var ClientAddress = $("#Client_Address").val();
+        var ClientAddress2 = $("#Client_Address2").val();
+        var ClientCity = $("#Client_City").val();
+        var ClientState = $("#Client_State").val();
+        var ClientZipCode = $("#Client_ZipCode").val();
+        var ClientFax = $("#Client_Fax").val();
+        var ClientEmail = $("#Client_Email").val();
+        var ClientPhone = $("#Client_Phone").val();
+        var ClientMobile = $("#Client_Mobile").val();
+        var PreviousLocation = $("#Previous_Location").val();
+        var OtherPreviousLocation = $("#Other_Previous_Location").val();
+        var WorkAddress = $("#Work_Address").val();
+        var WorkAddress2 = $("#Work_Address2").val();
+        var WorkCity = $("#Work_City").val();
+        var WorkState = $("#Work_State").val();
+        var DirectionsTo = $("#Directions_To").val();
+        var DoingWhat = $("#Doing_What").val();
+        //Mileage Table Values
+        var MileageEstimated = $("#Estimated").val();
+        var MileageActualCost = $("#ActualCost").val();
+        var MileageCost = $("#MileageCost").val();
+        var MileagExpTotal = $("#MileExpTotal").val();
+        var MileageEstTotal = $("#MileEstTotal").val();
+        var MileageActTotal = $("#MileActTotal").val();
+        //Estimate Values
+        var EstimateOverExpTotal = $("#OverExpTotal").val();
+        var EstimateProfitPercentage = $("#ProfitPercentage").val();
+        var EstimateSubTotal = $("#SubEstTotal").val();
+        var EstimateExpTotal = $("#EstimateExpTotal").val();
+        var EstimateProfitTotal = $("#ProfitEstTotal").val();
+        var EstimateOverride = $("#EstimateOverride").val();
+        //Job Total Values
+        var JobExpensesTotal = $("#JobExpensesTotal").val();
+        var JobEstimateTotal = $("#EstimateTotal").val();
+        var JobActualTotal = $("#ActualTotal").val();
+        var JobProfitLossTotal = $("#ProfitLossTotal").val();
+
+        LoadContent($("#SelectNewAssembliesParts"), "/Jobs/AddNewAssembliesPartsListPopUp?JobID=" + JobID +
+            "&JobStatus=" + JobStatus +
+            "&JobDescription=" +JobDescription+
+            "&ClientName=" +ClientName+
+            "&OtherClientName=" +OtherClientName+
+            "&ClientContactPerson=" +ClientContactPerson+
+            "&ClientAddress=" +ClientAddress+
+            "&ClientAddress2=" +ClientAddress2+
+            "&ClientCity=" +ClientCity+
+            "&ClientState=" +ClientState+
+            "&ClientZipCode=" +ClientZipCode+
+            "&ClientFax=" +ClientFax+
+            "&ClientEmail=" +ClientEmail+
+            "&ClientPhone=" +ClientPhone+
+            "&ClientMobile=" + ClientMobile +
+            "&PreviousLocation=" + PreviousLocation +
+            "&OtherPreviousLocation=" + OtherPreviousLocation +
+            "&WorkAddress=" + WorkAddress +
+            "&WorkAddress2=" + WorkAddress2 +
+             "&WorkCity=" + WorkCity +
+             "&WorkState=" + WorkState +
+             "&DirectionsTo=" + DirectionsTo +
+              "&DoingWhat=" + DoingWhat +
+        //Mileage Table Values
+              "&MileageEstimated=" + MileageEstimated +
+              "&MileageActualCost=" + MileageActualCost +
+              "&MileageCost=" + MileageCost +
+              "&MileagExpTotal=" + MileagExpTotal +
+              "&MileageEstTotal=" + MileageEstTotal +
+        //Estimate Values
+              "&EstimateOverExpTotal=" + EstimateOverExpTotal +
+              "&EstimateProfitPercentage=" + EstimateProfitPercentage +
+              "&EstimateSubTotal=" + EstimateSubTotal +
+              "&EstimateExpTotal=" + EstimateExpTotal +
+              "&EstimateProfitTotal=" + EstimateProfitTotal +
+              "&EstimateOverride=" + EstimateOverride +
+        //Job Total Values
+              "&JobExpensesTotal=" + JobExpensesTotal +
+              "&JobEstimateTotal=" + JobEstimateTotal +
+              "&JobActualTotal=" + JobActualTotal +
+              "&JobProfitLossTotal=" + JobProfitLossTotal +
+              "");
+        $('#AddNewAssembliesParts').modal({ backdrop: 'static' });
+    }
+    function AddNewParts() {
+
+       // alert("addparts");
+
+        var _Partsgriddata = JobPartsgridTojson();
+        var _LabourGridData = JobLabourLabourgridTojson();
+        var _LegalGridData = LegalGridTojson();
+        var _JobASPartsGridData = ASPartsgridTojson();
+        var _JobAsLabourGridData = ASLabourgridTojson();
+        //alert(_JobASPartsGridData);
+       // alert(_JobAsLabourGridData);
+        var JobID = $("#Job_ID").val();
+        var JobStatus = $("#Job_Status").val();
+        var JobDescription = $("#Job_Description").val();
+        var ClientName = $("#Client_Name").val();
+        var OtherClientName = $("#Other_ClientName").val();
+        var ClientContactPerson = $("#Client_ContactPerson").val();
+        var ClientAddress = $("#Client_Address").val();
+        var ClientAddress2 = $("#Client_Address2").val();
+        var ClientCity = $("#Client_City").val();
+        var ClientState = $("#Client_State").val();
+        var ClientZipCode = $("#Client_ZipCode").val();
+        var ClientFax = $("#Client_Fax").val();
+        var ClientEmail = $("#Client_Email").val();
+        var ClientPhone = $("#Client_Phone").val();
+        var ClientMobile = $("#Client_Mobile").val();
+        var PreviousLocation = $("#Previous_Location").val();
+        var OtherPreviousLocation = $("#Other_Previous_Location").val();
+        var WorkAddress = $("#Work_Address").val();
+        var WorkAddress2 = $("#Work_Address2").val();
+        var WorkCity = $("#Work_City").val();
+        var WorkState = $("#Work_State").val();
+        var DirectionsTo = $("#Directions_To").val();
+        var DoingWhat = $("#Doing_What").val();
+        //Mileage Table Values
+        var MileageEstimated = $("#Estimated").val();
+        var MileageActualCost = $("#ActualCost").val();
+        var MileageCost = $("#MileageCost").val();
+        var MileagExpTotal = $("#MileExpTotal").val();
+        var MileageEstTotal = $("#MileEstTotal").val();
+        var MileageActTotal = $("#MileActTotal").val();
+        //Estimate Values
+        var EstimateOverExpTotal = $("#OverExpTotal").val();
+        var EstimateProfitPercentage = $("#ProfitPercentage").val();
+        var EstimateSubTotal = $("#SubEstTotal").val();
+        var EstimateExpTotal = $("#EstimateExpTotal").val();
+        var EstimateProfitTotal = $("#ProfitEstTotal").val();
+        var EstimateOverride = $("#EstimateOverride").val();
+        //Job Total Values
+        var JobExpensesTotal = $("#JobExpensesTotal").val();
+        var JobEstimateTotal = $("#EstimateTotal").val();
+        var JobActualTotal = $("#ActualTotal").val();
+        var JobProfitLossTotal = $("#ProfitLossTotal").val();
+
+
+
+
+        //alert(JobID);
+        LoadContent($("#SelectNewParts"), "/Jobs/AddNewPartsInJob?JobPartsGridData=" + _Partsgriddata +
+            "&JobLabourGridData=" + _LabourGridData +
+            "&ASPartsGridData=" + _JobASPartsGridData +
+             "&ASLabourGridData=" + _JobAsLabourGridData +
+            "&LegalGridData=" + _LegalGridData +
+            "&JobID=" + JobID +
+            "&JobStatus=" + JobStatus +
+            "&JobDescription=" +JobDescription+
+            "&ClientName=" +ClientName+
+            "&OtherClientName=" +OtherClientName+
+            "&ClientContactPerson=" +ClientContactPerson+
+            "&ClientAddress=" +ClientAddress+
+            "&ClientAddress2=" +ClientAddress2+
+            "&ClientCity=" +ClientCity+
+            "&ClientState=" +ClientState+
+            "&ClientZipCode=" +ClientZipCode+
+            "&ClientFax=" +ClientFax+
+            "&ClientEmail=" +ClientEmail+
+            "&ClientPhone=" +ClientPhone+
+            "&ClientMobile=" + ClientMobile +
+            "&PreviousLocation=" + PreviousLocation +
+            "&OtherPreviousLocation=" + OtherPreviousLocation +
+            "&WorkAddress=" + WorkAddress +
+            "&WorkAddress2=" + WorkAddress2 +
+             "&WorkCity=" + WorkCity +
+             "&WorkState=" + WorkState +
+             "&DirectionsTo=" + DirectionsTo +
+              "&DoingWhat=" + DoingWhat +
+                //Mileage Table Values
+              "&MileageEstimated=" + MileageEstimated +
+              "&MileageActualCost=" + MileageActualCost +
+              "&MileageCost=" + MileageCost +
+              "&MileagExpTotal=" + MileagExpTotal +
+              "&MileageEstTotal=" + MileageEstTotal +
+               //Estimate Values
+              "&EstimateOverExpTotal=" + EstimateOverExpTotal +
+              "&EstimateProfitPercentage=" + EstimateProfitPercentage +
+              "&EstimateSubTotal=" + EstimateSubTotal +
+              "&EstimateExpTotal=" + EstimateExpTotal +
+              "&EstimateProfitTotal=" + EstimateProfitTotal +
+              "&EstimateOverride=" + EstimateOverride +
+              //Job Total Values
+              "&JobExpensesTotal=" + JobExpensesTotal +
+              "&JobEstimateTotal=" + JobEstimateTotal +
+              "&JobActualTotal=" + JobActualTotal +
+              "&JobProfitLossTotal=" + JobProfitLossTotal +
+              
+
+            "");
+        $('#AddNewParts').modal({ backdrop: 'static' });
+    }
+
+    function AddNewLabourInJob() {
+        //alert("welcome");
+        var AssembliesName = $("#asname").val();
+       // alert(AssembliesName);
+        var _LegalGridData = LegalGridTojson();
+        var _Partsgriddata = JobPartsgridTojson();
+        var _LabourGridData = JobLabourLabourgridTojson();
+        var _JobASPartsGridData = JobAssembliesgridTojson();
+        var _JobASPartsGridData = ASPartsgridTojson();
+        var _JobAsLabourGridData = ASLabourgridTojson();
+       // alert(_Partsgriddata);
+        //alert(_LabourGridData);
+
+        var JobID = $("#Job_ID").val();
+        var JobStatus = $("#Job_Status").val();
+        var JobDescription = $("#Job_Description").val();
+        var ClientName = $("#Client_Name").val();
+        var OtherClientName = $("#Other_ClientName").val();
+        var ClientContactPerson = $("#Client_ContactPerson").val();
+        var ClientAddress = $("#Client_Address").val();
+        var ClientAddress2 = $("#Client_Address2").val();
+        var ClientCity = $("#Client_City").val();
+        var ClientState = $("#Client_State").val();
+        var ClientZipCode = $("#Client_ZipCode").val();
+        var ClientFax = $("#Client_Fax").val();
+        var ClientEmail = $("#Client_Email").val();
+        var ClientPhone = $("#Client_Phone").val();
+        var ClientMobile = $("#Client_Mobile").val();
+        var PreviousLocation = $("#Previous_Location").val();
+        var OtherPreviousLocation = $("#Other_Previous_Location").val();
+        var WorkAddress = $("#Work_Address").val();
+        var WorkAddress2 = $("#Work_Address2").val();
+        var WorkCity = $("#Work_City").val();
+        var WorkState = $("#Work_State").val();
+        var DirectionsTo = $("#Directions_To").val();
+        var DoingWhat = $("#Doing_What").val();
+        //Mileage Table Values
+        var MileageEstimated = $("#Estimated").val();
+        var MileageActualCost = $("#ActualCost").val();
+        var MileageCost = $("#MileageCost").val();
+        var MileagExpTotal = $("#MileExpTotal").val();
+        var MileageEstTotal = $("#MileEstTotal").val();
+        var MileageActTotal = $("#MileActTotal").val();
+        //Estimate Values
+        var EstimateOverExpTotal = $("#OverExpTotal").val();
+        var EstimateProfitPercentage = $("#ProfitPercentage").val();
+        var EstimateSubTotal = $("#SubEstTotal").val();
+        var EstimateExpTotal = $("#EstimateExpTotal").val();
+        var EstimateProfitTotal = $("#ProfitEstTotal").val();
+        var EstimateOverride = $("#EstimateOverride").val();
+        //Job Total Values
+        var JobExpensesTotal = $("#JobExpensesTotal").val();
+        var JobEstimateTotal = $("#EstimateTotal").val();
+        var JobActualTotal = $("#ActualTotal").val();
+        var JobProfitLossTotal = $("#ProfitLossTotal").val();
+        LoadContent($("#SelectNewLabour"), "/Jobs/AddNewLabourInJob?JobPartsGridData=" + _Partsgriddata +
+            "&JobLabourGridData=" + _LabourGridData +
+              "&LegalGridData=" + _LegalGridData +
+               "&ASPartsGridData=" + _JobASPartsGridData +
+             "&ASLabourGridData=" + _JobAsLabourGridData +
+             "&JobID=" + JobID +
+            "&JobStatus=" + JobStatus +
+            "&JobDescription=" + JobDescription +
+            "&ClientName=" + ClientName +
+            "&OtherClientName=" + OtherClientName +
+            "&ClientContactPerson=" + ClientContactPerson +
+            "&ClientAddress=" + ClientAddress +
+            "&ClientAddress2=" + ClientAddress2 +
+            "&ClientCity=" + ClientCity +
+            "&ClientState=" + ClientState +
+            "&ClientZipCode=" + ClientZipCode +
+            "&ClientFax=" + ClientFax +
+            "&ClientEmail=" + ClientEmail +
+            "&ClientPhone=" + ClientPhone +
+            "&ClientMobile=" + ClientMobile +
+            "&PreviousLocation=" + PreviousLocation +
+            "&OtherPreviousLocation=" + OtherPreviousLocation +
+            "&WorkAddress=" + WorkAddress +
+            "&WorkAddress2=" + WorkAddress2 +
+             "&WorkCity=" + WorkCity +
+             "&WorkState=" + WorkState +
+             "&DirectionsTo=" + DirectionsTo +
+              "&DoingWhat=" + DoingWhat +
+                  //Mileage Table Values
+              "&MileageEstimated=" + MileageEstimated +
+              "&MileageActualCost=" + MileageActualCost +
+              "&MileageCost=" + MileageCost +
+              "&MileagExpTotal=" + MileagExpTotal +
+              "&MileageEstTotal=" + MileageEstTotal +
+               //Estimate Values
+              "&EstimateOverExpTotal=" + EstimateOverExpTotal +
+              "&EstimateProfitPercentage=" + EstimateProfitPercentage +
+              "&EstimateSubTotal=" + EstimateSubTotal +
+              "&EstimateExpTotal=" + EstimateExpTotal +
+              "&EstimateProfitTotal=" + EstimateProfitTotal +
+              "&EstimateOverride=" + EstimateOverride +
+              //Job Total Values
+              "&JobExpensesTotal=" + JobExpensesTotal +
+              "&JobEstimateTotal=" + JobEstimateTotal +
+              "&JobActualTotal=" + JobActualTotal +
+              "&JobProfitLossTotal=" + JobProfitLossTotal +
+
+
+            "");
+        $('#AddNewLabourInJob').modal({ backdrop: 'static' });
+    }
+    function LegalAssigntoModal() {
+        //alert("");
+        //var AssembliesName = $("#Assemblies_Name").val();
+        //var Description = $("#Assemblies_Description").val();
+        var _LegalGridData = LegalGridTojson();
+        var _JobPartsgriddata = JobPartsgridTojson();
+        var _JobLabourGridData = JobLabourLabourgridTojson();
+        var _ASPartsgriddata = gridTojson();
+        var _ASLabourGridData = LabourgridTojson();
+        var _JobASPartsGridData = JobAssembliesgridTojson();
+        var _JobASPartsGridData = ASPartsgridTojson();
+        var _JobAsLabourGridData = ASLabourgridTojson();
+//        var _JobASLaborGridData=
+        var JobID = $("#Job_ID").val();
+      //  alert(JobID);
+        var JobStatus = $("#Job_Status").val();
+        var JobDescription = $("#Job_Description").val();
+        var ClientName = $("#Client_Name").val();
+        var OtherClientName = $("#Other_ClientName").val();
+        var ClientContactPerson = $("#Client_ContactPerson").val();
+        var ClientAddress = $("#Client_Address").val();
+        var ClientAddress2 = $("#Client_Address2").val();
+        var ClientCity = $("#Client_City").val();
+        var ClientState = $("#Client_State").val();
+        var ClientZipCode = $("#Client_ZipCode").val();
+        var ClientFax = $("#Client_Fax").val();
+        var ClientEmail = $("#Client_Email").val();
+        var ClientPhone = $("#Client_Phone").val();
+        var ClientMobile = $("#Client_Mobile").val();
+        var PreviousLocation = $("#Previous_Location").val();
+        var OtherPreviousLocation = $("#Other_Previous_Location").val();
+        var WorkAddress = $("#Work_Address").val();
+        var WorkAddress2 = $("#Work_Address2").val();
+        var WorkCity = $("#Work_City").val();
+        var WorkState = $("#Work_State").val();
+        var DirectionsTo = $("#Directions_To").val();
+        var DoingWhat = $("#Doing_What").val();
+        //Mileage Table Values
+        var MileageEstimated = $("#Estimated").val();
+        var MileageActualCost = $("#ActualCost").val();
+        var MileageCost = $("#MileageCost").val();
+        var MileagExpTotal = $("#MileExpTotal").val();
+        var MileageEstTotal = $("#MileEstTotal").val();
+        var MileageActTotal = $("#MileActTotal").val();
+        //Estimate Values
+        var EstimateOverExpTotal = $("#OverExpTotal").val();
+        var EstimateProfitPercentage = $("#ProfitPercentage").val();
+        var EstimateSubTotal = $("#SubEstTotal").val();
+        var EstimateExpTotal = $("#EstimateExpTotal").val();
+        var EstimateProfitTotal = $("#ProfitEstTotal").val();
+        var EstimateOverride = $("#EstimateOverride").val();
+        //Job Total Values
+        var JobExpensesTotal = $("#JobExpensesTotal").val();
+        var JobEstimateTotal = $("#EstimateTotal").val();
+        var JobActualTotal = $("#ActualTotal").val();
+        var JobProfitLossTotal = $("#ProfitLossTotal").val();
+
+
+
+        LoadContent($("#profileLegalAssign"), "/Jobs/AddNewLegalDetailsList?LegalGridData=" + _LegalGridData +
+
+            "&_JobPartsgriddata=" + _JobPartsgriddata +
+            "&_JobLabourGridData=" + _JobLabourGridData +
+           "&ASPartsGridData=" + _JobASPartsGridData +
+             "&ASLabourGridData=" + _JobAsLabourGridData +
+            "&JobID=" + JobID +
+            "&JobStatus=" + JobStatus +
+            "&JobDescription=" + JobDescription +
+            "&ClientName=" + ClientName +
+            "&OtherClientName=" + OtherClientName +
+            "&ClientContactPerson=" + ClientContactPerson +
+            "&ClientAddress=" + ClientAddress +
+            "&ClientAddress2=" + ClientAddress2 +
+            "&ClientCity=" + ClientCity +
+            "&ClientState=" + ClientState +
+            "&ClientZipCode=" + ClientZipCode +
+            "&ClientFax=" + ClientFax +
+            "&ClientEmail=" + ClientEmail +
+            "&ClientPhone=" + ClientPhone +
+            "&ClientMobile=" + ClientMobile +
+            "&PreviousLocation=" + PreviousLocation +
+            "&OtherPreviousLocation=" + OtherPreviousLocation +
+            "&WorkAddress=" + WorkAddress +
+            "&WorkAddress2=" + WorkAddress2 +
+             "&WorkCity=" + WorkCity +
+             "&WorkState=" + WorkState +
+             "&DirectionsTo=" + DirectionsTo +
+              "&DoingWhat=" + DoingWhat +
+            
+                //Mileage Table Values
+              "&MileageEstimated=" + MileageEstimated +
+              "&MileageActualCost=" + MileageActualCost +
+              "&MileageCost=" + MileageCost +
+              "&MileagExpTotal=" + MileagExpTotal +
+              "&MileageEstTotal=" + MileageEstTotal +
+               //Estimate Values
+              "&EstimateOverExpTotal=" + EstimateOverExpTotal +
+              "&EstimateProfitPercentage=" + EstimateProfitPercentage +
+              "&EstimateSubTotal=" + EstimateSubTotal +
+              "&EstimateExpTotal=" + EstimateExpTotal +
+              "&EstimateProfitTotal=" + EstimateProfitTotal +
+              "&EstimateOverride=" + EstimateOverride +
+              //Job Total Values
+              "&JobExpensesTotal=" + JobExpensesTotal +
+              "&JobEstimateTotal=" + JobEstimateTotal +
+              "&JobActualTotal=" + JobActualTotal +
+              "&JobProfitLossTotal=" + JobProfitLossTotal +
+
+
+
+            "");
+        $('#LegalAssign').modal({ backdrop: 'static' });
+    }
+
+    $(function () {
+        $("#Addbtn").click(function () {
+
+           // alert("Hiiiiii");
+           // alert("gettABLE");
+            var _LegalGridData = LegalGridTojson();
+            var _JobPartsgriddata = JobPartsgridTojson();
+            var _JobLabourGridData = JobLabourLabourgridTojson();
+            var _ASPartsgriddata = gridTojson();
+            var _ASLabourGridData = LabourgridTojson();
+            //alert(_JobPartsgriddata);
+           // alert(_JobLabourGridData);
+           // alert(_ASPartsgriddata);
+           // alert(_ASLabourGridData);
+            //alert(_LegalGridData);
+
+            $.ajax({
+                url: '@Url.Action("GetTableListData", "Jobs")',
+                data: { JobPartsGridata: _JobPartsgriddata, JobLabourGridData: _JobLabourGridData, AsPartsGridData: _ASPartsgriddata, AsLabourGridData: _ASLabourGridData, LegalGridData: _LegalGridData },
+                type: 'POST',
+            }).done(function (data) {
+                if (data = "Success") {
+                    // alert("hhhhhhhh");
+                    return false;
+                    //$('#message').html(data);
+
+                }
+            })
+
+
+        });
+    });
+    
+    
+
+   @* $("#AddJobBtn").click(function () {
+
+        alert("gettABLE");
+        var _LegalGridData = LegalGridTojson();
+        var _JobPartsgriddata = JobPartsgridTojson();
+        var _JobLabourGridData = JobLabourLabourgridTojson();
+        var _ASPartsgriddata = gridTojson();
+        var _ASLabourGridData = LabourgridTojson();
+        alert(_JobPartsgriddata);
+        alert(_JobLabourGridData);
+        alert(_ASPartsgriddata);
+        alert(_ASLabourGridData);
+        
+
+        $.ajax({
+            url: '@Url.Action("GetTableListData", "Jobs")',
+            data: { JobPartsGridata: _JobPartsgriddata, JobLabourGridData: _JobLabourGridData, AsPartsGridData: _ASPartsgriddata, AsLabourGridData: _ASLabourGridData, LegalGridData: _LegalGridData },
+            type: 'POST',
+        }).done(function (data) {
+            if (data = "Success") {
+                // alert("hhhhhhhh");
+                return false;
+                //$('#message').html(data);
+
+            }
+        })
+        //$.ajax({
+        //    url: url,
+        //    type: 'POST',
+        //    data: { griddata: _Partsgriddata, Lgriddata: _LabourGridData }
+        //}).done(function (data) {
+        //    if (data = "Success") {
+        //        // alert("hhhhhhhh");
+        //        return false;
+        //        //$('#message').html(data);
+
+        //    }
+        //})
+    });*@
+
+
+    function gridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.PartsListGrid tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+
+    function JobAssembliesgridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.AssembliesPartsListGrid tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+    //function GetLabourgridData() { 
+    //    var _LabourGridData = LabourgridTojson();
+
+    //}
+    function LegalGridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.LegalListGrid tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+    function LabourgridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.AssembliesLabourGridData tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+    function JobPartsgridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.JobPartsListGrid tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+    //function GetLabourgridData() { 
+    //    var _LabourGridData = LabourgridTojson();
+
+    //}
+    function JobLabourLabourgridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.JobLabourGridData tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+
+    function ASPartsgridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.ASPartsListGrid tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+    function ASLabourgridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.AssembliesLabourGridData tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+
+
+
+    $(function () {
+        var $tblrows = $("#estimateValue");
+        var subTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#MileageCost').on('change', function () {
+            var EstGrandTotal = $tblrow.find("#EstGrandTotal").val();
+            var EstLaborGrandTotal = $tblrow.find("#EstLaborGrandTotal").val();
+            var MileEstTotal = $tblrow.find("#MileEstTotal").val();
+            var subTotal = parseInt(EstGrandTotal) + parseFloat(EstLaborGrandTotal) + parseFloat(MileEstTotal);
+            if (!isNaN(subTotal)) {
+                $('#SubEstTotal').val(subTotal.toFixed(2));
+            }
+        });
+    });
+
+
+    // Job Expense Total
+    $(function () {
+        var $tblrows = $("#estimateValue");
+        var subExpTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#Estimated, #MileageCost,#ActualCost').on('change', function () {
+            var ExpGrandTotal = $tblrow.find("#ExpGrandTotal").val();
+            var ExtLaborGrandTotal = $tblrow.find("#ExpLaborGrandTotal").val();
+            var MileExpTotal = $tblrow.find("#MileExpTotal").val();
+            var subExpTotal = parseInt(ExpGrandTotal) + parseFloat(ExtLaborGrandTotal) + parseFloat(MileExpTotal);
+            if (!isNaN(subExpTotal)) {
+                $('#JobExpensesTotal').val(subExpTotal.toFixed(2));
+            }
+        });
+    });
+
+    //update Job Expense Total
+    $(function () {
+        var $tblrows = $("#grid tbody tr");
+        var $tblrows = $("#estimateValue");
+        var subExpTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#ActQty, #JobCost').on('change', function () {
+            var ExpGrandTotal = $tblrow.find("#ExpGrandTotal").val();
+            var ExtLaborGrandTotal = $tblrow.find("#ExpLaborGrandTotal").val();
+            var MileExpTotal = $tblrow.find("#MileExpTotal").val();
+            var subExpTotal = parseInt(ExpGrandTotal) + parseFloat(ExtLaborGrandTotal) + parseFloat(MileExpTotal);
+            if (!isNaN(subExpTotal)) {
+                $('#JobExpensesTotal').val(subExpTotal.toFixed(2));
+            }
+        });
+    });
+
+    //update Job Expense Total for labor list.
+    $(function () {
+        var $tblrows = $("#grid tbody tr");
+        var $tblrows = $("#estimateValue");
+        var subExpTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#Cost, #ActHours, #Burden').on('change', function () {
+            var ExpGrandTotal = $tblrow.find("#ExpGrandTotal").val();
+            var ExtLaborGrandTotal = $tblrow.find("#ExpLaborGrandTotal").val();
+            var MileExpTotal = $tblrow.find("#MileExpTotal").val();
+            var subExpTotal = parseInt(ExpGrandTotal) + parseFloat(ExtLaborGrandTotal) + parseFloat(MileExpTotal);
+            if (!isNaN(subExpTotal)) {
+                $('#JobExpensesTotal').val(subExpTotal.toFixed(2));
+            }
+        });
+    });
+
+    //Job Actual Total. Formula = Parts List Act Total + Labor List Act Total + Mileage Act Total
+    $(function () {
+        var $tblrows = $("#estimateValue");
+        var $tblrowsupdate = $("#grid tbody tr");
+        var subActTotal = 0;
+        var ActGrandTotal = 0;
+        var ActLaborGrandTotal = 0;
+        var MileActTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#Estimated, #MileageCost,#ActualCost').on('change', function () {
+            ActGrandTotal = $tblrow.find("#ActGrandTotal").val();
+            ActLaborGrandTotal = $tblrow.find("#ActLaborGrandTotal").val();
+            MileActTotal = $tblrow.find("#MileActTotal").val();
+            subActTotal = parseInt(ActGrandTotal) + parseFloat(ActLaborGrandTotal) + parseFloat(MileActTotal);
+            if (!isNaN(subActTotal)) {
+                $('#ActualTotal').val(subActTotal.toFixed(2));
+            }
+        });
+
+    });
+
+    // Update changes for parts total. Formula =  Parts List Act Total + Labor List Act Total + Mileage Act Total
+    $(function () {
+        var $tblrows = $("#estimateValue");
+        var $tblrows = $("#grid tbody tr");
+        var subActTotal = 0;
+        var ActGrandTotal = 0;
+        var ActLaborGrandTotal = 0;
+        var MileActTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#ActQty, #JobCost').on('change', function () {
+            ActGrandTotal = $tblrow.find("#ActGrandTotal").val();
+            ActLaborGrandTotal = $tblrow.find("#ActLaborGrandTotal").val();
+            MileActTotal = $tblrow.find("#MileActTotal").val();
+            subActTotal = parseInt(ActGrandTotal) + parseFloat(ActLaborGrandTotal) + parseFloat(MileActTotal);
+            if (!isNaN(subActTotal)) {
+                $('#ActualTotal').val(subActTotal.toFixed(2));
+            }
+        });
+
+    });
+
+    // Update changes for Labor total. Formula =  Parts List Act Total + Labor List Act Total + Mileage Act Total
+    $(function () {
+        var $tblrows = $("#estimateValue");
+        var $tblrows = $("#grid tbody tr");
+        var subActTotal = 0;
+        var ActGrandTotal = 0;
+        var ActLaborGrandTotal = 0;
+        var MileActTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#Resale, #ActHours').on('change', function () {
+            ActGrandTotal = $tblrow.find("#ActGrandTotal").val();
+            ActLaborGrandTotal = $tblrow.find("#ActLaborGrandTotal").val();
+            MileActTotal = $tblrow.find("#MileActTotal").val();
+            subActTotal = parseInt(ActGrandTotal) + parseFloat(ActLaborGrandTotal) + parseFloat(MileActTotal);
+            if (!isNaN(subActTotal)) {
+                $('#ActualTotal').val(subActTotal.toFixed(2));
+            }
+        });
+
+    });
+
+    //Estimated Total - Expense Total / (diff %) (if loss show with -ve sign)
+    $(function () {
+        var $tblrows = $("#estimateValue");
+        var profitLoss = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#Estimated, #MileageCost, #ActualCost, #EstimateOverride').on('change', function () {
+            var ExpensesTotal = $tblrow.find("#JobExpensesTotal").val();
+            var EstimateTotal = $tblrow.find("#EstimateOverride").val();
+            profitLoss = (parseInt(ExpensesTotal) - parseFloat(EstimateTotal)) / 100;
+            if (!isNaN(profitLoss)) {
+                $('#ProfitLossTotal').val(profitLoss);
+            }
+        });
+
+    });
+    // parts esttotal change ActQty
+    $(function () {
+        var $tblrows = $("#grid tbody tr");
+        var $tblrows = $("#estimateValue tbody tr");
+        var grandTotal = 0;
+        var subTotal = 0;
+        var EstGrandTotal = 0;
+        var EstLaborGrandTotal = 0;
+        var MileEstTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.each(function (index) {
+            $tblrow.find('#EstQty, #JobCost').on('change', function () {
+                EstGrandTotal = $tblrow.find("#EstGrandTotal").val();
+                EstLaborGrandTotal = $tblrow.find("#EstLaborGrandTotal").val();
+                MileEstTotal = $tblrow.find("#MileEstTotal").val();
+                subTotal = parseInt(EstGrandTotal) + parseFloat(EstLaborGrandTotal) + parseFloat(MileEstTotal);
+                if (!isNaN(subTotal)) {
+                    $('#SubEstTotal').val(subTotal.toFixed(2));
+                }
+            });
+        });
+    });
+
+    // Labor esttotal change ActQty
+    $(function () {
+        var $tblrows = $("#grid tbody tr");
+        var $tblrows = $("#estimateValue tbody tr");
+        var grandTotal = 0;
+        var subTotal = 0;
+        var EstGrandTotal = 0;
+        var EstLaborGrandTotal = 0;
+        var MileEstTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.each(function (index) {
+            $tblrow.find('#Resale, #EstHours').on('change', function () {
+                EstGrandTotal = $tblrow.find("#EstGrandTotal").val();
+                EstLaborGrandTotal = $tblrow.find("#EstLaborGrandTotal").val();
+                MileEstTotal = $tblrow.find("#MileEstTotal").val();
+                subTotal = parseInt(EstGrandTotal) + parseFloat(EstLaborGrandTotal) + parseFloat(MileEstTotal);
+                if (!isNaN(subTotal)) {
+                    $('#SubEstTotal').val(subTotal.toFixed(2));
+                }
+            });
+        });
+    });
+
+    // Labor esttotal change ActHours
+    $(function () {
+        var $tblrows = $("#grid tbody tr");
+        var $tblrows = $("#estimateValue tbody tr");
+        var grandTotal = 0;
+        var subTotal = 0;
+        var EstGrandTotal = 0;
+        var EstLaborGrandTotal = 0;
+        var MileEstTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.each(function (index) {
+            $tblrow.find('#Resale, #ActHours').on('change', function () {
+                EstGrandTotal = $tblrow.find("#EstGrandTotal").val();
+                EstLaborGrandTotal = $tblrow.find("#EstLaborGrandTotal").val();
+                MileEstTotal = $tblrow.find("#MileEstTotal").val();
+                subTotal = parseInt(EstGrandTotal) + parseFloat(EstLaborGrandTotal) + parseFloat(MileEstTotal);
+                if (!isNaN(subTotal)) {
+                    $('#SubEstTotal').val(subTotal.toFixed(2));
+                }
+            });
+        });
+    });
+
+    $(function () {
+        var $tblrows = $("#estimateValue");
+        var subTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#OverExpTotal').on('keyup', function () {
+            var subTotal = $tblrow.find("#SubEstTotal").val();
+            var overExpTotal = $tblrow.find("#OverExpTotal").val();
+            var overEstTotal = parseFloat(subTotal) * (parseFloat(overExpTotal / 100));
+            if (!isNaN(overEstTotal)) {
+                $('#EstimateExpTotal').val(overEstTotal.toFixed(2));
+            }
+        });
+    });
+
+    $(function () {
+        $('#JobExpensesTotal, #EstimateTotal, #ActualTotal,#ProfitLossTotal').prop('readonly', true);
+        var $tblros = $("jobTotalsDetails tbody tr");
+        var subTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#EstimateOverride').on('keyup', function () {
+            var EstimateTotal = $tblrow.find("#EstimateOverride").val();
+            if (!isNaN(EstimateTotal)) {
+                $('#EstimateTotal').val(EstimateTotal);
+            }
+        });
+    });
+
+    $(function () {
+        var $tblrows = $("#estimateValue");
+        $('#SubEstTotal, #EstimateExpTotal, #ProfitEstTotal').prop('readonly', true);
+
+        var subTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#ProfitPercentage').on('keyup', function () {
+            var subTotal = $tblrow.find("#SubEstTotal").val();
+            var profitPercent = $tblrow.find("#ProfitPercentage").val();
+            var profEstTotal = parseFloat(subTotal) * (parseFloat(profitPercent / 100));
+            if (!isNaN(profEstTotal)) {
+                $('#ProfitEstTotal').val(profEstTotal.toFixed(2));
+            }
+        });
+    });
+
+
+    $(function () {
+        $('#MileExpTotal, #MileEstTotal, #MileActTotal').prop('readonly', true);
+        var $tblrows = $("#example");
+        var ExpTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#MileageCost, #ActualCost').on('keyup', function () {
+            var MileCost = $tblrow.find("#MileageCost").val();
+            var ActCost = $tblrow.find("#ActualCost").val();
+            var ExpTotal = parseInt(MileCost) * parseFloat(ActCost);
+            if (!isNaN(ExpTotal)) {
+                $('#MileExpTotal').val(ExpTotal.toFixed(2));
+            }
+        });
+    });
+
+    $(function () {
+        //$('#MileEstTotal').prop('readonly', true);
+        var $tblrows = $("#example");
+        var ExpTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#MileageCost, #Estimated').on('keyup', function () {
+            var MileCost = $tblrow.find("#MileageCost").val();
+            var Estimate = $tblrow.find("#Estimated").val();
+            var EstTotal = parseInt(MileCost) * parseFloat(Estimate);
+            if (!isNaN(EstTotal)) {
+                $('#MileEstTotal').val(EstTotal.toFixed(2));
+            }
+        });
+    });
+
+    $(function () {
+        $('#MileActTotal').prop('readonly', true);
+        var $tblrows = $("#example");
+        var ExpTotal = 0;
+        var $tblrow = $(this);
+        $tblrow.find('#MileageCost, #ActualCost').on('keyup', function () {
+            var MileCost = $tblrow.find("#MileageCost").val();
+            var ActCost = $tblrow.find("#ActualCost").val();
+            var ActTotal = parseInt(MileCost) * parseFloat(ActCost);
+            if (!isNaN(ActTotal)) {
+                $('#MileActTotal').val(ActTotal.toFixed(2));
+            }
+        });
+    });
+    //});
+</script>
+
+@if (ViewBag.JobSuccessMsg != null)
+{ 
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #7BEA7B; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.JobSuccessMsg</div>
+    </div>
+}
+@if (ViewBag.JobFailMsg != null)
+{ 
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #FF4747; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.JobFailMsg</div>
+    </div>
+}
+<div class="magic-layoutz">
+    <div class="box magic-element width-full">
+
+        <!-- parts details area start -->
+        @using (Html.BeginForm("SaveJobDetails", "Jobs", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+        {
+            @Html.ValidationSummary(true);
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> &nbsp Job Information </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                <i class="icon ion-chevron-down"></i></span></h7>
+
+            </div>
+            <div class="row">
+                <div class="col-md-20">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="ajax-refresh2">
+
+
+                                <div class="panel-body">
+
+                                     @* @if (ViewBag.EditJobDetails == "EditJobDetails")
+                                      {
+                                          *@<div class="row-fluid">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Electric Ease Job ID :</strong></label>
+                                                @Html.TextBoxFor(m => m.Job_ID, new { @class = "form-control", @maxlength = "50", @placeholder = "Job ID" })
+                                                @Html.ValidationMessageFor(m => m.Job_ID)
+                                            </div>
+                                        </div>
+                                    </div>
+                                     @* }*@
+                                  
+                                    
+                                    <div class="row-fluid">
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Job Description :</strong></label>
+                                                @Html.TextAreaFor(m => m.Job_Description, new { @class = "form-control", @maxlength = "5000" })
+                                                @Html.ValidationMessageFor(m => m.Job_Description)
+                                                @*<textarea rows="3" class="form-control" name="MYDescription" id="IDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                     <div class="row-fluid">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Job Status : </strong></label>
+                                                @*@Html.DropDownListFor(m => m.Job_Status, Enumerable.Empty<SelectListItem>(), "Select", new { Name = "Client_ID", @class = "form-control" })*@
+                                                @Html.DropDownListFor(m => m.Job_Status, new SelectList(
+
+                                                                                            new List<Object> { 
+                                                                                            new{value="Open",text="Open"},
+                                                                                            new{value="Closed",text="Closed"}
+                                                                                            }, "value", "text"), new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> &nbsp Client Information </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+         <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+            <div class="row">
+                <div class="col-md-20">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="ajax-refresh2">
+                                <div class="panel-body">
+                                    <div class="row-fluid">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Client Name : </strong></label>
+                                                @Html.DropDownListFor(m => m.Client_Name, Enumerable.Empty<SelectListItem>(), "Select", new { Name = "Client_Name", @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="label"><strong>If New Client Name:</strong></label>
+                                                @Html.TextBoxFor(m => m.Other_ClientName, new { @class = "form-control", @maxlength = "50", @placeholder = "Client Name" })
+                                                @Html.ValidationMessageFor(m => m.Other_ClientName)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client Contact Person :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_ContactPerson, new { @class = "form-control", @maxlength = "50", @placeholder = "Contact Person" })
+                                                @Html.ValidationMessageFor(m => m.Client_ContactPerson)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-3">
+
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client Address :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_Address, new { @class = "form-control", @maxlength = "500", @placeholder = "Address" })
+                                                @Html.ValidationMessageFor(m => m.Client_Address)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-3">
+
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client Address2 :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_Address2, new { @class = "form-control", @maxlength = "500", @placeholder = "Address2" })
+                                                @Html.ValidationMessageFor(m => m.Client_Address2)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client City  :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_City, new { @class = "form-control", @placeholder = "City" })
+                                                @Html.ValidationMessageFor(m => m.Client_City)
+                                                @*<input type="text" class="form-control" name="MyCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client State :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_State, new { @class = "form-control", @placeholder = "State" })
+                                                @Html.ValidationMessageFor(m => m.Client_State)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client  ZipCode :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_ZipCode, new { @class = "form-control", @placeholder = "ZipCode" })
+                                                @Html.ValidationMessageFor(m => m.Client_ZipCode)
+                                                @*<input type="text" class="form-control" name="ResaleCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client Fax :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_Fax, new { @class = "form-control", @placeholder = "Fax" })
+                                                @Html.ValidationMessageFor(m => m.Client_Fax)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client Email<span class="err">*</span> :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_Email, new { @class = "form-control", @placeholder = "Email" })
+                                                @Html.ValidationMessageFor(m => m.Client_Email)
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client Phone :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_Phone, new { @class = "form-control", @placeholder = "Phone" })
+                                                @Html.ValidationMessageFor(m => m.Client_Phone)
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="label"><strong>Client Mobile :</strong></label>
+                                                @Html.TextBoxFor(m => m.Client_Mobile, new { @class = "form-control", @placeholder = "Mobile" })
+                                                @Html.ValidationMessageFor(m => m.Client_Mobile)
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class=" box-row  profile-hd">
+                                    <h7 class="box-heading"><strong> &nbsp Work Information </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                             <i class="icon ion-chevron-down"></i></span></h7>
+                                </div>
+                                <div class="col-md-20">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="ajax-refresh2">
+
+                                                <div class="panel-body">
+                                                    <input  type="hidden" value=" @ViewBag.LoginUser" id="loguser"/>
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Previous Location : </strong></label>
+                                                                @* @Html.DropDownListFor(m => m.Previous_Location, Enumerable.Empty<SelectListItem>(), "Select", new { Name = "Previous_Location", @class = "form-control" })*@
+                                                                @Html.DropDownListFor(m => m.Previous_Location, Enumerable.Empty<SelectListItem>(), "Select", new { Name = "Client_ID", @class = "form-control" })
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>If New Location :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Other_Previous_Location, new { @class = "form-control", @placeholder = "Location" })
+                                                                @Html.ValidationMessageFor(m => m.Other_Previous_Location)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Work Address :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Work_Address, new { @class = "form-control", @maxlength = "50", @placeholder = "Work Address" })
+                                                                @Html.ValidationMessageFor(m => m.Work_Address)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Work Address2 :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Work_Address2, new { @class = "form-control", @maxlength = "50", @placeholder = "Work Address2" })
+                                                                @Html.ValidationMessageFor(m => m.Work_Address2)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Work City  :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Work_City, new { @class = "form-control", @placeholder = "Work City " })
+                                                                @Html.ValidationMessageFor(m => m.Work_City)
+
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="label"><strong>Work State :</strong></label>
+                                                                @Html.TextBoxFor(m => m.Work_State, new { @class = "form-control", @placeholder = "Work State " })
+                                                                @Html.ValidationMessageFor(m => m.Work_State)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> &nbsp Direction To </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+         <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+            <div class="row">
+                <div class="col-md-20">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="ajax-refresh2">
+                                <div class="panel-body">
+
+                                    <div class="row-fluid">
+                                        <div class="col-md-10">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Directions To :</strong></label>
+                                                @Html.TextAreaFor(m => m.Directions_To, new { @class = "form-control", @maxlength = "5000" })
+                                                @Html.ValidationMessageFor(m => m.Directions_To)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> &nbsp Doing What</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+         <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+            <div class="row">
+                <div class="col-md-20">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="ajax-refresh2">
+                                <div class="panel-body">
+
+                                    <div class="row-fluid">
+                                        <div class="col-md-10">
+                                            <div class="form-group">
+
+                                                <label for="title"><strong>Doing What :</strong></label>
+                                                @Html.TextAreaFor(m => m.Doing_What, new { @class = "form-control", @maxlength = "500" })
+                                                @Html.ValidationMessageFor(m => m.Doing_What)
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> &nbsp Assemblies</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+         <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+    
+@*<div class="row" id="AssembliesPatialView"></div>*@
+            <div class="row-fluid">
+                <div class="panel-body">
+                    <div class="col-md-20">
+                        <div class="form-group">
+                            @*<label for="title"><strong>Assemblies Name: </strong></label>
+                            @Html.DropDownListFor(m => m.Assemblies_Name, Enumerable.Empty<SelectListItem>(), new { Name = "Assemblies_Name", @class = "form-control", data_type = "Other" })
+                            @Html.ValidationMessageFor(m => m.Assemblies_Name)*@
+                             <a href="#" id="addAssembliesBtn" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#AssignModal" onclick="AddNewAssembliesParts();"><i class="fa fa-check-square-o"></i><span>Add Assemblies</span></a>
+                        </div>
+                        
+                         <div id="AddNewAssembliesParts" class="modal fade" role="dialog">
+                        <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 40px;">
+                        <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+
+                            <div id="SelectNewAssembliesParts">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        <div id="AssembliesPartsPatialView"  class="row">
+                          @{
+                             var AssembliespartsList = (List<ElectricEase.Models.Assembly_MasterInfo>)TempData.Peek("JobAssembliesParts");
+                            if (AssembliespartsList != null && AssembliespartsList.Count > 0)
+                            {
+                             
+                                 @Html.Partial("_JobAssembliesPartsDetailsInGrid", AssembliespartsList);
+
+                           
+                            } 
+               
+                            }
+                        @{
+                            var AssembliesLaborList = (List<ElectricEase.Models.Assembly_MasterInfo>)TempData.Peek("JobAssembliesLabor");
+                            if (AssembliesLaborList != null && AssembliesLaborList.Count > 0)
+                            {
+                             @*<div id="LaborPatialView"  class="row"></div>*@
+                                 @Html.Partial("_JobAssembliesLaborDetailsInGrid", AssembliesLaborList);
+
+                            } 
+               
+                            }
+                           </div>
+                    </div>
+                </div>
+            </div>
+               
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> &nbsp - Add Parts Details </strong> <span class="pull-right apse b" style="padding-right:5px;color:#ffffff"">
+            </div>
+            <div class="row">
+
+
+                <a href="#" id="addnewPartsBtn" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#AssignModal" onclick="AddNewParts();"><i class="fa fa-check-square-o"></i><span>Add Part List</span></a>
+
+                <div id="AddNewParts" class="modal fade" role="dialog">
+                    <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 40px;">
+                        <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+
+                            <div id="SelectNewParts"></div>
+                        </div>
+                    </div>
+                </div>
+               @*              
+                @{
+            var MyASparts = (List<ElectricEase.Models.AssembliesParts_DetailsInfoList>)TempData.Peek("MyASparts");
+            ViewBag.Assemblies_Name = TempData["Assemblies_Name"];
+            if (MyASparts != null && MyASparts.Count > 0)
+            {
+                    <div class="panel-body">
+                        @Html.Partial("_AssembliesPartsDetailsList", MyASparts)
+                    </div>
+            }
+           
+                }*@
+
+
+                @{
+            var myNewPartsInJob = (List<ElectricEase.Models.Parts_DetailsInfoList>)TempData.Peek("MyPartsInJob");
+            if (myNewPartsInJob != null && myNewPartsInJob.Count > 0)
+            {
+                    <div class="panel-body">
+                        @Html.Partial("_PartsListInJob", myNewPartsInJob)
+                    </div>
+            }
+                        
+                }
+            </div>
+
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> &nbsp - Add Labour Details </strong> <span class="pull-right apse b" style="padding-right:5px;color:#ffffff"">
+                                                <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+            <div >
+                <div class="row" id="DefaultAddPartsbtn">
+                     <a href="#" id="addnewlabourBtn" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#AssignModal" onclick="AddNewLabourInJob();"><i class="fa fa-check-square-o"></i><span>Add Labour List</span></a>
+                </div>
+               
+                <div id="AddNewLabourInJob" class="modal fade" role="dialog">
+                    <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 40px;">
+                        <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                            <div id="SelectNewLabour"></div>
+                        </div>
+                    </div>
+                </div>
+                                 
+                                <div id="LabourPatialView"  class="row">
+                   
+                                </div>
+
+                       @* @{
+                                var MyAsLabourListData = (List<ElectricEase.Models.AssembliesLabourDetailsList>)TempData.Peek("MyAsLabourList");
+
+                                if (MyAsLabourListData != null && MyAsLabourListData.Count > 0)
+                                {
+                                    <div class="panel-body">
+                                        @Html.Partial("_AssembliesLabourDetailsList", MyAsLabourListData)
+                                    </div>
+                
+                                }
+           
+                        }*@
+
+                        @{
+                                var myNewLabourListInJob = (List<ElectricEase.Models.Labor_DetailsInfoList>)TempData.Peek("MyLaborListInJob");
+                                if (myNewLabourListInJob != null && myNewLabourListInJob.Count > 0)
+                                {
+                                <div class="panel-body">
+                                    @Html.Partial("_LabourListInJob", myNewLabourListInJob)
+                                </div>
+                                    }
+                        
+                        }
+
+                              
+               
+                
+
+
+            </div>
+
+            
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> Mileage</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+         <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+    
+            <div class="row">
+                <div id="collapseFour" class="panel-collapse collapse in">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="example" class="table table-bordered datatables" cellspacing="0" width="100%">
+                                <thead style="background-color: #45525F">
+                                    <tr>
+                                        <th></th>
+                                        <th>Estimate</th>
+                                        <th>Actual</th>
+                                        <th>Mileage Cost</th>
+                                        <th>Exp Total</th>
+                                        <th>Est Total </th>
+                                        <th>Act Total </th>
+
+                                    </tr>
+                                    <tr>
+                                        <td>Mileage</td>
+                                        <td>
+                                           @* <input type="text" id="Estimated" class="col-md-10" />*@
+
+                                            @Html.TextBoxFor(m => m.Job_Mileage_Estimated, new { @id = "Estimated", @class = "col-md-10" })
+                                        </td>
+                                        <td>
+                                            @*<input type="text" id="ActualCost" class="col-md-10" />*@
+                                             @Html.TextBoxFor(m => m.Job_Mileage_Actual, new { @id = "ActualCost", @class = "col-md-10" })
+
+                                        </td>
+                                        <td>
+                                            @*<input type="text" id="MileageCost" class="col-md-10" />*@
+                                             @Html.TextBoxFor(m => m.Job_Mileage_Cost, new { @id = "MileageCost", @class = "col-md-10" })
+
+                                        </td>
+                                        <td>
+                                            @*<input type="text" id="MileExpTotal" class="col-md-10" />*@
+                                            @Html.TextBoxFor(m => m.Job_Mileage_ExpTotal, new { @id = "MileExpTotal", @class = "col-md-10" })
+
+                                        </td>
+                                        <td>
+                                          @*  <input type="text" id="MileEstTotal" class="col-md-10" />*@
+                                              @Html.TextBoxFor(m => m.Job_Mileage_EstTotal, new { @id = "MileEstTotal", @class = "col-md-10" })
+                                        </td>
+                                        <td>
+                                           @* <input type="text" id="MileActTotal" class="col-md-10" />*@
+                                             @Html.TextBoxFor(m => m.Job_Mileage_ActTotal, new { @id = "MileActTotal", @class = "col-md-10" })
+
+                                        </td>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- /box -->
+            </div>
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong> Estimate Values</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+         <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+            <div class="row">
+                <div id="collapseFive" class="panel-collapse collapse in">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="estimateValue" class="table table-bordered datatables" cellspacing="0" width="100%">
+                                <thead style="background-color: #45525F">
+                                    <tr>
+                                        <th></th>
+                                        <th>Estimated</th>
+                                        <th>Est Total</th>
+                                        <th>Act Total</th>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">Sub Total</td>
+                                        <td>
+                                           @* <input type="text" id="SubEstTotal" class="col-md-8" />*@
+                                             @Html.TextBoxFor(m => m.EstimateValue_SubTotal, new { @id = "SubEstTotal", @class = "col-md-8" })
+
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Overhead</td>
+                                        <td>
+                                           @* <input type="text" id="OverExpTotal" class="col-md-5" />%*@
+                                            @Html.TextBoxFor(m => m.EstimateValue_Overhead_ExpTotal, new { @id = "OverExpTotal", @class = "col-md-5" })%
+
+                                        </td>
+                                        <td>
+                                           @* <input type="text" id="EstimateExpTotal" class="col-md-8" />*@
+                                              @Html.TextBoxFor(m => m.EstimateValue_ExpTotal, new { @id = "EstimateExpTotal", @class = "col-md-8" })
+                                        </td>
+                                        <td></td>
+
+                                    </tr>
+                                    <tr>
+                                        <td>Profit</td>
+                                        <td>
+                                            @*<input type="text" id="ProfitPercentage" class="col-md-5" />%*@
+
+                                            @Html.TextBoxFor(m => m.EstimateValue_Profit_Percentage, new { @id = "ProfitPercentage", @class = "col-md-5" })%
+                                        </td>
+                                        <td>
+                                           @* <input type="text" id="ProfitEstTotal" class="col-md-8" />*@
+                                             @Html.TextBoxFor(m => m.EstimateValue_Profit_EstTotal, new { @id = "ProfitEstTotal", @class = "col-md-8" })%
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">Estimate Override<br />
+                                            (Ignores all previous estimate values and uses this value instead if greater than 0)</td>
+                                        <td>
+                                            @*<input type="text" id="EstimateOverride" class="col-md-8" />*@
+                                            @Html.TextBoxFor(m => m.Estimate_Override, new { @id = "EstimateOverride", @class = "col-md-8" })
+
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">Sales Tax<br />
+                                            (Check if charge Sales Tax on this job)</td>
+                                        <td>
+                                            <select>
+                                                <option value="Yes - Apply Tax">Yes - Apply Tax</option>
+                                                <option value="No - Do Not Apply Tax">No - Do Not Apply Tax</option>
+                                            </select></td>
+                                        <td></td>
+                                    </tr>
+                                </thead>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong>Job Totals</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+         <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+            <div class="row">
+                <div id="collapseSix" class="panel-collapse collapse in">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="jobTotalsDetails" class="table table-bordered datatables" cellspacing="0" width="100%">
+                                <thead style="background-color: #45525F">
+                                    <tr>
+                                        <th></th>
+                                        <th>Expense Total</th>
+                                        <th>Estimated Total</th>
+                                        <th>Actual Total</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Totals</td>
+                                        <td>
+                                            <input type="text" id="JobExpensesTotal" class="col-md-10" />
+                                               @Html.TextBoxFor(m => m.Job_ExpenseTotal, new { @id = "JobExpensesTotal", @class = "col-md-10" })
+                                        </td>
+                                        <td>
+                                            @*<input type="text" id="EstimateTotal" class="col-md-10" />*@
+                                               @Html.TextBoxFor(m => m.Job_EstimatedTotal, new { @id = "EstimateTotal", @class = "col-md-10" })
+                                        </td>
+                                        <td>
+                                           @* <input type="text" id="ActualTotal" class="col-md-10" />*@
+                                               @Html.TextBoxFor(m => m.Job_ActualTotal, new { @id = "ActualTotal", @class = "col-md-10" })
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Profit/Loss</td>
+                                        <td colspan="3">
+                                           @* <input type="text" id="ProfitLossTotal" class="col-md-10" />*@
+                                               @Html.TextBoxFor(m => m.Profit_Loss_Total, new { @id = "ProfitLossTotal", @class = "col-md-10" })
+                                        </td>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong>Add Legal Details</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+         <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+            <div class="row">
+                <div class="row">
+                                 <a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#AssignModal" onclick="LegalAssigntoModal();"><i class="fa fa-check-square-o"></i><span>Add Legal List</span></a>
+                                    </div>
+                <div class="col-md-20">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="ajax-refresh2">
+                                    @{
+                                        var myLegalDetailsInJob = (List<ElectricEase.Models.Legal_DetailsInfoList>)TempData.Peek("MyLegalList");
+                                        if (myLegalDetailsInJob != null && myLegalDetailsInJob.Count != 0)
+                                        {
+                                            @Html.Partial("_MyLegalListDetails", myLegalDetailsInJob)
+                                        
+                                        }
+                        
+                                    }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+           
+                    
+            <div id="LegalAssign" class="modal fade" role="dialog">
+                <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 40px;">
+                    <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                        <div id="profileLegalAssign"></div>
+                    </div>
+                </div>
+            </div>
+    
+            <div class=" box-row  profile-hd">
+                <h7 class="box-heading"><strong>Associated Totals</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+         <i class="icon ion-chevron-down"></i></span></h7>
+            </div>
+            <div class="row">
+                <div class="col-md-20">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="ajax-refresh2">
+                                <div class="panel-body">
+                                    <div class="row-fluid">
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label for="lable"><strong>Upload New File :</strong></label>
+                                                @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload", mulitple = true })
+                                               
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                             <img src="data:image;base64,@System.Convert.ToBase64String(Model.Job_Attachment)"  name="UploadedFile" width="100" height="80"/>
+                                            </div>
+                                        <div class="pull-right">
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <input type="button" value="Upload" name="Upload" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @*@{
+                                                @Html.Partial("Upload");
+                                        }*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+
+
+        <div class="panel-footer clearfix">
+                    <div class="pull-right">
+                        @if (ViewBag.EditJobDetails == "EditJobDetails")
+                        {
+                            <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" id="Addbtn">Update</button>
+                        }
+                        else
+                        {
+                            <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" id="Addbtn">Add</button>
+                             <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset">Clear</a>
+                        }
+                        
+                       
+                    </div>
+                </div>
+            
+        }
+    </div>
+</div>
+
+<!-- /box -->
+
+
+<!-- /app body -->
+
+
+

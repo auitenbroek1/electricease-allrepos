@@ -1,0 +1,277 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<link href="~/Content/fullcalendar.min.css" rel="stylesheet" />
+<link href="~/Content/fullcalendar.print.css" rel="stylesheet" media='print' />
+<script src="~/Scripts/fullcalendar.min.js"></script>
+<style>
+   div#Loading {display:none;}
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var ReportsRights = $("#rights").val();
+
+        if (ReportsRights === "False") {
+            $('div.calender-sec').removeClass('col-md-6');
+            $('div.calender-sec').addClass('col-md-8', 'important');
+        }
+
+        $("#dashBoard").addClass('active');
+
+        //To change content tittles
+        $(".content-title").text("Dashboard");
+
+       $('#calender').fullCalendar({
+
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+
+            },
+            editable: true,
+            eventLimit: true,
+            events:  {
+                url: '../App/GetCalendarEvents',
+                error: function() {
+                   // $('#script-warning').show();
+                }
+            },
+                //"@Url.Action("GetCalendarEvents/")"
+
+         });
+        var ReportsRights = $("#rights").val();
+        $("#report").load('/App/JobDescriptionReport');
+        if (ReportsRights == true) {
+
+        }
+
+    });
+    $("#Ljob").click(function () {
+        //alert("dsfsdfsdf");
+        $(this).addClass('active').siblings().removeClass('active');
+
+        $(".content-title").hide();
+        //var activepage = $('a', this).attr("href");
+        //$(activepage).show();
+        // document.title = $('h1', activepage).first().text();
+        // $('title').text(document.title);
+        return false;
+    });
+
+
+</script>
+<style>
+    #UserColor {
+        border: none;
+        height: 1px;
+        width: 5px;
+        float: right;
+    }
+</style>
+
+<div style="background-color: #ffffff; max-height: 200px;">
+    @if (!HttpContext.Current.User.IsInRole("Admin"))
+    {
+        <div class="magic-layout" data-cols="4">
+             @if (Convert.ToBoolean(HttpContext.Current.Items["MyJobMasterRights"]) == true)
+                {
+                <div class="panel panel-default magic-element">
+                    @{
+                        string Jobstatus = "Open";
+                    }
+                    <a href="/Job/JobList?status=@Jobstatus" class="panel-body-heading full-line" style="background-color: #cccccc">
+                        <div class="pb-object pb-object-circle">
+                            <i class="pbo-icon icon ion-ios7-unlocked-outline"></i>
+                        </div>
+                        <!-- /pb-object -->
+                        <h3 class="pb-title">
+                            <span class="text-danger" style="color: #009966 !important;">@ViewBag.JobOpenCount Jobs</span> <small>Open</small>
+                        </h3>
+                        <!-- /pb-title -->
+                        @*<span class="pb-watermark">
+                            <i class="icon ion-bag"></i>
+                        </span>*@
+                        <!-- /pb-watermark -->
+                    </a>
+                    <!-- /panel-body-heading -->
+                </div>
+                <div class="panel panel-default magic-element">
+                    @{
+                        string JobstatusClosed = "Closed";
+                    }
+                    <a href="/Job/JobList?status=@JobstatusClosed" class="panel-body-heading full-line" style="background-color: #cccccc">
+                        <div class="pb-object pb-object-circle">
+                            <i class="pbo-icon icon ion-ios7-locked-outline"></i>
+
+                        </div>
+                        <!-- /pb-object -->
+                        <h3 class="pb-title">
+                            <span class="text-danger" style="color: #CC0000 !important;">@ViewBag.JobClosedCount Jobs</span> <small>Closed</small>
+                        </h3>
+                        <!-- /pb-title -->
+                        @*<span class="pb-watermark">
+                            <i class="icon ion-ios7-cart-outline"></i>
+
+                        </span>*@
+                        <!-- /pb-watermark -->
+                    </a>
+                    <!-- /panel-body-heading -->
+                </div>
+                        }
+            <!-- /panel -->
+            @if (Convert.ToBoolean(HttpContext.Current.Items["MyPartsRights"]) == true)
+                {
+                <div class="panel panel-default magic-element">
+                    <a href="/Parts_Master/Index" class="panel-body-heading full-line" style="background-color: #cccccc">
+                        <div class="pb-object pb-object-circle">
+                            <i class="pbo-icon  ion-ios7-gear-outline"></i>
+
+                        </div>
+                        <!-- /pb-object -->
+                        <h3 class="pb-title ">
+                            <span class="text-success" style="color: #0026ff !important;">@ViewBag.PartsCount</span> <small>Parts</small>
+                        </h3>
+                        <!-- /pb-title -->
+                        @*<span class="pb-watermark">
+                            <i class="icon ion-ios7-star-outline"></i>
+                        </span>*@
+                        <!-- /pb-watermark -->
+                    </a>
+                    <!-- /panel-body-heading -->
+                </div>
+            }
+            <!-- /panel -->
+
+            @if (Convert.ToBoolean(HttpContext.Current.Items["MyAssembliesRights"]) == true)
+                {
+                <div class="panel panel-default magic-element">
+                    <a href="/Assemblies_Master/Index" class="panel-body-heading full-line" style="background-color: #cccccc">
+                        <div class="pb-object pb-object-circle">
+                            <i class="pbo-icon icon ion-ios7-photos-outline"></i>
+                        </div>
+                        <!-- /pb-object -->
+                        <h3 class="pb-title ">
+                            <span class="text-warning" style="color: #FFFF99 !important;">@ViewBag.AssembliesCount</span> <small>Assemblies</small>
+                        </h3>
+                        <!-- /pb-title -->
+                        @*<span class="pb-watermark">
+                            <i class="icon ion-ios7-rainy-outline"></i>
+                        </span>*@
+                        <!-- /pb-watermark -->
+                    </a>
+                    <!-- /panel-body-heading -->
+                </div>
+            }
+            <!-- /panel -->
+
+           
+            <!-- /panel -->
+        </div>
+
+        <div class="box magic-element width-full" style="max-height: 1000px !important;">
+            @{
+
+                var cv = ViewBag.JobReportRights;
+                int i = 0;
+            }
+            <input type="hidden" value="@cv.ToString()" id="rights" />
+            <div class="panel-body" style="padding: 0px 0px !important;">
+                @if (Convert.ToBoolean(HttpContext.Current.Items["JobDescriptionReportRights"]) == true)
+                {
+                    <div class="col-md-6 testh" >
+                        <div style="text-align:right;margin-bottom:2px;">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='../Reports/JobDescriptionReport'">View More</button>
+                            </div>
+                        <div class=" box-row  profile-hd">
+                            <h7 class="box-heading">
+                                <strong> &nbsp; Work Orders </strong> <span id="togglecont" class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    @*<img id="arrow" src="../Images/down-arrow.png" alt="" />*@
+
+                                </span>
+                            </h7>
+
+                        </div>
+                        <div style="background-color: #fff; color: black; height: 500px; width: 100%">
+                            <div id="report">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6 calender-sec">
+                        <div style="text-align:right;margin-bottom:2px;">
+                            <button type="button" class="btn btn-primary" onclick="window.location.href='../Job/Job_CalenderEvents'">View More</button>
+                        </div>
+                        <div class="panel-body" style="padding: 0px 0px !important; max-height: 1000px !important;">
+
+
+                            <div class="box-row profile-hd">
+                                <h7 class="box-heading">
+                                    <strong> &nbsp Job Calendar</strong> <span id="togglecont" class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                        @*<img id="arrow" src="../Images/down-arrow.png" alt="" />*@
+
+                                    </span>
+                                </h7>
+
+                            </div>
+
+
+                            <div style="background-color: #fff; color: black; height: 500px; max-width: 100%">
+
+                                <div class="box magic-element width-full" style="overflow-y: scroll; height:501px">
+                                    <div class="pull-left">
+                                        <label for="title" style="font-size: 11px;">
+                                            UnAssigned Job :&nbsp
+                                            <input type="text" name="UserColor" id="UserColor" style="background-color:#231f20" class="form-control" />
+                                        </label>
+                                    </div>
+                                    <div id="calender">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @*if (Convert.ToBoolean(HttpContext.Current.Items["MyJobMasterRights"]) == true)
+                {
+                    <div class="col-md-6 calender-sec">
+                        <div style="text-align:right;margin-bottom:2px;">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='../Job/Job_CalenderEvents'">View More</button>
+                            </div>
+                        <div class="panel-body" style="padding: 0px 0px !important; max-height: 1000px !important;">
+
+
+                            <div class=" box-row  profile-hd">
+                                <h7 class="box-heading">
+                                    <strong> &nbsp Job Calender</strong> <span id="togglecont" class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                        <img id="arrow" src="../Images/down-arrow.png" alt="" />
+
+                                    </span>
+                                </h7>
+
+                            </div>
+                            
+
+                            <div style="background-color: #fff; color: black; height: 500px; max-width: 100%">
+
+                                <div class="box magic-element width-full" style="overflow-y: scroll; height:501px">
+                                    <div class="pull-left">
+                                        <label for="title" style="font-size: 11px;">
+                                            UnAssigned Job :&nbsp
+                                            <input type="text" name="UserColor" id="UserColor" style="background-color:#231f20" class="form-control" />
+                                        </label>
+                                    </div>
+                                    <div id="calender">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }*@
+            </div>
+        </div>
+                }
+
+</div>

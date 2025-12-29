@@ -1,0 +1,240 @@
+﻿@model ElectricEase.Models.Assembly_MasterInfo
+@{
+    Layout = null;
+}
+<script>
+    $(document).ready(function () {
+        var assemdropdwn = document.getElementsByName("NAssembliesTbl_length");
+        var searchbox = $('#NAssembliesTbl_filter input');
+        var pagno = Cookies.get('NAssemdtpageno');
+        if (pagno == null || pagno == "") {
+            pagno = 0;
+        }
+        var pagelen = Cookies.get('NAssemdtpagelen');
+        if (typeof pagelen != 'undefined' && pagelen != null && pagelen != "") {
+            pagelen = Number(pagelen);
+        }
+        else {
+            pagelen = 5;
+        }
+        var table = null;
+        if (Cookies.get('NAssemdtpagelen') != null && Cookies.get('NAssemdtpagelen') != "") {
+            var tab = $("#NAssembliesTbl").dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "order": [[0, "asc"]],
+                "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+                "iDisplayLength": pagelen
+            });
+
+            table = tab;
+            if (Cookies.get('NAssemdtsorting') != null && Cookies.get('NAssemdtsorting') != "") {
+                var sort = Cookies.get('NAssemdtsorting').split(',');
+                if (sort.length > 0) {
+                    tab.fnSort([[sort[0], sort[1]]]);
+                }
+            } 
+            pagno = Number(pagno);
+            var total = $('.paginate_button');
+            if (total.length == 3) {
+                pagno = 0;
+            }
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('NAssemsearch') != null && Cookies.get('NAssemsearch') != "") {
+                tab.fnFilter(Cookies.get('NAssemsearch'));
+            }
+                     
+        }
+        else {
+            var tab = $("#NAssembliesTbl").dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "order": [[0, "desc"]],
+                "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }]
+            });
+            table = tab;
+            if (Cookies.get('NAssemdtsorting') != null && Cookies.get('NAssemdtsorting') != "") {
+                var sort = Cookies.get('NAssemdtsorting').split(',');
+                if (sort.length > 0) {
+                    tab.fnSort([[sort[0], sort[1]]]);
+                }
+
+            } 
+            pagno = Number(pagno);
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('NAssemsearch') != null && Cookies.get('NAssemsearch') != "") {
+                tab.fnFilter(Cookies.get('NAssemsearch'));
+            }
+          
+        }
+        if (isloaded) {
+            setTimeout(function () {
+                var ddl = $("select[name=Assemblies_Category]");
+                var ddlopt = $("select[name=Assemblies_Category] option");
+                var opt = "";
+
+                for (var i = 0; i < ddlopt.length; i++) {
+                    if ($(ddlopt[i]).val() != null && $(ddlopt[i]).val() != "" && $(ddlopt[i]).val() != "1") {
+                        $('#lstassembly_cat').append("<option value='" + $(ddlopt[i]).val().trim() + "'>" + $(ddlopt[i]).val().trim() + "</options>");
+                    }
+                }
+            }, 2000)
+            isloaded = true;
+        }
+        $($('#NAssembliesTbl_length')[0].parentElement).removeClass('col-md-6')
+        $($('#NAssembliesTbl_length')[0].parentElement).addClass('col-md-10')
+
+        $(assemdropdwn).change(function () {
+            var len = this.value;
+            Cookies.set('NAssemdtpagelen', len);
+        });
+        $('#NAssembliesTbl_filter input').on("keyup", function () {
+            Cookies.set('NAssemsearch', $(this).val());
+        });
+        $('#NAssembliesTbl').on('page.dt', function () {
+            var info = this;
+            setTimeout(function () {
+                var ss = $('.paginate_button.active');
+                var pgno = ss[0].innerText;
+                if (pgno != "" && pgno != "0") {
+                    pgno = Number(pgno) - Number(1);
+                }
+                Cookies.set('NAssemdtpageno', pgno);
+            }, 1000);
+            var ss = $('.paginate_button.active');
+        });
+
+        $('#NAssembliesTbl').on('order.dt', function () {
+            var sortedCol = $('#NAssembliesTbl').dataTable().fnSettings().aaSorting[0][0];
+            var sortedDir = $('#NAssembliesTbl').dataTable().fnSettings().aaSorting[0][1];
+            Cookies.set('NAssemdtsorting', sortedCol + ',' + sortedDir);
+
+
+        });
+        //var assembdiv = $('#DataTables_Table_0');
+        //$(assembdiv[0].parentElement).removeClass('col-md-12');
+        //$(assembdiv[0].parentElement).addClass('table-responsive');
+    });
+    function assembcatChange() {
+        debugger;
+        isloaded = true;
+        category = $('#lstassembly_cat').val();
+        Cookies.set("assemfilter", $('#lstassembly_cat').val());
+        getassemblyList($('#lstassembly_cat').val());
+    }
+</script>
+<style>
+    .deletedparts {
+        color: red !important;
+    }
+
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+
+    .content {
+        color: #000000;
+    }
+
+    .inactiveicon {
+        color: #ff0000;
+        font-size: 18px;
+    }
+
+    .activicon {
+        color: forestgreen;
+        font-size: 18px;
+    }
+</style>
+<div class="col-md-2">
+    <select id="lstassembly_cat" class="form-control" onchange="assembcatChange();">
+        <option value="">All Assembly Category</option>
+    </select>
+</div>
+<table id="NAssembliesTbl" class="table table-bordered datatables" cellspacing="0" width="100%">
+    <thead style="background-color: #45525F">
+        <tr>
+            <th>ID</th>
+            <th>Assemblies Name</th>
+            <th>Assembly Category</th>
+            <th>Assemblies Description</th>
+            <th>Parts Count</th>
+            @*<th>Status</th>*@
+            <th style=" width:120px;">Action</th>
+        </tr>
+    </thead>
+    <tbody id="asbody">
+        @foreach (var item in Model.asList)
+        {
+            var rowcolor = "";
+            if (item.assemblypartsCount == 0)
+            {
+                rowcolor = "deletedparts";
+            }
+            <tr>
+                <td>@item.Assemblies_Id</td>
+                <td class="@rowcolor">@item.Assemblies_Name</td>
+                <td class="@rowcolor">@item.Assemblies_Category</td>
+                <td class="@rowcolor">
+                    @{
+                        string desc = "";
+                        desc = item.Assemblies_Description == null ? "" : item.Assemblies_Description;
+                        if (desc.Length > 100)
+                        {
+                            desc = desc.Substring(0, 50) + "...";
+                        }
+                        <span>@desc</span>
+                    }
+                </td>
+                <td class=@rowcolor>@item.assemblypartsCount</td>
+                @*<td class=@rowcolor>
+                        @if (@item.IsActive == true)
+                        {
+                            <span class="glyphicon glyphicon-ok-circle activicon"></span>
+                        }
+                        else
+                        {
+                            <span class="glyphicon glyphicon-remove-circle inactiveicon"></span>
+                        }
+                    </td>*@
+                @if (item.IsActive == true)
+                {
+            <td class=@rowcolor>
+                <a href="javascript:void(0);" title="Edit" onclick="editassembly('@item.Assemblies_Name','@item.Assemblies_Id');">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </a>&nbsp;
+                <a name="btnDuplicate" class="confirm" href="javascript:void(0)" title="Copy" onclick="duplicateAssembly('@item.Assemblies_Name.Trim()',@item.Assemblies_Id)">
+                    <span class="glyphicon glyphicon-file"></span>
+                </a>&nbsp;
+                <a class="confirm" id="alert" href="javascript:void(0)" title="Delete" onclick="deleteAssembly('@item.Assemblies_Name.Trim()',@item.Assemblies_Id)">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
+
+            </td>
+                }
+                else
+                {
+                    <td class="@rowcolor" align="center">
+                        <a href="javascript:void(0);" title="Edit" onclick="editassembly('@item.Assemblies_Name','@item.Assemblies_Id');">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>&nbsp;&nbsp;&nbsp;
+
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<div id="divNAssBot" tabindex="1"></div>

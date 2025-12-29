@@ -1,0 +1,47 @@
+﻿@model List<ElectricEase.Models.SOWInfoList>
+<div style="margin-top: 1%">
+    @{int i = 0;}
+    <div class="list-group sowprev" style="width: 47%;margin-left:5px; overflow:auto;max-height:435px;display:inline-block;vertical-align:top;border:1px solid #e2e2e2">
+        <ul align="center" style="padding-left:5px;padding-right:5px;">
+            @foreach (var item in Model)
+            {
+                if (item.Doing_What != "" && item.Doing_What != null)
+                {
+                    string color = "background-color:#d3d3d3 !important";
+                    i++;
+                    if (i % 2 == 0)
+                    {
+                        color = "background-color:white !important";
+                    }
+                <li class="list-group-item list-group-item-success" onclick="ShowSOW(@i)"  style="color:black !important;text-align:left;cursor:pointer;margin:2px;@color">
+                    @if (item.Doing_What.Length > 100)
+                    {
+                        <span>@item.Doing_What.ToString().Substring(0, 100) ....</span>
+                        <textarea id="@i" style="display:none">@item.Doing_What</textarea>
+                    }
+                    else
+                    {
+                        <span>@item.Doing_What.ToString() ....</span>
+                        <textarea id="@i" style="display:none">@item.Doing_What</textarea>
+                    }
+                </li>
+                }
+            }
+        </ul>
+    </div>
+
+    <div class="list-group" style="width: 50%; display: inline-block;">
+        <textarea id="txtpreview" class="txtprev"  rows="@i" style="float:left; width:100%;height:400px; margin-left:10px; outline:none;"></textarea>
+        <button value="Submit" class="btn btn-flat btn-primary btn-sm pull-right" style="margin: 2px; width: 32%" name="addLabour" tabindex="10" id="Clearbtn" onclick="$('#txtpreview').val('');">Clear</button>
+        <button value="Submit" class="btn btn-flat btn-primary btn-sm pull-right" style="margin: 2px; width: 32%" name="addLabour" tabindex="10" id="Addbtn" onclick="SaveSOW();">Add</button>
+    </div>
+    </div>
+
+
+
+<script>
+    function ShowSOW(val) {
+        $('#txtpreview').val($('#'+val).val());
+    }
+
+</script>

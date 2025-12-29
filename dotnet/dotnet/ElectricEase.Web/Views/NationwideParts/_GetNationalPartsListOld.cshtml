@@ -1,0 +1,214 @@
+﻿@model IList<ElectricEase.Models.Parts_DetailsInfoList>
+<style>
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+    /*.pagination {
+        margin:20px 0px !important;
+    }
+    div.dataTables_paginate {
+    }*/
+</style>
+<div id="collapseTwo" class="panel-collapse collapse in">
+
+    <div class="col-md-2">
+        <div class="form-group">
+            @Html.DropDownList("Part_CategoryList", ViewBag.PartCategory as SelectList, new { Name = "Part_Category", @class = "form-control", data_type = "other", onchange = "getpartslist(this.value);" })
+        </div>
+    </div>
+
+    <div class="table table-responsive">
+
+        <table id="N_ptexample" class="table table-bordered datatables" cellspacing="0" width="100%">
+            <thead style="background-color: #45525F">
+                <tr>
+                    <th>ID</th>
+                    <th>Part Category</th>
+                    <th>Description</th>
+                    <th>Part Number</th>
+                    <th>Cost</th>
+                    <th>Purchased From</th>
+                    <th>UOM</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="partsbody">
+                @foreach (var item in Model)
+                {
+                    var id = "lnkEdit" + item.Part_Number;
+                <tr>
+                    <td>@item.ID</td>
+                    <td>@item.Part_Category</td>
+                    <td>
+                        @{
+                            string desc = "";
+                            desc = item.Description == null ? "" : item.Description;
+                            if (desc.Length > 100)
+                            {
+                                desc = desc.Substring(0, 50) + "...";
+                            }
+                            if (item.UOM == null)
+                            {
+                                item.UOM = "";
+                            }
+                            <span>@desc</span>
+                        }
+
+                    </td>
+                    <td>@item.Part_Number</td>
+                    <td>@item.Cost</td>
+                    <td>@item.Purchased_From</td>
+                    <td>@item.UOM</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="editParts('@item.Part_Number');">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>&nbsp;&nbsp;&nbsp;
+                        <a class="confirm" id="alert" href="javascript:void(0);" onclick="deleteParts('@item.Part_Number');">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        <div id='bootomNationParts' tabindex='1'></div>
+    </div>
+</div>
+
+<script>   
+    var dropdwn = document.getElementsByName('N_ptexample_length');
+    var pagno = Cookies.get('N_partstpageno');
+    if (pagno == null || pagno == "") {
+        pagno = 0;
+    }   
+    if (Cookies.get('N_Partsdtpagelen') != null && Cookies.get('N_Partsdtpagelen') != "") {
+        var pagelen = Cookies.get('N_Partsdtpagelen');
+        pagelen = Number(pagelen);
+        var tab = $('#N_ptexample').dataTable({
+            "order": [[0, "asc"]],
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "iDisplayLength": pagelen,
+            "sDom": '<"top"flp>rt<"bottom"pri>',
+            "tableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "copy",
+                        "sButtonText": "Copy to clipboard"
+                    },
+                    {
+                        "sExtends": "csv",
+                        "sButtonText": "Save to CSV"
+                    },
+                    {
+                        "sExtends": "xls",
+                        "oSelectorOpts": {
+                            page: 'current'
+                        }
+                    }
+                ]
+            }
+            //"displayStart": 50,
+            //"PageLength": Cookies.get('Partsdtpagelen'),
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('N_Partsearch') != null && Cookies.get('N_Partsearch') != "") {
+            tab.fnFilter(Cookies.get('N_Partsearch'));
+        }
+    }
+    else {
+        var tab = $('#N_ptexample').dataTable({
+            "order": [[0, "asc"]],
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "iDisplayLength": pagelen,
+            "sDom": '<"top"flp>rt<"bottom"pri>', "tableTools": {
+                "aButtons": [
+                    {
+                        "sExtends": "copy",
+                        "sButtonText": "Copy to clipboard"
+                    },
+                    {
+                        "sExtends": "csv",
+                        "sButtonText": "Save to CSV"
+                    },
+                    {
+                        "sExtends": "xls",
+                        "oSelectorOpts": {
+                            page: 'current'
+                        }
+                    }
+                ]
+            }
+        });
+        pagno = Number(pagno);
+        var total = $('.paginate_button');
+        if (total.length == 3) {
+            pagno = 0;
+        }
+        if (pagno > 0) {
+            tab.fnPageChange(pagno, true);
+        }
+        if (Cookies.get('N_Partsearch') != null && Cookies.get('N_Partsearch') != "") {
+            tab.fnFilter(Cookies.get('N_Partsearch'));
+        }
+    }
+    $($('#N_ptexample_length')[0].parentElement).removeClass('col-md-6');
+    $($('#N_ptexample_length')[0].parentElement).addClass('col-md-10');
+    $(".dataTables_info").focus();
+    $(dropdwn).change(function () {      
+        var len = this.value;
+        Cookies.set('N_Partsdtpagelen', len);
+    });
+    $('#N_ptexample_filter input').on("keyup", function () {
+        Cookies.set('N_Partsearch', $(this).val());
+    });
+    $('#N_ptexample').on('page.dt', function () {
+        var info = this;
+        setTimeout(function () {
+            var ss = $('.paginate_button.active');
+            var pgno = ss[0].innerText;
+            if (pgno != "" && pgno != "0") {
+                pgno = Number(pgno) - Number(1);
+            }
+            Cookies.set('N_partstpageno', pgno);
+        }, 1000);
+
+    });
+   
+</script>
+<style>
+    /*#ptexample_wrapper .row:nth-child(1) .col-sm-6:first-child {
+        width: 25%;
+        margin-left: 1%;
+    }*/
+    table#N_ptexample tr th:first-child {
+    width: 100px !important;
+}
+ 
+table#N_ptexample tr th:nth-child(3) {
+    width: 175px !important;
+}
+table#N_ptexample tr th:nth-child(5) {
+    width: 140px !important;
+}
+
+table#N_ptexample tr th:nth-child(6) {
+    width: 100px !important;
+}
+table#N_ptexample tr th:nth-child(7) {
+    width: 95px !important;
+}
+</style>

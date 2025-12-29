@@ -1,0 +1,355 @@
+﻿@model List<ElectricEase.Models.SOWInfoList>
+<script>
+    var isfirst = true;
+    var sowmasterlist = null;
+    $(document).ready(function () {
+        
+        //isfirst = true;
+        getsowlist();
+        //$('#Sowtable').DataTable();
+
+    });
+
+    function getsowlist()
+    {
+        $.ajax({
+            url: '../Job/GetsowList',
+            type: 'GET',
+            success: function (data) {
+                
+                if (data != null) {
+                    $('#sowmasterlist').html(data);
+                    $('#Sowtable').dataTable();
+                    }
+            }
+        });
+
+    }
+   
+
+    function addnewsow() {
+        var s = $('#btnsavesow');
+        if ($('#divnew').css('display') == "none") {
+            $('#divnew').show();
+        }
+        else {
+            DisplayNotification("Please save the “Current SOW”!", "error");
+        }
+        
+
+    }
+    function savenewsow() {
+        if ($('#txtnewsow').val() != "" && $('#Sow_Category').val() != "" && $('#Sow_Subject').val() != "")
+            {
+        $.ajax({
+            url: '../Job/SaveSowMaster',
+            data: { "sow": $('#txtnewsow').val(),"Category": $('#Sow_Category').val(),"Subject": $('#Sow_Subject').val()},
+            type: 'POST',
+            success: function (data) {
+                
+                if (data == "success") {
+                    $('#divnew').hide();
+                    $('#txtnewsow').val('');
+                    $('#Sow_Category').val('');
+                    $('#Sow_Subject').val('');
+                    getsowlist();
+                    DisplayNotification("“Sow” saved successfully.", "success");
+                  
+                }
+                else {
+                    DisplayNotification("“Sow” is required.", "error");
+                }
+            },
+            error: function (err) {
+                DisplayNotification("“Sow” Error!", "error");
+            }
+        });
+        }
+        else {
+            DisplayNotification("“Sow Category Subject & Job Description” required!", "error");
+        }
+    }
+
+    function removesow(val) {
+        if (confirm("Are you sure, do you want to remove this sow?")) {
+            $.ajax({
+                url: '../Job/RemoveSow?id=' + val,
+                type: 'POST',
+                success: function (data) {
+                    if (data == "success") {
+                        getsowlist();
+                        DisplayNotification("“Sow” deleted successfully", "success");
+                    }
+                },
+                error: function (err) {
+                }
+            });
+
+        }
+    }
+    function ShowSOW(val) {
+        
+        var cursorPos = $('#newtxtpreview').prop('selectionStart');
+        var v = $('#newtxtpreview').val();
+        var textBefore = v.substring(0, cursorPos);
+        var textAfter = v.substring(cursorPos, v.length);
+        if (val == undefined)
+        {
+            if (v == "")
+            {
+                $('#newtxtpreview').val(textBefore + "\n" + $("#divSowdatadetiles").text() + textAfter);
+                $("#SowdetilesPopUp").click();
+            }
+            else
+            {
+                $('#newtxtpreview').val(textBefore + " \n \n" + $("#divSowdatadetiles").text() + textAfter);
+                $("#SowdetilesPopUp").click();
+            }
+           
+        }
+        else
+        {
+            $('#newtxtpreview').val(textBefore + " \n \n" + $('#' + val).text() + textAfter);
+            $("#SowdetilesPopUp").click();
+        }
+       
+        //$('#newtxtpreview').text($('#' + val).text());
+    }
+    function showbox(val) {
+        if ($('#' + val).css('display') == "none") {
+            $('.subrow').hide();
+            $('#' + val).show();
+        }
+        else {
+            $('#' + val).hide();
+        }
+    }
+    function searchfun(val) {
+        
+        if (sowmasterlist != null) {
+            if (sowmasterlist.length > 0) {
+                var newsowmasterlist = new Array();
+                
+                for (var i = 0; i < sowmasterlist.length; i++) {
+                    if (sowmasterlist[i].Sow_desc.indexOf($(val).val())>-1) {
+                        newsowmasterlist.push(sowmasterlist[i]);
+                    }
+                }
+                if (newsowmasterlist.length > 0) {
+                    bind(newsowmasterlist);
+                }
+            }
+        }
+    }
+    //function bind(data) {
+    //    
+    //    $('#sowmasterlist').html('');
+    //    var newlist = "";
+    //    for (var i = 0; i < data.length; i++) {
+    //        var iid = 'sow_' + i;
+    //        var desc = data[i].Sow_desc;
+    //        if (data[i].Sow_desc.length > 130) {
+    //            desc = data[i].Sow_desc.substr(0, 130) + '...';
+    //        }
+    //        //var color = "background-color:#d3d3d3 !important";
+    //        //if (i != 0 && (i % 2) != 0)
+    //        newlist += '<tr>';
+    //        newlist += '<td> ' + data[i].Category + ' </td>'
+    //        newlist += '<td>' + data[i].Subject + ' </td>'
+    //        newlist += '<td><a href="#" onclick="Showdetilas(' + data[i].Id + ')">' + data[i].Sow_desc + ' </a></td>'
+    //        newlist += '<td><button type="button" class="close" onclick="removesow(\'' + iid + '\',' + data[i].Id + ')" aria-hidden="true"><i class="icon ion-ios7-trash"></i></button> </td>'
+    //        newlist += '</tr>'
+    //    }
+    //    $('#sowmasterlist').html(newlist);
+    //    $('#Sowtable').dataTable();
+    //    $(".paginate_button").removeClass("disabled");
+    //    $(".paginate_button").removeClass("previous");
+    //    $(".paginate_button").removeClass("disabled");
+    //    $(".paginate_button").removeClass("next");
+    //    table.ajax.reload(null, false);
+    //    $(".spinner").hide();
+    //}
+
+
+    function Showdetilas(val)
+    {
+        
+        $.ajax({
+            url: '../Job/SowMasterDetails?id='+val,
+            type: 'POST',
+            success: function (data) {
+                
+                $("#divSowdatadetiles").html(data);
+                $("#SowdetilesPopUps").click();
+                
+            },
+            error: function (err) {
+
+            }
+        });
+    }
+    $(function () {
+
+        $(".sowclass").click(function () {
+            //$(this).next().slideToggle('fast');
+            var imgsrc = $(this).find('img');
+            if (imgsrc[0].src.indexOf('up-arrow') > -1) {
+                imgsrc[0].src=imgsrc[0].src.replace('up-arrow', 'down-arrow');
+            }
+            else {
+                imgsrc[0].src=imgsrc[0].src.replace('down-arrow', 'up-arrow');
+            }
+
+        });
+    });
+
+
+
+    function JobDetails(val)
+    {
+        $("#divSowdatadetiles").html($("#sowjob_" + val).text());
+        $("#SowdetilesPopUps").click();
+    }
+</script>
+<style>
+    .pagination > li a{
+
+    }
+      #Sowtable_paginate .previous{
+            display:none!important;
+      }
+    #Sowtable_paginate .next{
+        display:none!important;
+    }
+    .pagination > li:first-child > a, .pagination > li:first-child > span {
+          display:none;
+    }
+   .pagination > li:last-child > a, .pagination > li:last-child > span{
+           display:none;
+    }
+</style>
+ 
+<div class="row" style="margin-top: 1%">
+    @{int i = 0;}
+    <div class="col-md-6 sowprev">
+        <div class=" box-row  profile-hd sowclass" onclick="showbox('fromsowdiv');">
+            <h7 class="box-heading" style="font-size:15px;"><strong> &nbsp From SOW Master </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                                                                         <img id="arrow" src="../Images/up-arrow.png" alt="" />
+                </span></h7>
+        </div>
+        <div class="row subrow" id="fromsowdiv">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" style="padding-left: 0px; padding-right: 5px;">
+                        <div class="row" style="margin-bottom:5px;">
+                            <div class="pull-left" style="padding-left: 8px; padding-top: 2px; width: 49%">
+                                <button value="submit" style="width: 77%; margin-top: 1px;" id="btnaddsow" onclick="addnewsow();" class="btn btn-flat btn-primary btn-sm pull-left">
+                                    <img src="~/AppImges/plusgrey.png" class="pull-left" width="12%" />Add New</button>
+                            </div>
+                            @*<div class="pull-right" style="padding-top: 2px; width: 49%">
+                                Search:
+                            <input type="text" id="txtsowsearch" onkeyup="searchfun(this);" style="width: 80%" class="search" />
+                            </div>*@
+                        </div>
+                        <div class="row"  >
+                            <div class="row" id="divnew" style="display: none; margin-top: 2px;margin-bottom:5px;">
+                                @*<textarea id="txtnewsow" style="width: 98%;margin-left:7px;border:1px solid #3D81BD"></textarea>*@
+
+                                <div class="col-md-12 row">
+                                    <div class="col-md-6">
+                                        <label><strong>Category &nbsp;<span class="err">*</span>:</strong></label>
+                                        <input type="text" class="form-control" id="Sow_Category" style="margin-left: -7px;"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label><strong>Subject &nbsp;<span class="err">*</span>:</strong></label>
+                                        <input type="text" class="form-control" id="Sow_Subject" />
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12 row">
+                                    <div class="col-md-6">
+                                        <label><strong>Job Description &nbsp;<span class="err">*</span>:</strong></label>
+                                        <textarea id="txtnewsow" style="width:421px;margin-left:7px;border:1px solid #3D81BD;height:94px;"></textarea>
+                                    </div>
+                                    </div>
+                                    <button id="btnsavesow" style="width: 37%; margin-top: 1px;" value="submit" onclick="savenewsow();" class="btn btn-flat btn-primary btn-sm pull-right">Save</button>
+                                    <button id="btncancelsow" style="width: 37%; margin-top: 1px;margin-right:2px" value="submit" onclick="$('#divnew').hide();$('#txtnewsow').val('');" class="btn btn-flat btn-primary btn-sm pull-right">Cancel</button>
+                                </div>
+                         <div id="sowmasterlist">
+                         </div>
+                            @*<ul align="center" style="padding-left: 5px" id="sowmasterlist"></ul>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class=" box-row  profile-hd sowclass" onclick="showbox('fromjobdiv');">
+            <h7 class="box-heading"  style="font-size:15px;"><strong> &nbsp From Job Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                                                                           <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                </span></h7>
+
+        </div>
+        <div class="row subrow" id="fromjobdiv" style="display: none">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" style="padding-left: 0px; padding-right: 5px;">
+                        <div class="list-group" style="overflow: auto; max-height: 300px; overflow-x: hidden; max-height: 400px; vertical-align: top">
+                             <ul align="center" style="padding-left: 5px">
+                                
+                                 @foreach (var item in Model)
+                                {
+                                    if (item.Doing_What != "" && item.Doing_What != null)
+                                    {
+                                        string color = "background-color:#d3d3d3 !important";
+                                        i++;
+                                        if (i % 2 == 0)
+                                        {
+                                            color = "background-color:white !important";
+                                        }
+                                    <li id="" class="list-group-item list-group-item-success" onclick="JobDetails(@i)" style="color:black !important;text-align:left;cursor:pointer;margin:2px;@color">
+                                        @if (item.Doing_What.Length > 130)
+                                        {
+                                            <span>@item.Doing_What.ToString().Substring(0, 130) ....</span>
+                                            <textarea id="sowjob_@i" style="display:none">@item.Doing_What</textarea>
+                                        }
+                                        else
+                                        {
+                                            <span>@item.Doing_What.ToString() ....</span>
+                                            <textarea id="sowjob_@i" style="display:none">@item.Doing_What</textarea>
+                                        }
+                                    </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 sowprev">
+        <div class=" box-row  profile-hd">
+            <h7 class="box-heading"  style="font-size:15px;"><strong> &nbsp Preview </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                                                                  <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                </span></h7>
+
+        </div>
+        <textarea id="newtxtpreview" class="txtprev"  rows="@i" style="width:100%;height:400px;outline:none;"></textarea>
+        <button value="Submit" class="btn btn-flat btn-primary btn-sm pull-right" style="margin: 2px; width: 32%" name="addLabour" tabindex="10" id="Clearbtn" onclick="$('#newtxtpreview').val('');">Clear</button>
+        <button value="Submit" class="btn btn-flat btn-primary btn-sm pull-right" style="margin: 2px; width: 32%" name="addLabour" tabindex="10" id="Addbtn" onclick="NewSaveSOW();">Add</button>
+    </div>
+</div>
+
+<a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#SowdetilesPopUp" id="SowdetilesPopUps" style="display: none">popup</a>
+<div id="SowdetilesPopUp" class="modal fade" role="dialog">
+     <div class="modal-dialog" style="width: 50%; margin-top: 195px; position: fixed; left:-7%; right: 0; top: 0; bottom: 0;">
+        @*<div class="modal-header" style="background-color: #333333; height: 35px;">
+            @*<button type="button" class="close" data-dismiss="modal" id="SowdetilesPopUpclose" style="color: white !important; opacity: 0.9;">&times;</button>
+            <h4 class="modal-title" id="ShowdetilesHeader" style="color: #FFF !important;">JobDescription</h4>*@
+        @*</div>*@
+        <button type="button" class="close" data-dismiss="modal" id="divSowdetilesPopUpclosebtn" style="color: white !important; opacity: 0.9;">&times;</button>
+        <div class="modal-content" style="overflow: scroll; border-radius: 0; min-height: 185px; max-height: 500px; overflow: auto">
+            <div id="divSowdatadetiles" style="cursor:pointer;" onclick="ShowSOW()"></div>
+        </div>
+    </div>
+</div>

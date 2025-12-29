@@ -1,0 +1,90 @@
+﻿@model ElectricEase.Models.Assembly_MasterInfo
+<script>
+
+    $(document).ready(function () {
+
+        $(".AssembliesList").dataTable({
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+
+        });
+    });
+    $(document).on('click', '.confirm', function () {
+
+        message = "Are sure want to delete this User?"
+        if (confirm(message))
+            return true;
+        else
+            return false;
+
+    });
+</script>
+@{
+   // var PartsGrid = new WebGrid(source: Model.PartsListData, canPage: false, canSort: false);
+   // var LabourGrid = new WebGrid(source: Model.LabourListData, canPage: false, canSort: false);
+    var AssebliesGrid = new WebGrid(source: Model.asList, canPage: false, canSort: false);
+  
+}
+@*<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: #34495e;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+
+    btn btn-primary btn-xs toggle-on {
+        background-color: #2ecc71 !important;
+    }
+
+</style>*@
+
+    @AssebliesGrid.GetHtml(
+    tableStyle: "table table-bordered datatables AssembliesList",
+    alternatingRowStyle: "alt",
+    columns: AssebliesGrid.Columns(
+    AssebliesGrid.Column(columnName: "Assemblies_Name", header: "Assemblies_Name"),
+    AssebliesGrid.Column(columnName: "Assemblies_Description", header: "Assemblies_Description"),
+    AssebliesGrid.Column(header: "Action", format: @<text><a href="/Assemblies_Master/EditAssembliesDetails?AssembliesName=@item.Assemblies_Name"> <span class="glyphicon glyphicon-pencil"></span></a>&nbsp;&nbsp;&nbsp;<a class="confirm" id="deletebtn" href="/Assemblies_Master/DeleteAssembliesDetails?AssembliesName=@item.Assemblies_Name"><span class="glyphicon glyphicon-trash"></span></a></text>)
+    ))
+
+        @*  @PartsGrid.GetHtml(
+        tableStyle: "table table-bordered datatables",
+        alternatingRowStyle: "alt",
+        columns: PartsGrid.Columns(
+        // Grid.Column(columnName: "Select_ID", header: "Select", format: @<text><input type="checkbox" name="assignChkBx" value="@item.Client_ID,@item.Part_Number" id="assignChkBx" /></text>),
+        // Grid.Column(columnName: "Client_ID", header: "Client Company"),
+        PartsGrid.Column(columnName: "Part_Number", header: "Part Number"),
+        //PartsGrid.Column(columnName: "Part_Category", header: "Part Category"),
+        PartsGrid.Column(columnName: "Cost", header: "My Cost"),
+        PartsGrid.Column(columnName: "Resale_Cost", header: "Resale"),
+        PartsGrid.Column(columnName: "Purchased_From", header: "Purchased_From")
+        //Grid.Column(header: "Action", format: @<text><a href="/Client_Master/EditClientMaster?id=@item.Client_ID"> <span class="glyphicon glyphicon-pencil"></span></a>&nbsp;&nbsp;&nbsp;<a id="deletebtn" href="/Client_Master/DeleteClient?id=@item.Client_ID"><span class="glyphicon glyphicon-trash"></span></a></text>)
+
+        )
+        )*@
+
+
+
+        @*@LabourGrid.GetHtml(
+        tableStyle: "table table-bordered datatables",
+        htmlAttributes: new { id = "checkableGrid" },
+        alternatingRowStyle: "alt",
+        columns: LabourGrid.Columns(
+        //LabourGrid.Column(columnName: "Select_ID", style: "null", header: "{checkall}", format: @<text><input type="checkbox" name="assignChkBx" checked="@item.isChekced" value="@item.Client_ID,@item.Laborer_Name" id="assignChkBx" /></text>),
+        // Grid.Column(columnName: "Client_ID", header: "Client Company"),
+        LabourGrid.Column(columnName: "Laborer_Name", header: "Laborer Name"),
+        LabourGrid.Column(columnName: "Laborer_Name", header: "Laborer Name"),
+        //LabourGrid.Column(columnName: "Labor_Category", header: "Labor Category"),
+        LabourGrid.Column(columnName: "Cost", header: "Cost"),
+        LabourGrid.Column(columnName: "Resale_Cost", header: "Resale Cost"),
+        LabourGrid.Column(columnName: "Burden", header: "Burden")
+        //Grid.Column(columnName: "Purchased_From", header: "Purchased_From")
+        //Grid.Column(header: "Action", format: @<text><a href="/Client_Master/EditClientMaster?id=@item.Client_ID"> <span class="glyphicon glyphicon-pencil"></span></a>&nbsp;&nbsp;&nbsp;<a id="deletebtn" href="/Client_Master/DeleteClient?id=@item.Client_ID"><span class="glyphicon glyphicon-trash"></span></a></text>)
+
+        )
+        )*@

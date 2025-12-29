@@ -1,0 +1,699 @@
+﻿@model ElectricEase.Models.EditAccount_MasterInfo
+@{
+    // ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+    var Grid = new WebGrid(source: Model.AMUsersList, canPage: false, canSort: false);
+
+}
+
+<link href="~/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet" />
+<script src="~/dist/js/bootstrap-colorpicker.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+
+<script>
+
+    $(function () {
+        $('#cp2').colorpicker();
+    });
+    $(document).ready(function () {
+
+        $("#usertable").dataTable({
+            "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+
+        });
+        //alert("jiii");
+        $('li').removeClass('active');
+        $("#accountmaster").addClass('active');
+        //alert("active");
+        //To change content tittles
+        $(".content-title").text("User Master");
+
+
+
+        //$.ajax({
+        //    url: "/Ajax/GetMyUserListinAM",
+
+        //    type: 'GET',
+        //    dataType: 'json',
+        //    success: function (data) {
+        //        var value = $('#loguser').val();
+        //        if (value == "Admin")
+        //            assignToAdminEventsColumns(data);
+        //        else
+        //            assignToUserEventsColumns(data);
+        //    }
+        //});
+
+
+    });
+
+
+
+    function assignToAdminEventsColumns(data) {
+        //var totalRecs = data.length;
+        var table = $('#example').dataTable({
+            "deferRender": true,
+            "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+            "aaData": data,
+            "aoColumnDefs": [
+                {
+                    "mData": "EventTypeId",
+                    "mRender": function (event) {
+                        return event;
+                    }
+                },
+                {
+                    "aTargets": [1],
+                    "mData": "EventType"
+                }
+            ], "aoColumns": [
+                { "mData": "Client_Company" },
+                { "mData": "User_ID" },
+                { "mData": "First_Name" },
+                { "mData": "Last_Name" },
+                { "mData": "Phone" },
+                { "mData": "E_Mail" },
+                {
+                    "mDataProp": function (source, type, val) {
+                        return '<a href="/Account_Master/EditUserDetails?UserID=' + source.User_ID + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Account_Master/DeleteUser?UserID=' + source.User_ID + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+                    }
+                }
+            ]
+
+        });
+
+    }
+    function assignToUserEventsColumns(data) {
+
+        //var totalrecs = this.accountCollection.length;
+        var table = $('#example').dataTable({
+
+            "deferRender": true,
+            "aLengthMenu": [[8, 10, 25, -1], [8, 10, 25, "All"]],
+            "aaData": data,
+            "aoColumnDefs": [
+                {
+                    "aTargets": [0],
+                    "mData": "EventTypeId",
+                    "mRender": function (event) {
+                        return event;
+                    }
+                },
+                {
+                    "aTargets": [1],
+                    "mData": "EventType"
+                }
+            ], "aoColumns": [
+                { "mData": "User_ID" },
+                { "mData": "First_Name" },
+                { "mData": "Last_Name" },
+                { "mData": "Phone" },
+                { "mData": "E_Mail" },
+                {
+                    "mDataProp": function (source, type, val) {
+                        return '<a href="/Account_Master/EditUserDetails?UserID=' + source.User_ID + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Account_Master/DeleteUser?UserID=' + source.User_ID + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+                    }
+                }
+            ]
+
+        });
+
+    }
+
+    $(document).on('click', '.confirm', function () {
+
+        message = "Are sure want to delete this User?"
+        if (confirm(message))
+            return true;
+        else
+            return false;
+
+    });
+    $(function () {
+        $("#fileupload").change(function () {
+            $("#firstlogo").hide();
+            $("#dvPreview").html("");
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.jpg|.jpeg|.gif|.png|.bmp)$/;
+            if (regex.test($(this).val().toLowerCase())) {
+
+                if ($.browser.msie && parseFloat(jQuery.browser.version) <= 9.0) {
+                    $("#dvPreview").show();
+                    $("#dvPreview")[0].filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = $(this).val();
+                }
+                else {
+                    if (typeof (FileReader) != "undefined") {
+                        //var size = parseFloat(fileUpload.files[0].size / 1024).toFixed(2);
+                        //alert(size + " KB.");
+                        $("#dvPreview").show();
+                        $("#dvPreview").append("<img height='88' width='30%'/>").attr({ width: '300px', height: '150px' });
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            //Initiate the JavaScript Image object.
+                            var image = new Image();
+
+                            //Set the Base64 string return from FileReader as source.
+                            image.src = e.target.result;
+
+                            ////Validate the File Height and Width.
+                            //image.onload = function () {
+                            //    var height = this.height;
+                            //    var width = this.width;
+                            //    if (height > 100 || width > 100) {
+                            //        alert("Height and Width must not exceed 100px.");
+                            //        return false;
+                            //    }
+                            //    alert("Uploaded image has valid Height and Width.");
+                            //    return true;
+                            //};
+                            $("#dvPreview img").attr("src", e.target.result);
+                        }
+                        reader.readAsDataURL($(this)[0].files[0]);
+                    } else {
+                        alert("This browser does not support FileReader.");
+                    }
+                }
+            } else {
+                alert("Please upload a valid image file.");
+            }
+        });
+    });
+    $(function () {
+        $('#User_ID').click(function () {
+
+            alert("Cannot be Modify once you have Created!");
+        });
+
+    })
+    $(function () {
+        $("#Reset").click(function () {
+            $("#First_Name").val("");
+            $("#Last_Name").val("");
+            $("#Phone").val("");
+            $("#Photo").val("");
+            $("#User_ID").val("");
+            $("#E_Mail").val("");
+            $("#Password").val("");
+            $("#Account_Administrator").bootstrapToggle('off');
+            $("#Job_Administrator").bootstrapToggle('off');
+            $("#Part_Administrator").bootstrapToggle('off');
+            $("#Labor_Administrator").bootstrapToggle('off');
+            $("#Legal_Adminstrator").bootstrapToggle('off');
+            $("#Legal_Adminstrator").bootstrapToggle('off');
+            $("#Assembly_Administrator").bootstrapToggle('off');
+            $("#Job_Description_Report").bootstrapToggle('off');
+            $("#Client_Estimation_Report").bootstrapToggle('off');
+            $("#SuperUser").val("");
+            $("#SuperUser_Pwd").val("");
+            $("#fileupload").val("");
+
+            $("#dvPreview img:last-child").remove()
+        });
+
+    });
+
+    $(function () {
+
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+    $(function () {
+
+        $("#Addbtn").click(function () {
+
+            var intRegex = /^\d+(?:\.\d\d?)?$/;
+
+            var ClientName = $("#Client_ID option:selected").val();
+            message = "Client Field is Required";
+            if (ClientName == 0) {
+                DisplayNotification("“Client Name” is required.", "error");
+                return false;
+            }
+
+
+            if ($("#First_Name").val() == "") {
+                DisplayNotification("“First Name” is required!", "error");
+                return false;
+            }
+            var email = $("#E_Mail").val();
+            var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+            if (email != "") {
+                if (!email.match(emailReg)) {
+                    DisplayNotification("“Email” is invalid!", "error");
+                    return false;
+                }
+            }
+            var characterReg = /^[0-9-+]+$/;
+            // var reg = /^[2-9]\d{2}-\d{3}-\d{4}$/;
+            var phoneno = $("#Phone").val();
+            if (phoneno != "") {
+                if (phoneno.length < 10) {
+                    DisplayNotification("Invalid “Phone Number”!", "error");
+                    return false;
+                }
+                if (!phoneno.match(characterReg)) {
+
+                }
+            }
+            else {
+                DisplayNotification("“Phone Number” is required!", "error");
+                return false;
+            }
+
+            if ($("#E_Mail").val() == "") {
+                DisplayNotification("“Email” is required!", "error");
+                return false;
+            }
+
+            if ($("#UserColor").val() == "" || $("#UserColor").val() == "#000000" || $("#UserColor").val() == null) {
+                DisplayNotification("“Select Color” is required!", "error");
+                return false;
+            }
+
+
+        });
+    });
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: #34495e;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+
+    btn btn-primary btn-xs toggle-on {
+        background-color: #2ecc71 !important;
+    }
+    /*#UserColor
+    {
+            border: none;
+    height: 35px;
+    width: 169px;
+    }*/
+    #SelectColor {
+        border: none;
+        height: 10px;
+        width: 20px;
+        float: right;
+    }
+</style>
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+            @if (ViewBag.UpdateErrordMsg != null)
+            {
+                <script>
+                     DisplayNotification("@ViewBag.UpdateErrordMsg", "error");
+                </script>
+            }
+            <fieldset>
+                <div id="accordion">
+
+
+
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp  Edit User </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <i class="icon ion-chevron-down"></i>
+                            </span>
+                        </h7>
+
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        @if (ViewBag.SuccessMsg != null)
+                        {
+                            <div class="box-row profile-hd">
+                                <div class="error box-row" style="background: #9DF9AF; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.SuccessMsg</div>
+                            </div>
+                        }
+                        @if (ViewBag.SavedMsg != null)
+                        {
+                            <div class="box-row profile-hd">
+                                <div class="error box-row" style="background: #9DF9AF; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.SavedMsg</div>
+                            </div>
+                        }
+                        @using (Html.BeginForm("EditUserDetails", "Account_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data", id = "Addform" }))
+                        {
+                            @Html.ValidationSummary(true);
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div>
+                                                <div class="panel-body">
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>First Name <span class="err">*</span>:</strong></label>
+                                                                @Html.TextBoxFor(m => m.First_Name, new { @class = "form-control", @maxlength = "50", @placeholder = "First Name" })
+                                                                @Html.ValidationMessageFor(m => m.First_Name)
+                                                                <input type="hidden" value="@Model.Client_ID" name="Client_ID" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Last Name:</strong></label>
+                                                                @Html.TextBoxFor(m => m.Last_Name, new { @class = "form-control", @maxlength = "50", @placeholder = "Last Name" })
+                                                                @Html.ValidationMessageFor(m => m.Last_Name)
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Phone <span class="err">*</span>:</strong></label>
+                                                                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", @maxlength = "50", @placeholder = "Phone" })
+                                                                @Html.ValidationMessageFor(m => m.Phone)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Email <span class="err">*</span>:</strong></label>
+                                                                @Html.TextBoxFor(m => m.E_Mail, new { @class = "form-control", @maxlength = "50", @placeholder = "Email" })
+                                                                @Html.ValidationMessageFor(m => m.E_Mail)
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Client User Name:</strong></label>
+                                                                @Html.TextBoxFor(m => m.User_ID, new { @class = "form-control", @readonly = "readonly", @maxlength = "50", @placeholder = "User Name " })
+                                                                <input type="hidden" id="userid" name="User_ID" value="@Model.User_ID" />
+                                                                @Html.ValidationMessageFor(m => m.User_ID)
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Password :</strong></label>
+                                                                @Html.PasswordFor(m => m.Password, new { @class = "form-control", @maxlength = "50", @placeholder = "Password" })
+                                                                @Html.ValidationMessageFor(m => m.Password)
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Select Color <span class="err">*</span>:</strong></label>
+                                                                <div id="cp2" class="input-group colorpicker-component">
+                                                                    @Html.TextBoxFor(m => m.UserColor, new { type = "text", id = "UserColor", @class = "form-control" })
+                                                                    @*<input type="text" value="#00AABB" class="form-control" />*@
+                                                                    <span class="input-group-addon" style="border:none;background-color:transparent;border-bottom:2px solid #1565c0;padding-bottom:3px;"><i style="width:90px;"></i></span>
+                                                                </div>
+                                                                @*@Html.ValidationMessageFor(m => m.UploadedFile)*@
+                                                                <label id="requirdMsg"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @if (Model.Photo == null)
+                                                    {
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="lable"><strong>Photo :</strong></label>
+                                                                    @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                    @*<input type="file" id="fileupload" name="File" />*@
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+
+                                                            <div class="form-group" id="dvPreview"></div>
+
+                                                            @* <div class="form-group" >
+                                                                </div>*@
+
+                                                        </div>
+                                                    }
+                                                    @if (Model.Photo != null)
+                                                    {
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+                                                                    <label for="lable"><strong>Photo :</strong></label>
+                                                                    @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload" })
+                                                                    @*<input type="file" id="fileupload" name="File" />*@
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="form-group" id="dvPreview" style="display: none"></div>
+                                                                <div class="form-group" id="firstlogo">
+                                                                    <img src="data:image;base64,@System.Convert.ToBase64String(Model.Photo)" width="80" height="80" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    }
+                                                    @*<div class="col-md-4">
+                                                            <div class="form-group" id="dvPreview"></div>
+
+                                                        </div>*@
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class=" box-row  profile-hd">
+                                <h7 class="box-heading">
+                                    <strong> &nbsp  Administrative Rights </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                        <i class="icon ion-chevron-down"></i>
+                                    </span>
+                                </h7>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div>
+                                                <div class="panel-body">
+                                                    @*<div class="row-fluid">
+                                                            <div class="col-md-4">
+                                                                <div class="form-group">
+
+                                                                    <label for="title"><strong>Site Administrator :</strong></label>
+                                                                    @Html.CheckBoxFor(m => m.Site_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+
+                                                                </div>
+                                                            </div>
+                                                        </div>*@
+                                                    @if (HttpContext.Current.User.IsInRole("Admin"))
+                                                    {
+                                                        <div class="row-fluid">
+                                                            <div class="col-md-3">
+                                                                <div class="form-group">
+
+                                                                    <label for="title"><strong>User Administrator &nbsp&nbsp&nbsp&nbsp&nbsp:</strong></label>
+                                                                    @Html.CheckBoxFor(m => m.Account_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                                    @*@Html.CheckBoxFor(m => m.Account_Administrator)*@
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+
+                                                                <label for="title"><strong>Job Administrator &nbsp&nbsp:</strong></label>
+                                                                @Html.CheckBoxFor(m => m.Job_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                                @*@Html.CheckBoxFor(m => m.Job_Administrator)*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Part Administrator :</strong></label>
+                                                                @Html.CheckBoxFor(m => m.Part_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                                @*@Html.CheckBoxFor(m => m.Part_Administrator)*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Labor Administrator &nbsp&nbsp&nbsp :</strong></label>
+                                                                @Html.CheckBoxFor(m => m.Labor_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                                @*@Html.CheckBoxFor(m => m.Labor_Administrator)*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+
+                                                                <label for="title"><strong>Legal Adminstrator &nbsp&nbsp&nbsp&nbsp&nbsp:</strong></label>
+                                                                @*<input type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled">*@
+                                                                @Html.CheckBoxFor(m => m.Legal_Adminstrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Assembly Adminstrator &nbsp&nbsp&nbsp&nbsp&nbsp:</strong></label>
+                                                                @Html.CheckBoxFor(m => m.Assembly_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Work Orders &nbsp&nbsp&nbsp&nbsp&nbsp:</strong></label>
+                                                                @Html.CheckBoxFor(m => m.Job_Description_Report, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label for="title"><strong>Client Estimate Report &nbsp&nbsp&nbsp&nbsp&nbsp:</strong></label>
+                                                                @Html.CheckBoxFor(m => m.Client_Estimation_Report, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="pull-right" style="width:35%">
+                                                        @*<button type="submit">Upload Image</button>*@
+                                                        <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm pull-right" name="addLabour" tabindex="10" id="Addbtn" style="width:49%">Update&Aacute;SendMail</button>
+                                                        <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset" style="width: 49%" onclick="Cancel();">Cancel </a>
+                                                        @*  <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset">Clear</a>*@
+
+                                                        @*<input type="reset" id = "Reset" value ="Reset" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11"/>*@
+                                                    </div>
+                                                </div>
+
+                                                <div class="panel-footer clearfix">
+
+                                                    <div class="pull-left" style="color: #ccc; font-size: x-small;">
+                                                        <div>
+                                                            <label>Created By  :@Model.Created_By on<span></span> @Model.Created_Date</label>
+                                                            <input type="hidden" value="@Model.Created_By" name="Created_By" id="Created_By" />
+                                                            <input type="hidden" name="Created_Date" value="@Model.Created_Date" />
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="pull-right" style="color:#ccc; font-size: x-small;">
+                                                        <div>
+                                                            <label>Updated By  :@Model.Updated_By on<span></span> @Model.Updated_Date</label>
+                                                            <input type="hidden" name="Updated_By" value="@Model.Updated_By" />
+                                                            <input type="hidden" name="Updated_Date" value="@Model.Updated_Date" />
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+
+
+
+                    <div class=" box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp  User Listing</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <i class="icon ion-chevron-down"></i>
+                            </span>
+                        </h7>
+
+                    </div>
+
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+
+                        <div class="table-resposive" style="max-height: 500px; overflow-y: auto">
+                            <table class="table table-bordered datatables" id="usertable">
+                                <thead>
+                                    <tr>
+
+                                        @if (HttpContext.Current.User.IsInRole("Admin"))
+                                        {
+                                            <th>Client_Company</th>
+                                        }
+
+                                        <th>User ID</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="LaborBody">
+                                    @foreach (var item in Model.AMUsersList)
+                                    {
+                                        <tr>
+                                            @if (HttpContext.Current.User.IsInRole("Admin"))
+                                            {
+                                                <td style="width:60px">
+                                                    @item.Client_Company
+                                                </td>
+                                            }
+
+                                            <td>
+                                                @item.User_ID  &nbsp;&nbsp;
+                                                @if (item.UserColor != null)
+                                                {
+                                                    <input type="text" name="UserColor" id="SelectColor" style="background-color:@item.UserColor" class="form-control" />
+                                                }
+                                            </td>
+
+                                            <td>
+                                                @item.First_Name
+                                            </td>
+                                            <td>
+                                                @item.Last_Name
+                                            </td>
+                                            <td>
+                                                @item.Phone
+                                            </td>
+                                            <td>
+                                                @item.E_Mail
+                                            </td>
+                                            <td>
+                                                <a href="/Account_Master/EditUserDetails?UserID=@item.User_ID &ClientID=@item.Client_ID"><span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Account_Master/DeleteUser?UserID=@item.User_ID&ClientID=@item.Client_ID"><span class="glyphicon glyphicon-trash"></span></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>

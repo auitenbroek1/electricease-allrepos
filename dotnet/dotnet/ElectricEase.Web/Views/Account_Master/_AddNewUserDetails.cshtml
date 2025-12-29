@@ -1,0 +1,291 @@
+﻿@model ElectricEase.Models.Account_MasterInfo
+@{
+    Layout = "";
+}
+<link href="~/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet" />
+<script src="~/dist/js/bootstrap-colorpicker.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<script>
+    $(function () {
+        $('#cp2').colorpicker();
+    });
+</script>
+@if (ViewBag.UpdateErrordMsg != null)
+{
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #FF4747; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.UpdateErrordMsg</div>
+    </div>
+}
+<fieldset>
+    <div id="accordion">
+        <div id="collapseOne" class="panel-collapse collapse in">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="panel-body">
+                                <input type="hidden" value=" @ViewBag.LoginUser" id="loguser" />
+                                @if (Model.Client_ID != 0)
+                                {
+                                    <input type="hidden" value="@Model.Client_ID" name="Client_ID" id="Client_ID" />
+                                }
+                                <div class="row">
+                                    @if (HttpContext.Current.User.IsInRole("Admin"))
+                                    {
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <input type="hidden" value="Admin" id="IsAdmin" />
+                                                <label for="title"><strong>Client Name <span class="err">*</span>:</strong></label>
+                                                @if (Model.User_ID == null)
+                                                {
+                                                    @Html.DropDownListFor(m => m.Client_ID, ViewBag.Clientid as SelectList, "Select", new { Name = "Client_ID", @class = "form-control" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(m => m.Client_ID, ViewBag.Clientid as SelectList, "Select", new { Name = "Client_ID", @class = "form-control", disabled = "disabled" })
+                                                }
+                                                <span class="err" style="display:none;" id="spanclientnameerror">Select client name</span>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <input type="hidden" value="Admin" id="NotAdmin" />
+                                    }
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="title"><strong>First Name <span class="err">*</span>:</strong></label>
+                                            @Html.TextBoxFor(m => m.First_Name, new { @class = "form-control", @maxlength = "50", @placeholder = "First Name" })
+                                            @Html.ValidationMessageFor(m => m.First_Name)
+                                            <span class="err" style="display:none;" id="spanfirstnameerror">Enter first name</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="title"><strong>Last Name <span class="err">*</span> :</strong></label>
+                                            @Html.TextBoxFor(m => m.Last_Name, new { @class = "form-control", @maxlength = "50", @placeholder = "Last Name" })
+                                            @Html.ValidationMessageFor(m => m.Last_Name)
+                                            <span class="err" style="display:none;" id="spanlastnameerror">Enter last name</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="title"><strong>Phone <span class="err">*</span>:</strong></label>
+                                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", @maxlength = "10", @min = "10", @placeholder = "Phone" })
+                                            @Html.ValidationMessageFor(m => m.Phone)
+                                            <span class="err" style="display:none;" id="spanphoneerror">Enter phone</span>
+                                            <span class="err" style="display:none;" id="spaninvalidphoneerror">Enter 10 digits phone</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="title"><strong>Email <span class="err">*</span> :</strong></label>
+                                            @Html.TextBoxFor(m => m.E_Mail, new { @class = "form-control", @maxlength = "50", @placeholder = "Email" })
+                                            @Html.ValidationMessageFor(m => m.E_Mail)
+                                            <span class="err" style="display:none;" id="spanemailerror">Enter email</span>
+                                            <span class="err" style="display:none;" id="spaninvalidemailerror">Enter valid email</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="title"><strong>Select Color <span class="err">*</span>:</strong></label>
+                                            <div id="cp2" class="input-group colorpicker-component">
+                                                @Html.TextBoxFor(m => m.UserColor, new { type = "text", id = "UserColor", @class = "form-control" })
+                                                @*<input type="text" value="#00AABB" class="form-control" />*@
+                                                <span class="err" style="display:none;" id="spancolorerror">Select color</span>
+                                                <span class="input-group-addon" style="border: none; background-color: transparent; border-bottom: 2px solid #1565c0; padding-bottom: 3px;"><i style="width: 90px;"></i></span>
+                                            </div>
+                                            <label id="requirdMsg"></label>
+                                        </div>
+                                    </div>
+                                    @if (Model.User_ID == null)
+                                    {
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Client User Name<span class="err">*</span>:</strong></label>
+                                                @Html.TextBoxFor(m => m.User_ID, new { @class = "form-control", @maxlength = "50", @placeholder = "User Name ", onchange = "UseridIsExist(this);" })
+                                                @Html.ValidationMessageFor(m => m.User_ID)
+                                                <span class="err" id="useridmsg"></span>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Client User Name<span class="err">*</span>:</strong></label>
+                                                @Html.TextBoxFor(m => m.User_ID, new { @class = "form-control", @maxlength = "50", @placeholder = "User Name ", @readonly = "readonly" })
+                                                @Html.ValidationMessageFor(m => m.User_ID)
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="title"><strong>Password <span class="err">*</span>:</strong></label>
+                                            @if (Model.Password != null)
+                                            {
+                                                <input type="hidden" id="Pwd" value="@Model.Password" />
+
+                                            }
+                                            @Html.TextBoxFor(m => m.Password, new { @class = "form-control", @maxlength = "50", @placeholder = "Password", type = "password" })
+                                            @Html.ValidationMessageFor(m => m.Password)
+                                        </div>
+                                    </div>
+                                    @if (Model.Photo == null)
+                                    {
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="lable"><strong>Photo :</strong></label>  @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload", onchange = "GetImage(this);" })
+                                                @Html.ValidationMessageFor(m => m.UploadedFile)
+                                                <label id="requirdMsg"></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group" id="dvPreview">
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (Model.Photo != null)
+                                    {
+                                        <div class="col-md-4" style="padding-top: 2% !important;">
+                                            <div class="form-group">
+                                                <label for="lable"><strong>Photo :</strong></label>
+                                                @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", id = "fileupload", onchange = "GetImage(this);" })
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group" id="dvPreview" style="display: none"></div>
+                                            <div class="form-group" id="firstlogo">
+                                                <img src="data:image;base64,@System.Convert.ToBase64String(Model.Photo)" id="upimg" width="80" height="80" />
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                @*<div class="row">
+                                        <div class="col-md-4">
+                                            <button onclick="SendMail();" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addusr" id="submit" tabindex="10" style="width: 49%">SendMail </button>
+                                        </div>
+                                    </div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="box-row  profile-hd">
+                <h7 class="box-heading">
+                    <strong> &nbsp  Administrative Rights <span class="err">*</span></strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff"></span>
+                </h7>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse in">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        @if (HttpContext.Current.User.IsInRole("Admin"))
+                                        {
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="title"><strong>User Administrator :</strong></label>
+                                                    @Html.CheckBoxFor(m => m.Account_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Job Administrator :</strong></label>
+                                                @Html.CheckBoxFor(m => m.Job_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Part Administrator :</strong></label>
+                                                @Html.CheckBoxFor(m => m.Part_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Labor Administrator :</strong></label>
+                                                @Html.CheckBoxFor(m => m.Labor_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Legal Adminstrator :</strong></label>
+                                                @Html.CheckBoxFor(m => m.Legal_Adminstrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Assembly Adminstrator :</strong></label>
+                                                @Html.CheckBoxFor(m => m.Assembly_Administrator, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Work Orders :</strong></label>
+                                                @Html.CheckBoxFor(m => m.Job_Description_Report, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Client Estimate Report :</strong></label>
+                                                @Html.CheckBoxFor(m => m.Client_Estimation_Report, new { data_toggle = "toggle", data_on = "Yes", data_off = "No", data_size = "mini", data_offstyle = "danger" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pull-right" style="width: 35%; margin-top: 7px;">
+                                    @if (Model.Client_ID == 0)
+                                    {
+                                        <button onclick="CheckUserIdIsExist();" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addusr" id="submit" tabindex="10" style="width: 49%">Save</button>
+                                        <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="Reset" style="width: 49%" onclick="ResetAll();">Clear </a>
+                                    }
+                                    else
+                                    {
+                                        <button onclick="SaveUserDetails();" value="Submit" class="btn btn-flat btn-primary btn-sm " name="addusr" id="submit" tabindex="10" style="width: 49%">Update</button>
+                                        <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" id="cancel" style="width: 49%" onclick="Cancel();">Cancel </a>
+                                    }
+                                </div>
+                            </div>
+                            @if (Model.User_ID != "" && Model.User_ID != null)
+                            {
+                                <div class="panel-footer clearfix">
+                                    <div class="pull-left" style="font-size: x-small;">
+                                        <div>
+                                            <label style="color: #3D81BD !important;">Created By  : &nbsp @Model.Created_By on<span></span> @Model.Created_Date</label>
+                                        </div>
+                                    </div>
+                                    <div class="pull-right" style="font-size: x-small;">
+                                        <div>
+                                            <label style="color: #3D81BD !important;">Updated By  : &nbsp @Model.Updated_By on<span></span> @Model.Updated_Date</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<script type="text/javascript">
+    $("#Phone").keypress(function (e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+            return false;
+        }
+    });
+    $("#First_Name,#Last_Name").keypress(function (e) {
+        var key = e.keyCode;
+        if (key >= 48 && key <= 57) {
+            e.preventDefault();
+        }
+    });
+</script>

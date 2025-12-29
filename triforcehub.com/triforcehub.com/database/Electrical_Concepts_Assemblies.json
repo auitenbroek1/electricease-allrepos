@@ -1,0 +1,92 @@
+[
+    {
+        "name": "50AMP EMT FLUSH MOUNT",
+        "category": "EMT Device Opening",
+        "description": "50AMP 4WIRE FLUSH MOUNT EMT"
+    },
+    {
+        "name": "DUPLEX EMT SURFACE MOUNT",
+        "category": "EMT Device Opening",
+        "description": "DUPLEX EMT SURFACE MOUNT"
+    },
+    {
+        "name": "INDOOR LIGHT OPENING EMT",
+        "category": "EMT Device Opening",
+        "description": "INDOOR LIGHT OPENING EMT"
+    },
+    {
+        "name": "GFI EMT SURFACE MOUNT",
+        "category": "EMT Device Opening",
+        "description": "GFI EMT SURFACE MOUNT"
+    },    
+    {
+        "name": "S/P - GFI EMT SURFACE MOUNT",
+        "category": "EMT Device Opening",
+        "description": "S/P - GFI EMT SURFACE MOUNT"
+    },
+    {
+        "name": "3 WAY EMT SURFACE MOUNT",
+        "category": "EMT Device Opening",
+        "description": "3 WAY EMT SURFACE MOUNT"
+    },
+    {
+        "name": "S/P EMT SURFACE MOUNT",
+        "category": "EMT Device Opening",
+        "description": "S/P EMT SURFACE MOUNT"
+    },
+    {
+        "name": "S/P S/P SURFACE MOUNT EMT",
+        "category": "EMT Device Opening",
+        "description": "S/P S/P SURFACE MOUNT EMT"
+    },
+    {
+        "name": "3 WAY/ 3 WAY SURFACE MOUNT EMT",
+        "category": "EMT Device Opening",
+        "description": "3WAY/3WAY SURFACE MOUNT EMT"
+    },
+    {
+        "name": "S/P 3WAY SURFACE MOUNT EMT",
+        "category": "EMT Device Opening",
+        "description": "S/P 3 WAY SURFACE MOUNT EMT"
+    },
+    {
+        "name": "3WAY/GFI SURFACE MOUNT EMT",
+        "category": "EMT Device Opening",
+        "description": "3WAY/GFI SURFACE MOUNT EMT"
+    },
+    {
+        "name": "DOUBLE DUPLEX SURFACE MOUNT EMT",
+        "category": "EMT Device Opening",
+        "description": "DOUBLE DUPLEX SURFACE MOUNT EMT"
+    },
+    {
+        "name": "DOUBLE GFI SURFACE MOUNT EMT",
+        "category": "EMT Device Opening",
+        "description": "DOUBLE GFI SURFACE MOUNT EMT"
+    }, 
+    {
+        "name": "SOFFIT CAN COMMERICAL M/C",
+        "category": "MC Cable Fixtures",
+        "description": "SOFFIT CAN COMMERICAL M/C"
+    },    
+    {
+        "name": "EXTERIOR LIGHT OPENING M/C",
+        "category": "MC Cable Device Openings",
+        "description": "EXTERIOR LIGHT OPENING M/C"
+    },    
+    {
+        "name": "SINGLE STALL COMMERCIAL BATHROOM M/C",
+        "category": "COMMERCIAL BATHROOM",
+        "description": "SINGLE STALL COMMERCIAL BATHROOM M/C"
+    },    
+    {
+        "name": "4WAY-S/P SURFACE MOUNT EMT",
+        "category": "EMT Device Opening",
+        "description": "4WAY-S/P SURFACE MOUNT EMT"
+    },    
+    {
+        "name": "COMMERCIAL GARAGE DOOR",
+        "category": "EMT OVERHEAD DOOR",
+        "description": "COMMERCIAL GARAGE DOOR"
+    }
+]

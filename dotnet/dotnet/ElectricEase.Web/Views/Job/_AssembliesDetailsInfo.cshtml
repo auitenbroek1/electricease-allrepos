@@ -1,0 +1,234 @@
+﻿@model ElectricEase.Models.AssemblyPartsModel
+@using System.Text.RegularExpressions;
+
+<style>
+
+    th, td {
+        color: black !important;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        setRegexValidations();
+    });
+</script>
+@Html.HiddenFor(x => x.assmeblymasterinfo.togid)
+@{ string escapedAMI_AssemblyName = Model.assmeblymasterinfo.Assemblies_Name.Replace("\"", "&quot;"); }
+@{ string escapedAMI_AssemblyID = Regex.Replace("Id" + Model.assmeblymasterinfo.Assemblies_Name.Trim(), "[^a-zA-Z0-9]", ""); }
+<div class="table table-responsive">
+    <a href="#" class="btn btn-flat btn-default btn-sm pull-right" style="margin-bottom:2px;" onclick="openassemblyparts('@escapedAMI_AssemblyName',this)"><i class="fa fa-check-square-o"></i><span>Add Parts</span></a>
+    <table class="table table-bordered assemblies-details-info" id="PartsLabortblInfo" name="AssemblyPartsTable">
+        <thead>
+            <tr style="background-color:rgba(0, 0, 0, 0.29)">
+                <th class="Head-Align" style="width:15%">
+                    Part Number
+                </th>
+                <th class="Head-Align" style="width:15%">
+                    Description
+                </th>
+                <th class="Head-Align">
+                    Cost
+                </th>
+                <th class="Head-Align">
+                    Resale Cost
+                </th>
+                <th class="Head-Align">
+                    Est.Qty/Hrs
+                </th>
+                <th class="Head-Align">
+                    Labor Unit
+                </th>
+                <th class="Head-Align">
+                    Est.Cost Total
+                </th>
+                <th class="Head-Align">
+                    Est.Resale Total
+                </th>
+                @{ string hidde = "hidden";
+                    string s = Request.Url.Scheme;
+                    if (Request.QueryString["JobID"] != null && Request.QueryString["JobID"] != "0")
+                    {
+                        hidde = "";
+                    }
+                }
+                <th style="vertical-align: middle">
+                    Actual Qty
+                </th>
+                <th style="vertical-align: middle">
+                    Actual Total
+                </th>
+                <th style="vertical-align: middle">
+                    Delete
+                </th>
+            </tr>
+        </thead>
+        @if (Model.partslist.Count > 0)
+        {
+            string escapedPL_AssemblyName = Model.partslist[0].Assemblies_Name.Replace("\"", "&quot;");
+            string escapedPL_AssemblyID = Regex.Replace("Id" + Model.partslist[0].Assemblies_Name.Trim(), "[^a-zA-Z0-9]", "");
+            string tbodyid = escapedPL_AssemblyID + "_partstbody";
+            string atbodyid = escapedPL_AssemblyID + "_partstbodyassem";
+            <tbody id="@tbodyid">
+                @{ int i = 0;
+                    string pid = "";
+                    foreach (var item in Model.partslist)
+                    {
+                        string escaped_AssemblyName = item.Assemblies_Name.Replace("\"", "&quot;");
+                        string escaped_AssemblyID = Regex.Replace("Id" + item.Assemblies_Name.Trim(), "[^a-zA-Z0-9]", "");
+                        <tr>
+                            <td id="partnumber">
+                                @item.Part_Number
+                            </td>
+                            <td id="Parts_Description">
+                                @if (item.Description == null)
+                                {
+                                    @item.Parts_Description
+                                }
+                                else
+                                {
+                                    @item.Description
+                                }
+                            </td>
+                            <td>
+                                @{pid = escaped_AssemblyID + "_" + i + "_0"; }
+                                <input type="text" class="form-control" value="@item.Part_Cost" onkeyup="checknum(this);CalculateV2(this);" id="@pid" name="txtPartsCost" style="text-align: right" />
+                            </td>
+                            <td>
+                                @{pid = escaped_AssemblyID + "_" + i + "_1"; }
+                                <input type="text" class="form-control" value="@item.Resale_Cost" onkeyup="checknum(this);CalculateV2(this);" id="@pid" name="txtPartsResaleCost" style="text-align: right" />
+                            </td>
+                            <td>
+                                @{pid = escaped_AssemblyID + "_" + i + "_2";
+                                    string estimatedqty = item.Estimated_Qty == 0 ? "" : item.Estimated_Qty.ToString();
+                                }
+                                <input type="text" name="TxtEstQty" class="form-control" value="@item.Estimated_Qty.ToString()" onkeyup="CalculateV2(this);" id="@pid" style="text-align: right" />
+                            </td>
+                            <td>
+                                <input type="text" name="txtLaborUnit" class="form-control" value="@item.LaborUnit.ToString()" onkeyup="CalculateV2(this);" style="text-align:right" />
+                                @*Calc Labor Unit*@
+                                <input type="hidden" name="txtCalcLaborUnit" class="form-control" />
+                                <input type="hidden" name="hdnAssemblyName" class="form-control" value="@item.Assemblies_Name" />
+                            </td>
+                            <td>
+                                @{pid = escaped_AssemblyID + "_" + i + "_3"; }
+                                <input type="text" class="form-control" value="@item.EstCost_Total" disabled name="EstCost_Total" id="@pid" style="text-align: right" />
+                            </td>
+                            <td>
+                                @{pid = escaped_AssemblyID + "_" + i + "_4"; }
+                                @*@if (Model.assmeblymasterinfo.assemblypartsCount != 0)
+                                    {*@
+                                <input type="text" class="form-control" value="@item.EstResaleCost_Total" disabled id="@pid" name="EstResaleCost" style="text-align: right" />
+                                @*}
+                                    else
+                                    {
+                                        <input type="text" class="form-control" value="@Model.assmeblymasterinfo.LaborEst_ResaleTotal" disabled id="@pid" style="text-align: right" />
+                                    }*@
+                            </td>
+                            <td>
+                                @{pid = escaped_AssemblyID + "_" + i + "_5";
+                                    item.Actual_Qty = item.Actual_Qty == 0 ? item.Estimated_Qty : item.Actual_Qty;
+                                }
+                                @*<input type="text" disabled class="form-control" value="@estimatedqty" onkeyup="checknum(this);calculatecost(this);" id="@pid" style="text-align: right" />*@
+                                <input type="text" disabled class="form-control" value="@item.Actual_Qty" onkeyup="checknum(this);CalculateV2(this);" id="@pid" name="txtActualQty" style="text-align: right" />
+                            </td>
+                            <td>
+                                @{pid = escaped_AssemblyID + "_" + i + "_6"; item.Actual_Total = item.Actual_Total == 0 ? item.EstResaleCost_Total : item.Actual_Total; }
+                                <input type="text" class="form-control" value="@item.Actual_Total" onkeyup="CalculateV2(this);" disabled id="@pid" name="txtActualTotal" style="text-align: right" />
+                            </td>
+                            <td>
+                                <a href="#" class="remove-part">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                }
+            </tbody>
+            <tbody id="@atbodyid">
+                <tr></tr>
+            </tbody>
+        }
+        else
+        {
+            var nullpartsAssemblyid = "";
+            var nullpartsAssembly = escapedAMI_AssemblyID;
+            string nullbodyid = nullpartsAssemblyid + "_partstbodyassem";
+            Model.assmeblymasterinfo.PartCostTotal = 0;
+            Model.assmeblymasterinfo.PartResaleTotal = 0;
+            Model.assmeblymasterinfo.GrandCostTotal = Model.assmeblymasterinfo.LaborEst_CostTotal;
+            Model.assmeblymasterinfo.GrandResaleTotal = Model.assmeblymasterinfo.LaborEst_ResaleTotal;
+            <tbody id="@nullbodyid"></tbody>
+
+        }
+        <tfoot id="laborDatatbl">
+            <tr style="background-color: #f4f4f4">
+                <th colspan="6">Total</th>
+                <th>
+                    @{string totid = escapedAMI_AssemblyID + "_total_0";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.PartCostTotal, new { @class = "form-control total-bgcolor", @readonly = "readonly", id = totid, style = "text-align:right;background-color:transparent" })
+                </th>
+                <th>
+                    @{totid = escapedAMI_AssemblyID + "_total_1";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.PartResaleTotal, new { @class = "form-control total-bgcolor", @readonly = "readonly", id = totid, style = "text-align:right;background-color:transparent" })
+                </th>
+                <th></th>
+                <th>
+                    @{totid = escapedAMI_AssemblyID + "_total_2";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.PartsActualTotal, new { @class = "form-control total-bgcolor", @readonly = "readonly", id = totid, style = "text-align:right;background-color:transparent" })
+                </th>
+            </tr>
+            <tr>
+                <th colspan="2">Labor</th>
+                <th>
+                    @{string labid = escapedAMI_AssemblyID + "_labour_0";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.labor_cost, new { @class = "form-control", onkeyup = "checknum(this);CalculateV2(this)", id = labid, style = "text-align:right" })
+                </th>
+                <th>
+                    @{labid = escapedAMI_AssemblyID + "_labour_1";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.Lobor_Resale, new { @class = "form-control", onkeyup = "checknum(this);CalculateV2(this)", id = labid, style = "text-align:right" })
+                </th>
+                <th>
+                    @{labid = escapedAMI_AssemblyID + "_labour_2";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.Estimated_Hour, new { @class = "form-control", @readonly = "readonly", onkeyup = "checknum(this);CalculateV2(this)", id = labid, @dir = "rtl" })
+                </th>
+                <th></th>
+                <th>
+                    @{labid = escapedAMI_AssemblyID + "_labour_3";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.LaborEst_CostTotal, new { @class = "form-control", @readonly = "readonly", id = labid, @dir = "rtl" })
+                </th>
+                <th>
+                    @{labid = escapedAMI_AssemblyID + "_labour_4";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.LaborEst_ResaleTotal, new { @class = "form-control", @readonly = "readonly", id = labid, @dir = "rtl" })
+                </th>
+                <th>
+                    @{labid = escapedAMI_AssemblyID + "_labour_5"; Model.assmeblymasterinfo.labour_actual_hours = 0;}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.labour_actual_hours, new { @class = "form-control", onkeyup = "checknum(this);CalculateV2(this)", id = labid, style = "text-align:right;", disabled = "disabled", value = "0" })
+                </th>
+                <th>
+                    @{labid = escapedAMI_AssemblyID + "_labour_6";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.labour_actual_total, new { @class = "form-control", @readonly = "readonly", id = labid, @dir = "rtl" })
+                </th>
+            </tr>
+            <tr class="Totalfooter-bgcolor ">
+                <th colspan="6">Grand Total</th>
+                <th>
+                    @{string grandtotid = escapedAMI_AssemblyID + "_grandtotal_0";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.GrandCostTotal, new { @class = "form-control total-bgcolor", @readonly = "readonly", id = grandtotid, @dir = "rtl" })
+                </th>
+                <th>
+                    @{grandtotid = escapedAMI_AssemblyID + "_grandtotal_1";}
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.GrandResaleTotal, new { @class = "form-control total-bgcolor", @readonly = "readonly", id = grandtotid, @dir = "rtl" })
+                </th>
+                <th>
+                </th>
+                <th>
+                    @{grandtotid = escapedAMI_AssemblyID + "_grandtotal_2"; }
+                    @Html.TextBoxFor(x => x.assmeblymasterinfo.GrandActualTotal, new { @class = "form-control total-bgcolor", @readonly = "readonly", id = grandtotid, style = "text-align:right" })
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+

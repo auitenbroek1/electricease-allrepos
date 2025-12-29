@@ -1,0 +1,14 @@
+﻿@model ElectricEase.Models.Viewfile
+
+
+<div>
+    @if (Model.filetype=="Image")
+    {
+        <img src="data:image;base64,@System.Convert.ToBase64String(Model.imagearray)" />
+    }
+    @if (Model.filetype == "pdf")
+    {
+        <iframe src="~/Reports/Getpdf?JobID=@Model.JobID&AttachmentName=@Model.AttachmentName" id="reportfarme" width="100%" height="615px"></iframe>
+        //@Url.Action("Reports", "Getpdf",new { JobID= Model.JobID, AttachmentName=Model.AttachmentName })
+    }
+</div>

@@ -1,0 +1,69 @@
+﻿@model ElectricEase.Models.Parts_DetailsInfo
+@{
+    ViewBag.Title = "ExportParts";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+} 
+
+<div class="app-body" id="Scroll">
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full" id="">
+            <fieldset>
+                <div id="accordion" class="partsmobile"> 
+                    <div class="box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp  ExportParts </strong> <span id="togglecont" class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-6"><input type="checkbox" class="form-control" />Distributor</div>
+                            <div class="col-md-6"><input type="checkbox" class="form-control" />Standared</div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-6">
+                                @Html.DropDownListFor(x => x.DistributorID, ViewBag.Distributor as SelectList, "Select", new { @class = "form-control" })
+                            </div>
+                            <div class="col-md-6">
+                                @Html.DropDownListFor(x => x.Client_ID, ViewBag.Standared as SelectList, "Select", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div id="nationalpartsdata"></div>
+                  
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        getpartslist("")
+    })
+    function getpartslist(val) {
+        if (val == "ALL Parts Category")
+            val = "";
+        Cookies.set("partsfilter", val);
+        $.ajax({
+            url: '../NationwideParts/GetNationalparts?PartCatgory=' + val,
+            type: 'Get',
+            success: function (data) {
+
+                $('#nationalpartsdata').html(data);
+                if (val == "") {
+                    val = "ALL Parts Category";
+                    $('#Part_CategoryList').val(val);
+                }
+                else {
+                    $('#Part_CategoryList').val(val);
+                }
+            },
+            error: function (err) {
+                DisplayNotification("\"Network Error\" Please try later!", "error");
+            }
+        });
+    }
+
+</script>

@@ -1,0 +1,96 @@
+﻿@model List<ElectricEase.Models.JobCalendarinfo>
+@{ 
+    string displayTime = "";
+    string displayendTime = "";
+}
+<script>
+    $(document).ready(function () {
+        $("#tablecalendar").dataTable({
+
+            "bPaginate": false,
+            "bFilter": false,
+            "bInfo": false
+
+        })
+    });
+
+
+</script>
+
+
+<div class="row" style="padding-top: 1%; margin-bottom: 0px">
+    <div class="table-responsive">
+        <table class="table table-bordered datatables dataTable no-footer" id="tablecalendar">
+            <thead>
+                <tr>
+                    <th style="width: 5%" data-bsortable="false"></th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Full Day Event</th>
+                    <th>Assigned</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>
+                        <img src="~/Images/delete.png" title="delete calendar" alt="delete" onclick="DeleteJobEvent('@item.Id','@item.JobId');" />
+                    </td>
+                    <td>
+                        @if (item.StartDate != null)
+                        {
+                            @item.StartDate.Value.ToString("MM/dd/yyyy");
+                        }
+                   
+                    </td>
+                    <td>
+                    @if (item.EndDate != null)
+                    {
+                        @item.EndDate.Value.ToString("MM/dd/yyyy")
+                    }
+                        
+                    </td>
+                    <td>
+                        
+                        @if( item.FullDay==false && item.StartTime!=null && item.EndTime!=null)
+                        {
+                            TimeSpan timespan = new TimeSpan(item.StartTime.Value.Hours,item.StartTime.Value.Minutes,item.StartTime.Value.Seconds);
+                            DateTime time = DateTime.Today.Add(timespan);
+                            displayTime = time.ToString("hh:mm tt");
+                            time = DateTime.Today.Add(item.EndTime.Value);
+                            displayendTime = time.ToString("hh:mm tt");
+                        }
+                        else
+                        {
+                            displayTime = null;
+                            displayendTime = null;
+                        }
+                       @displayTime
+                    </td>
+                    <td>
+                       @displayendTime
+                    </td>
+                    <td style="text-align:center">
+                        @if (item.FullDay == true)
+                        {
+                            <span class="glyphicon glyphicon-ok" style="color:#5B94C7; font-size:19px;"></span>
+                        } 
+                    </td>
+                    <td>
+                       @item.AssignTo
+                        @if (item.UserColor != "" && item.UserColor != null)
+                        {
+                            <input type="text" style="background-color: @item.UserColor; width: 20px; height: 10px;float:right" disabled>
+                        }
+                      
+                    </td>
+                </tr>
+
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

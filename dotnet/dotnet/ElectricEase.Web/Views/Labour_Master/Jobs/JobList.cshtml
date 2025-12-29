@@ -1,0 +1,93 @@
+﻿@model List<ElectricEase.Models.Job_MasterInfoList>
+
+@{
+    ViewBag.Title = "JobList";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+
+    var JobGrid = new WebGrid(source: Model, canPage: false, canSort: false);
+  
+}
+<script>
+    $(document).ready(function () {
+        $('li').removeClass('active');
+        $("#joblisting").addClass('active');
+
+        $(".content-title").text("Job Listing");
+    });
+
+    $(document).ready(function () {
+
+        $(".JobList").dataTable({
+            "aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+
+        });
+    });
+    $(function () {
+
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+           
+                <!-- app content here -->
+
+                <fieldset>
+                    <div id="accordion">
+                        <div class="box-row  profile-hd">
+                            <h7 class="box-heading">
+                                <strong> &nbsp Job Listing </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i>
+                                </span>
+                            </h7>
+                        </div>
+                        <div class="row">
+                            <div id="collapseTwo" class="panel-collapse collapse in">
+                                <div class="col-md-20">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="ajax-refresh2">
+                                                <div class="panel-body">
+                                                    @JobGrid.GetHtml(
+                                                               tableStyle: "table table-bordered datatables JobList",
+                                                                alternatingRowStyle: "alt",
+                                                                columns: JobGrid.Columns(
+                                                                JobGrid.Column(columnName: "Job_ID", header: "Job ID"),
+                                                                JobGrid.Column(columnName: "Job_Description", header: "Job Description"),
+                                                                 JobGrid.Column(columnName: "Created_By", header: "Created By"),
+                                                                 JobGrid.Column(columnName: "Job_Status", header: "Job Status"),
+                                                                JobGrid.Column(header: "Action", format: @<text><a href="/Jobs/EditJobDetails?JobID=@item.Job_ID"> <i class="icon ion-ios7-compose"></i></a>&nbsp;&nbsp;&nbsp;<a class="confirm" id="deletebtn" href="#"><i class="icon ion-ios7-trash"></i></a></text>)
+
+                                                           )
+                                                           )
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                        </fieldset>  
+        </div>

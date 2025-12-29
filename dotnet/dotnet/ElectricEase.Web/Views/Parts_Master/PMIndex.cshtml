@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "PMIndex";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+    //var Grid = new WebGrid( canPage: false, canSort: false, ajaxUpdateContainerId: "container-grid");
+}
+
+<script type="text/javascript">
+        $(document).ready(function () {
+            //alert("jiii");
+           // $('li').removeClass('active');
+            $("#partsmaster").addClass('active');
+            //alert("active");
+            //To change content tittles
+            $(".content-title").text("Parts Master");
+        });
+        $("#Ljob").click(function () {
+            //alert("dsfsdfsdf");
+            $(this).addClass('active').siblings().removeClass('active');
+            $(".content-title").hide();
+            return false;
+        });
+
+       
+</script>
+<style>
+    .controls > input,
+    .controls > select,
+    .controls > .row,
+    .controls > .input-group,
+    .controls > .form-group > .input-group {
+        margin-bottom: 15px;
+    }
+
+   
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+</style>
+
+
+@if (ViewBag.ADDSuccessMsg != null)
+{ 
+     <script>
+         DisplayNotification(" Parts details Added  Succefully", "success");
+    </script>
+}
+@if (ViewBag.DeleteSuccessMsg != null)
+{ 
+   <script>
+         DisplayNotification(" Parts details Deleted  Succefully", "success");
+    </script>
+}
+@if (ViewBag.UpdateErrorMsg != null)
+{ 
+    <script>
+        DisplayNotification(" Error occured while Updating Parts details", "error");
+    </script>
+}
+@if (ViewBag.UpdateSuccessMsg != null)
+{ 
+    <script>
+         DisplayNotification(" Parts details Updated  Succefully", "success");
+    </script>
+}
+
+@if (ViewBag.DeleteFailMsg != null)
+{ 
+    <script>
+        DisplayNotification(" Error occured while Deleting Parts details", "error");
+    </script>
+}
+
+@if (ViewBag.ADDFailMsg != null)
+{ 
+    <script>
+        DisplayNotification(" Error occured while Adding Parts details", "error");
+    </script>
+}
+
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+
+          
+                    
+
+                    @if (ViewBag.Edit == "EditPartsDetails")
+                    {
+                        <div id="editContent">
+                            Html.RenderAction("EditPartsDetails", "Parts_Master");
+                            @*@Html.Partial("_EditPartsDetails",new ElectricEase.Models.EditParts_DetailsInfo())*@
+                        </div>
+                    }
+                    else
+                    {
+                        @Html.Partial("_AddPartsDetails", new ElectricEase.Models.Parts_DetailsInfo())
+                    }
+
+                    
+
+                    </div>
+
+               
+           
+        </div>
+    
+</div>

@@ -1,0 +1,79 @@
+﻿@model ElectricEase.Models.Account_MasterInfo
+
+@{
+    ViewBag.Title = "Account_Master";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+
+
+<script>
+    $(document).ready(function () {
+        alert("acc");
+        $('li').removeClass('active');
+        $("#accountmaster").addClass('active');
+        alert("ttt");
+        $(".content-title").text("User Master");
+
+    });
+    $("#Ljob").click(function () {
+        alert("dsfsdfsdf");
+        $(this).addClass('active').siblings().removeClass('active');
+
+        $(".content-title").hide();
+        //var activepage = $('a', this).attr("href");
+        //$(activepage).show();
+        // document.title = $('h1', activepage).first().text();
+        // $('title').text(document.title);
+        return false;
+    });
+</script>
+<div class="app-body" id="Scroll">
+
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full">
+            <form class="form-horizontal" role="form">
+                <fieldset>
+                    <div id="accordion">
+                        <h7 class="box-heading"><strong>Account Details</strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                        <span class="pull-right apse a">
+                                        <i class="icon ion-chevron-up"></i></span>
+                                    </a>
+                                </h7>
+                        <hr>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <!--div class="col-lg-6">
+                                        <!-- parts details area start -->
+                            <!-- parts details area End -->
+                            <!--/div-->
+                        </div>
+
+                        <div class="row"></div>
+                        <div class="row">
+                            <h7 class="box-heading"><strong>Adminstrative Rights</strong>
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                    <span class="pull-right apse b">
+                                    <i class="icon ion-chevron-up"></i></span>
+                                    </a>
+                                    </h7>
+                            <hr>
+                        </div>
+                        <div id="collapseTwo" class="panel-collapse collapse in">
+                            <!--div class="col-lg-6">
+                                             <!-- parts list area start-->
+
+                            <!-- Parts List Area End -->
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- /fieldset -->
+            </form>
+            <!-- /form -->
+        </div>
+        <!-- /box -->
+    </div>
+    <!-- /app body -->
+</div>
+

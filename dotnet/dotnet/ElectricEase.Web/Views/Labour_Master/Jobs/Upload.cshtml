@@ -1,0 +1,67 @@
+﻿@model List<ElectricEase.Models.FileUpload>
+@{
+    Layout = null;
+    var Grid = new WebGrid(source: Model, canSort: false, canPage: false);
+}
+    <script>
+        function updateDataTableSelectAllCtrl(table) {
+            var $table = table.table().node();
+            var $chkbox_all = $('tbody input[type="checkbox"]', $table);
+            var $chkbox_checked = $('tbody input[type="checkbox"]:checked', $table);
+            var chkbox_select_all = $('thead input[name="select_all"]', $table).get(0);
+
+            // If none of the checkboxes are checked
+            if ($chkbox_checked.length === 0) {
+
+                chkbox_select_all.checked = false;
+                if ('indeterminate' in chkbox_select_all) {
+                    chkbox_select_all.indeterminate = false;
+                }
+
+                // If all of the checkboxes are checked
+            } else if ($chkbox_checked.length === $chkbox_all.length) {
+                chkbox_select_all.checked = true;
+                if ('indeterminate' in chkbox_select_all) {
+                    chkbox_select_all.indeterminate = false;
+                }
+
+                // If some of the checkboxes are checked
+            } else {
+                chkbox_select_all.checked = true;
+                if ('indeterminate' in chkbox_select_all) {
+                    chkbox_select_all.indeterminate = true;
+                }
+            }
+        }
+    </script>
+<div class="col-md-5">
+<div class="form-group">
+<label for="lable"><strong>Upload New File :</strong></label>
+    <input type='file' multiple id='fileUpload' name="files[]" />
+<label id="requirdMsg"></label>
+       @Grid.GetHtml(
+        tableStyle: "table table-bordered datatables",
+        htmlAttributes: new { id = "LabourGird" },
+        alternatingRowStyle: "alt",
+        columns: Grid.Columns(
+        Grid.Column(columnName: "Select_ID", style: "null", header: "{checkall}", format: @<text><input type="checkbox" name="assignChkBx" checked="@item.isChekced" value="@item.Client_ID" id="assignChkBx" /></text>),
+        Grid.Column(columnName: "fileName", header: "Selected Files"),
+        Grid.Column(columnName: "Labor_Category", header: "Labor Category"),
+        Grid.Column(columnName: "Cost", header: "Cost"),
+        Grid.Column(columnName: "Resale_Cost", header: "Resale Cost"),
+        Grid.Column(columnName: "Burden", header: "Burden")
+        )
+        )
+
+</div>
+</div>
+<div class="pull-right">
+<div class="col-md-2">
+<div class="form-group">
+    @using (Html.BeginForm("Upload", "Jobs", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <input type="button" value="Upload" name="Upload" data-url="@Url.Action("Upload","Jobs")" />
+    }
+    </div>
+</div>
+</div>

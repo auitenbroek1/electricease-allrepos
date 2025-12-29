@@ -1,0 +1,27 @@
+﻿@model IEnumerable<ElectricEase.Models.Assembly_PartsDetailsInfoList>
+@{
+    ViewBag.Title = "AddPartsInGridView";
+    var Grid = new WebGrid(source: Model, canPage: true);
+}
+
+<h2>AddPartsInGridView</h2>
+ <form>
+                         @using (Html.BeginForm("AddPartsInGrid", "Assemblies_Master"))
+                         {
+                          @Grid.GetHtml(
+                           tableStyle: "table table-bordered datatables",
+                            alternatingRowStyle: "alt",
+                           columns: Grid.Columns(
+                           Grid.Column(columnName: "Select_ID", header: "Select", format: @<text><input type="checkbox" name="assignChkBx" value="@item.Client_ID,@item.Part_Number" id="assignChkBx" /></text>),
+                          // Grid.Column(columnName: "Client_ID", header: "Client Company"),
+                           Grid.Column(columnName: "Part_Number", header: "Part Number"),
+                           Grid.Column(columnName: "Part_Category", header: "Part Category"),
+                           Grid.Column(columnName: "Cost", header: "My Cost"),
+                           Grid.Column(columnName: "Resale_Cost", header: "Resale"),
+                           Grid.Column(columnName: "Purchased_From", header: "Purchased_From")
+                //Grid.Column(header: "Action", format: @<text><a href="/Client_Master/EditClientMaster?id=@item.Client_ID"> <span class="glyphicon glyphicon-pencil"></span></a>&nbsp;&nbsp;&nbsp;<a id="deletebtn" href="/Client_Master/DeleteClient?id=@item.Client_ID"><span class="glyphicon glyphicon-trash"></span></a></text>)
+
+                           )
+                           )
+                         }
+                             </form>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="h-full w-full" viewBox="0 0 120 50">
+  <defs>
+    <style>
+      .a,.b{}.b{}
+    </style>
+  </defs>
+  <path d="M31.53 29.24v8.37M87.13 29.24v8.37" style="stroke:currentcolor"/>
+  <path d="M46 12.15a8.33 8.33 0 1 0 8.33 8.33A8.33 8.33 0 0 0 46 12.15Z" style="fill:none;stroke:currentcolor"/>
+  <path d="M46.02 28.81v4.62" style="stroke:currentcolor"/>
+  <path d="M72.41 12.15a8.33 8.33 0 1 0 8.34 8.33 8.33 8.33 0 0 0-8.34-8.33Z" style="fill:none;stroke:currentcolor"/>
+  <path d="M72.41 28.81v4.62M31.53 33.43h55.6" style="stroke:currentcolor"/>
+</svg>

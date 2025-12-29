@@ -1,0 +1,1495 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<script src="~/Scripts/ClientAssemblyMaster.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+<script>
+    var isloaded = false;
+    var isediting = false;
+    var category = "";
+    var isassembly = 0;
+    var selectedpart = [];
+    var updatestatus = 1;
+    $(document).ready(function () {
+        Cookies.set('Assemsearch', '');
+        Cookies.set("assemfilter", '');
+        Cookies.set("Assemdtpageno", '');
+        Cookies.set("Assemdtpagelen", '');
+        Cookies.set("Assemdtsorting", '');
+        $('li').removeClass('active');
+        $("#assembliesmaster").addClass('active');
+        $(".content-title").text("Assemblies Master");
+
+
+    });
+    function toggleChevron(e) {
+        $(e.target)
+            .prev('.panel-heading')
+            .find("i.indicator")
+            .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+    }
+    $('#accordion').on('hidden.bs.collapse', toggleChevron);
+    $('#accordion').on('shown.bs.collapse', toggleChevron);
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/AssemblyMaster.pdf");
+    })
+    $(document).ready(function () {
+        $("button").click(function () {
+            $("p").slideToggle();
+        });
+        getassemblyInfo('');
+        //getassemblyList();
+    });
+
+    function Cancel() {
+        msg = "Are you sure, do you want to cancel?"
+        if (confirm(msg)) {
+            clear();
+            //window.location.href = '../Assemblies_Master/Index'
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+    //Here to Get Assembly Details
+    function getassemblyInfo(val) {
+
+        $.ajax({
+            url: '../Assemblies_Master/AssemblyInfo?Name=' + encodeURIComponent(val),
+            type: 'GET',
+            success: function (data) {
+                $('#divasseminfo').html(data);
+                $('#partstable').find("input:checkbox").each(function () {
+                    if (this.checked == true) {
+                        this.checked = false;
+                    }
+                });
+
+                if (val != "0" && val != "") {
+
+                    isassembly = 1;
+                    updatestatus = 0;
+                    saveparts();
+                }
+                else {
+                    $("#Isactive").bootstrapToggle('on');
+                }
+                $('#Addbtn').text("Update");
+                $("#Assemblies_Category").select2();
+            },
+            error: function (err) {
+
+            }
+        });
+    }
+    //Here to Get Assembly List
+    function getassemblyList(val) {
+        if (val == null || typeof val === 'undefined')
+            val = "";
+        $.ajax({
+            url: '../Assemblies_Master/getallAssembliesList?assembName=' + val,
+            type: 'GET',
+            success: function (data) {
+                $('#divassemblylist').html(data);
+                setTimeout(function () {
+                    if (val != "")
+                        $('#lstassembly_cat').val(val);
+                }, 2000);
+            },
+            error: function (err) {
+            }
+        });
+    }
+    //Here to Get Parts List
+    function getparts(val) {
+
+        $.ajax({
+            url: '../Assemblies_Master/AssemblyPartsLaborInfo?Name=' + val,
+            type: 'GET',
+            success: function (data) {
+                $('#divpartsinfo').html(data);
+
+                if ($('#partstbody tr').length > 0) {
+                    $('#PartsLabortblInfo').show();
+                }
+            },
+            error: function (err) {
+            }
+        });
+    }
+
+    //Here to Get and Edit Assembly Details
+    function editassembly(val) {
+
+        $("#updatebtn").show();
+        $("#Cancel").show();
+        $("#addbtn").hide();
+        $("#Reset").hide();
+        //$('#Addbtn').text("Update");
+        $('#partstbody').html("");
+        selectedpart = [];
+        isloaded = false;
+        isediting = true;
+        getassemblyInfo(val);
+    }
+    //Here to Get AllParts Details in Popup
+    function modalAssignToRM() {
+        $("#Loading").show();
+        selectedpart = [];
+        var assemblyname = $('#Assemblies_Name').val();
+        var lstpartnum = "";
+        var tablRows = $('#partstbody tr')
+        var tablRows = $('#partstbody tr')
+        i = 0;
+        if (tablRows.length > 0) {
+            $('#partstbody tr ').each(function () {
+                var customerId = $(this).find("#partnumber").html();
+                lstpartnum += customerId.trim() + ",";
+                selectedpart.push(customerId.trim());
+            });
+        }
+        if ($('#laborDatatbl tr').length > 0) {
+            updatestatus = 1;
+        }
+        $.ajax({
+            url: '../Assemblies_Master/GetallAssemblyParts',
+            data: { name: assemblyname, lstparts: lstpartnum },
+            type: 'POST',
+            success: function (data) {
+                $("#Loading").hide();
+                $('#divpartsdata').html(data);
+                $('#openpopup').click();
+                //$('#partstable').find("input:checkbox").each(function () {
+                //    if (this.checked == true) {
+                //        i++
+                //    }
+                //    var tablerowlength = $("#partsbody tr").length;
+                //    if (tablerowlength == i) {
+                //        document.getElementById("selectall").checked = true;
+                //    }
+                //});
+                //$('#Part_Category').val("ALL");
+            },
+            error: function (err) {
+                $("#Loading").hide();
+            }
+        });
+    }
+    function ShowOtherCategory(val) {
+        var lstpartnum = "";
+        if (val == "") {
+            val = "ALL";
+        }
+        var tablRows = $('#partstbody tr')
+        if (tablRows.length > 0) {
+            $('#partstbody tr ').each(function () {
+                var customerId = $(this).find("#partnumber").html();
+                lstpartnum += customerId.trim() + ",";
+            });
+        }
+        $.ajax({
+            url: '../Assemblies_Master/GetallAssemblyParts?PartCatgory=' + val + "&lstparts=" + lstpartnum,
+            type: 'Get',
+            success: function (data) {
+                $('#divpartsdata').html(data);
+                if (val == "") {
+                    val = "ALL";
+                    $('#Part_Category').val(val);
+                }
+                else {
+                    $('#Part_Category').val(val);
+                }
+            },
+            Error: function (err) { }
+
+        });
+    }
+    function checknum(element) {
+
+        var values = $(element).val();
+
+        var rgx = /^[0-9]*\.?[0-9]*$/;
+        if (values.match(rgx)) {
+
+        }
+        else {
+            $(element).val(0);
+            //$(element).val($(element).val().replace(/\D/, ''));
+        }
+    }
+
+    //Here to Save  parts
+    function saveparts() {
+
+
+
+        var lstpart = "";
+        //  var assemblyname = $('#Assemblies_Name').val();
+        var AsName = $('#Assemblies_Name').val().replace(/\s\s+/g, ' ');
+        var PartstblRows = $('#partstbody tr');
+        var oldlabour = null;
+        var oldPartsData = new Array();
+        var oldLaborData = new Array();
+        var newPartsData = new Array();
+        if (PartstblRows.length > 0) {
+            var txtLaborUnit = $(PartstblRows).find("[name='txtLaborUnit']");
+            //var LabortablRows = $('#LabortblInfo tr')
+            for (var i = 0; i < PartstblRows.length; i++) {
+                var activevalue = $(PartstblRows[i]).find('#activeparts').text().trim();
+                if (activevalue == "true") {
+                    oldPartsData.push({
+                        'IsActivePartsDetails': $(PartstblRows[i]).find('#activeparts').text().trim(),
+                        'Part_Number': $(PartstblRows[i]).find('#partnumber').text().trim(),
+                        'Part_Category': $(PartstblRows[i]).find('#Part_Category').text().trim(),
+                        'Parts_Description': $(PartstblRows[i]).find('#Parts_Description').text().trim(),
+                        'Part_Cost': $(PartstblRows).find('#' + "P_" + i + "_0").val(),
+                        'Resale_Cost': $(PartstblRows).find('#' + "P_" + i + "_1").val(),
+                        'Estimated_Qty': $(PartstblRows).find('#' + "P_" + i + "_2").val(),
+                        'EstCost_Total': $(PartstblRows).find('#' + "P_" + i + "_3").val(),
+                        'EstResaleCost_Total': $(PartstblRows).find('#' + "P_" + i + "_4").val(),
+                        'LaborUnit': $(txtLaborUnit[i]).val()
+                    });
+                }
+            }
+        }
+        if (updatestatus == 1) {
+
+            if ($('#laborDatatbl tr').length > 0) {
+                var llabour = $('#laborDatatbl tr');
+                oldlabour = '<tr><th colspan="3">Labor</th><th>';
+                oldlabour += '<input type="text" id="assmeblymasterinfo_labor_cost" value="' + $('#laborDatatbl tr')[1].cells[1].children[0].value.trim() + '" class = "form-control"  onkeyup="checknum(this);OnKeypressEvent();"  style="text-align:right"/>';
+
+                oldlabour += '</th><th>';
+                oldlabour += '<input type="text"  id="assmeblymasterinfo_Lobor_Resale" value="' + $('#laborDatatbl tr')[1].cells[2].children[0].value.trim() + '" class = "form-control" onkeyup="OnKeypressEvent();"  style="text-align:right"/>';
+                oldlabour += '</th><th>';
+                oldlabour += '<input type="text"  id="assmeblymasterinfo_Estimated_Hour" value="' + $('#laborDatatbl tr')[1].cells[3].children[0].value.trim() + '" readonly class = "form-control"  onkeyup="OnKeypressEvent();"  style="text-align:right"/>';
+                oldlabour += '</th><th>';
+                oldlabour += '</th><th>';
+                oldlabour += '<input type="text"  id="assmeblymasterinfo_LaborEst_CostTotal" value="' + $('#laborDatatbl tr')[1].cells[5].children[0].value.trim() + '" class = "form-control" readonly = "readonly"onkeyup="OnKeypressEvent();"  style="text-align:right"/>';
+                oldlabour += '</th><th>';
+                oldlabour += '<input type="text"  id="assmeblymasterinfo_LaborEst_ResaleTotal" value="' + $('#laborDatatbl tr')[1].cells[6].children[0].value.trim() + '" class = "form-control" readonly = "readonly"onkeyup="OnKeypressEvent();"  style="text-align:right"/>';
+                oldlabour += '</th>';
+                oldlabour += '</tr>';
+            }
+
+        }
+
+        //$('#partstable').find("input:checkbox").each(function () {
+        //    if (this.checked == true) {
+
+        //        if (lstpart == "")
+        //            lstpart += this.id;
+        //        else
+        //            lstpart += "," + this.id;
+        //    }
+        //});
+        if (selectedpart != null && selectedpart.length > 0) {
+            for (var p = 0; p < selectedpart.length; p++) {
+                if (lstpart == "")
+                    lstpart += selectedpart[p];
+                else
+                    lstpart += "," + selectedpart[p];
+            }
+        }
+        $("#ClosePartsPopUp").click();
+        //$('#popupclose').click();
+        $.ajax({
+            url: '../Assemblies_Master/SelectedAssemblyPartsLaborInfo',
+            data: { lstparts: lstpart, Assemblies_Name: AsName },
+            type: 'POST',
+            success: function (data) {
+
+                //var totlength=Number(oldPartsData.length)+Number(data.length);
+                var trow = '';
+                var estimatedqty = 0.00;
+                var estimatedcost = 0.00;
+                var estimatedresalecost = 0.00;
+                var GrandCostTot = 0.00;
+                var GrandCostResaleTot = 0.00;
+                var disabled = "";
+
+                for (var i = 0; i < data.partslist.length; i++) {
+
+                    var isavailable = 0;
+                    for (var j = 0; j < oldPartsData.length; j++) {
+
+                        if (data.partslist[i].Part_Number == oldPartsData[j].Part_Number) {
+
+                            trow += '<tr>';
+                            trow += '<td id="activeparts" style="display:none">' + oldPartsData[j].IsActivePartsDetails + '</td>';
+                            trow += '<td id="partnumber">' + oldPartsData[j].Part_Number + '</td>';
+                            trow += '<td id="Part_Category">' + oldPartsData[j].Part_Category + '</td>';
+                            if (oldPartsData[j].Parts_Description == null || oldPartsData[j].Parts_Description == "null") {
+                                oldPartsData[j].Parts_Description = "";
+                            }
+                            trow += '<td id="Parts_Description">' + oldPartsData[j].Parts_Description + '</td><td>';
+
+                            //Cost
+                            var Partscostid = "P_" + i + "_0";;
+                            trow += '<input name="txtCost" type="text" id="' + Partscostid + '" class="form-control" value="' + oldPartsData[j].Part_Cost + '" onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+                            trow += '</td><td>';
+
+                            //Resale Cost
+                            var Rcostid = "P_" + i + "_1";
+                            trow += '<input type="text" name="txtResaleCost" id="' + Rcostid + '" class="form-control" value="' + oldPartsData[j].Resale_Cost + '" onkeyup="calculatecost(this);" style="text-align:right" />';
+                            trow += '</td><td>';
+
+                            //Est.Qty
+                            estimatedqty = Number(estimatedqty) + Number(oldPartsData[j].Estimated_Qty);
+                            var EstQtyid = "P_" + i + "_2";
+                            var EstQty = oldPartsData[j].Estimated_Qty == 0 ? "" : oldPartsData[j].Estimated_Qty;
+                            if (EstQty == "" || EstQty == "0")
+                                EstQty = ""
+                            else
+                                EstQty = Number(EstQty);
+                            trow += '<input type="text" name="txtEstimatedQty" id="' + EstQtyid + '" class="form-control" value="' + EstQty + '" onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+                            trow += '</td><td>';
+
+                            //Labor Unit
+                            trow += '<input type="text" name="txtLaborUnit" class="form-control" value="' + oldPartsData[j].LaborUnit + '" onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+                            trow += '</td><td>';
+
+                            estimatedcost = Number(estimatedcost) + Number(oldPartsData[j].EstCost_Total);
+                            var EstCostTotid = "P_" + i + "_3";
+                            trow += '<input type="text" id="' + EstCostTotid + '" class="form-control" disabled value="' + oldPartsData[j].EstCost_Total + '" onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+                            //Calc Labor Unit
+                            trow += '<input type="hidden" name="txtCalcLaborUnit" class="form-control" />';
+                            trow += '</td><td>';
+                            estimatedresalecost = Number(estimatedresalecost) + Number(oldPartsData[j].EstResaleCost_Total);
+                            var EstRCostTotid = "P_" + i + "_4";
+                            trow += '<input type="text" id="' + EstRCostTotid + '" class="form-control" disabled value="' + oldPartsData[j].EstResaleCost_Total + '" onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+                            trow += '</td>';
+                            trow += '</tr>';
+                            isavailable = Number(isavailable) + Number(1);
+
+                        }
+                    }
+                    if (isavailable == 0) {
+
+                        var disabled = "";
+                        //if (data.assmeblymasterinfo != null && data.assmeblymasterinfo.assemblypartsCount == 0 || data.partslist[i].IsActivePartsDetails == false) {
+                        //    trow += '<tr style="background-color:#e74c3c" class="deletedparts">';
+                        //    disabled = "disabled";
+                        //}
+                        //else {
+                            trow += '<tr>';
+                        //}
+                        trow += '<td id="activeparts" style="display:none">' + data.partslist[i].IsActivePartsDetails + '</td>';
+                        trow += '<td id="partnumber">' + data.partslist[i].Part_Number + '</td>';
+                        trow += '<td id="Part_Category">' + data.partslist[i].Part_Category + '</td>';
+                        if (data.partslist[i].Parts_Description == null || data.partslist[i].Parts_Description == "null") {
+                            data.partslist[i].Parts_Description = "";
+                        }
+                        trow += '<td id="Parts_Description">' + data.partslist[i].Parts_Description + '</td><td>';
+
+                        //Cost
+                        var Partscostid = "P_" + i + "_0";;
+                        trow += '<input name="txtCost" type="text" ' + disabled + ' id="' + Partscostid + '" class="form-control" value="' + data.partslist[i].Part_Cost + '" onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+                        trow += '</td><td>';
+
+                        //Resale Cost
+                        var Rcostid = "P_" + i + "_1";
+                        trow += '<input type="text" name="txtResaleCost" ' + disabled + ' id="' + Rcostid + '" class="form-control" value="' + data.partslist[i].Resale_Cost + '" onkeyup="calculatecost(this);" style="text-align:right" />';
+                        trow += '</td><td>';
+                        if (data.assmeblymasterinfo != null && data.assmeblymasterinfo.assemblypartsCount == 0) {
+                            estimatedqty = "0";
+                        }
+                        else {
+                            if (data.partslist[i].IsActivePartsDetails == true) {
+                                estimatedqty = Number(estimatedqty) + Number(data.partslist[i].Estimated_Qty);
+                            }
+                        }
+
+                        //Estimated Qty
+                        var EstQtyid = "P_" + i + "_2";
+                        var EstQty = data.partslist[i].Estimated_Qty == 0 ? "" : data.partslist[i].Estimated_Qty;
+                        if (EstQty == "" || EstQty == "0")
+                            EstQty = "0"
+                        else
+                            EstQty = Number(EstQty);
+
+                        trow += '<input type="text" name="txtEstimatedQty"  ' + disabled + ' id="' + EstQtyid + '" class="form-control" value="' + EstQty + '"onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+                        trow += '</td><td>';
+
+                        //Labor Unit
+                        trow += '<input type="text" name="txtLaborUnit" class="form-control" value="' + data.partslist[i].LaborUnit + '" onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+                        trow += '</td><td>';
+
+                        //Here calculate Estimate cost total
+                        if (data.assmeblymasterinfo != null && data.assmeblymasterinfo.assemblypartsCount == 0) {
+                            estimatedcost = "0";
+                        }
+                        else {
+                            if (data.partslist[i].IsActivePartsDetails == true) {
+                                estimatedcost = Number(estimatedcost) + Number(data.partslist[i].EstCost_Total);
+                            }
+                        }
+                        debugger;
+                        //Estimate Cost Total 
+                        var EstCostTotid = "P_" + i + "_3";
+                        var EstCostTot = data.partslist[i].EstCost_Total == 0 ? "0.00" : data.partslist[i].EstCost_Total;
+                        trow += '<input type="text" id="' + EstCostTotid + '" class="form-control" disabled value="' + EstCostTot + '" onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+
+                        //Calc Labor Unit
+                        trow += '<input type="hidden" name="txtCalcLaborUnit" class="form-control" />';
+                        trow += '</td><td>';
+                        //Here calculate Estimate resalecost total
+                        if (data.assmeblymasterinfo != null && data.assmeblymasterinfo.assemblypartsCount == 0) {
+                            estimatedresalecost = "0";
+                        }
+                        else {
+                            if (data.partslist[i].IsActivePartsDetails == true) {
+                                estimatedresalecost = Number(estimatedresalecost) + Number(data.partslist[i].EstResaleCost_Total);
+                            }
+                        }
+                        //estimatedresalecost = Number(estimatedresalecost) + Number(data.partslist[i].EstResaleCost_Total);
+                        var EstRCostTotid = "P_" + i + "_4";
+                        var EstRCostTot = data.partslist[i].EstResaleCost_Total == 0 ? "0.00" : data.partslist[i].EstResaleCost_Total;
+                        trow += '<input type="text" id="' + EstRCostTotid + '" class="form-control" disabled value="' + EstRCostTot + '" onkeyup="checknum(this);calculatecost(this);" style="text-align:right" />';
+                        trow += '</td>';
+                        trow += '</tr>';
+                    }
+                }
+
+
+                $('#partstbody').html(trow);
+                var footerrow = '<tr><th colspan="5">Total</th><th>';
+
+                var EstQtyTot = estimatedqty == 0 ? "" : estimatedqty;
+                footerrow += '<input type="text" id="assmeblymasterinfo_Estimated_Qty_Total" value="' + Number(EstQtyTot).toFixed(4) + '" class = "form-control Estimate-FooterValue" readonly = "readonly" style="text-align:right"  />';
+                footerrow += '</th><th>';
+                footerrow += '</th><th>';
+                var estimatedcostTot = estimatedcost == 0 ? "" : estimatedcost;
+                footerrow += '<input type="text"  id="assmeblymasterinfo_PartCostTotal" value="' + Number(estimatedcostTot).toFixed(2) + '" class = "form-control Estimate-FooterValue" readonly = "readonly"  style="text-align:right"/>';
+                footerrow += '</th><th>';
+                var estimatedresalecostTot = estimatedresalecost == 0 ? "" : estimatedresalecost;
+                footerrow += '<input type="text"  id="assmeblymasterinfo_PartResaleTotal" value="' + Number(estimatedresalecostTot).toFixed(2) + '" class = "form-control Estimate-FooterValue" readonly = "readonly" style="text-align:right"/>';
+                footerrow += '</th>';
+                footerrow += '</tr>';
+
+                var footerlabourrow = "";
+
+                if (isassembly == 1) {
+
+                    if (oldlabour == null || oldlabour == "") {
+
+                        footerlabourrow = '<tr><th colspan="3">Labor</th><th>';
+                        footerlabourrow += '<input type="text" id="assmeblymasterinfo_labor_cost" value="' + data.assmeblymasterinfo.labor_cost + '" class = "form-control"  onkeyup="checknum(this);OnKeypressEvent();" style="text-align:right"/>';
+                        //GrandCostTot = Number(estimatedcost) + Number(data.assmeblymasterinfo.labor_cost);
+                        footerlabourrow += '</th><th>';
+                        footerlabourrow += '<input type="text"  id="assmeblymasterinfo_Lobor_Resale" value="' + data.assmeblymasterinfo.Lobor_Resale + '" class = "form-control" onkeyup="checknum(this);OnKeypressEvent();" style="text-align:right"/>';
+                        //GrandCostResaleTot = Number(estimatedresalecost) + Number(data.assmeblymasterinfo.Lobor_Resale);
+                        footerlabourrow += '</th><th>';
+                        var EstHr = data.assmeblymasterinfo.Estimated_Hour == 0 ? "" : data.assmeblymasterinfo.Estimated_Hour;
+                        if (EstHr == "" || EstHr == "0")
+                            EstHr = ""
+                        //else
+                        //    EstHr = Number(EstHr).toFixed(0);
+                        footerlabourrow += '<input type="text"  id="assmeblymasterinfo_Estimated_Hour" value="' + EstHr + '" readonly class = "form-control"  onkeyup="checknum(this);OnKeypressEvent();" style="text-align:right"/>';
+                        footerlabourrow += '</th><th>';
+                        footerlabourrow += '</th><th>';
+                        footerlabourrow += '<input type="text"  id="assmeblymasterinfo_LaborEst_CostTotal" value="' + data.assmeblymasterinfo.LaborEst_CostTotal + '" class = "form-control" readonly = "readonly"onkeyup="checknum(this);OnKeypressEvent();" style="text-align:right"/>';
+                        footerlabourrow += '</th><th>';
+                        footerlabourrow += '<input type="text"  id="assmeblymasterinfo_LaborEst_ResaleTotal" value="' + data.assmeblymasterinfo.LaborEst_ResaleTotal + '" class = "form-control" readonly = "readonly"onkeyup="checknum(this);OnKeypressEvent();" style="text-align:right"/>';
+                        footerlabourrow += '</th>';
+                        footerlabourrow += '</tr>';
+                    }
+                    else {
+                        footerlabourrow = oldlabour;
+
+                    }
+                }
+                else {
+
+                    if (oldlabour == null || oldlabour == "") {
+
+                        footerlabourrow = '<tr><th colspan="3">Labor</th><th>';
+                        footerlabourrow += '<input type="text" id="assmeblymasterinfo_labor_cost" value="" class = "form-control"  onkeyup="checknum(this);OnKeypressEvent();" style="text-align:right"/>';
+                        footerlabourrow += '</th><th>';
+                        footerlabourrow += '<input type="text"  id="assmeblymasterinfo_Lobor_Resale" value="" class = "form-control" onkeyup="checknum(this);OnKeypressEvent();" style="text-align:right"/>';
+                        footerlabourrow += '</th><th>';
+                        footerlabourrow += '<input type="text"  id="assmeblymasterinfo_Estimated_Hour" readonly value="" class = "form-control" onkeyup="checknum(this);OnKeypressEvent();"style="text-align:right"/>';
+                        footerlabourrow += '</th><th>';
+                        footerlabourrow += '</th><th>';
+                        footerlabourrow += '<input type="text"  id="assmeblymasterinfo_LaborEst_CostTotal" value="" class = "form-control" readonly = "readonly"onkeyup="checknum(this);OnKeypressEvent();" style="text-align:right"/>';
+                        footerlabourrow += '</th><th>';
+                        footerlabourrow += '<input type="text"  id="assmeblymasterinfo_LaborEst_ResaleTotal" value="" class = "form-control" readonly = "readonly"onkeyup="checknum(this);OnKeypressEvent();" style="text-align:right"/>';
+                        footerlabourrow += '</th>';
+                        footerlabourrow += '</tr>';
+                    }
+                    else {
+
+                        footerlabourrow = oldlabour;
+                    }
+                }
+                $('#PartsLabortblInfo').show();
+                $('#laborDatatbl').html('');
+                $('#laborDatatbl').append(footerrow);
+                $('#laborDatatbl').append(footerlabourrow);
+                if (!isNaN($('#assmeblymasterinfo_labor_cost').val())) {
+                    //alert(estimatedcost);
+                    GrandCostTot = Number(estimatedcost) + Number($('#assmeblymasterinfo_LaborEst_CostTotal').val());
+                }
+                if (!isNaN($('#assmeblymasterinfo_Lobor_Resale').val())) {
+                    GrandCostResaleTot = Number(estimatedresalecost) + Number($('#assmeblymasterinfo_LaborEst_ResaleTotal').val());
+                }
+
+                var footergrandrow = '<tr class="Totalfooter-bgcolor"><th colspan="7" > Grand Total</th><th>';
+                var GrandCostTotval = GrandCostTot == 0 ? "" : GrandCostTot;
+                footergrandrow += '<input type="text" id="assmeblymasterinfo_GrandCostTotal" value="' + Number(GrandCostTotval).toFixed(2) + '" class = "form-control Estimate-FooterValue" readonly = "readonly"  style="text-align:right; border: none;font-weight: bold;"/>';
+                footergrandrow += '</th><th>';
+                var GrandCostResaleTotval = GrandCostResaleTot == 0 ? "" : GrandCostResaleTot;
+                footergrandrow += '<input type="text"  id="assmeblymasterinfo_GrandResaleTotal" value="' + Number(GrandCostResaleTotval).toFixed(2) + '" class = "form-control Estimate-FooterValue" readonly = "readonly" style="text-align:right;border: none; font-weight: bold;"/>';
+                footergrandrow += '</th>';
+                footergrandrow += '</tr>';
+
+
+                $('#laborDatatbl').append(footergrandrow);
+                //calculatecost($('#P_0_0'));
+                calculatecost();
+                setRegexValidations();
+            },
+            error: function (err) {
+                //alert("Error4");
+            }
+        });
+    }
+    //Here to calculate cost
+    function calculatecost(val) {
+
+
+        PartsCost_Total = 0;
+        PartsResaleCost_Total = 0;
+        EstQty_Total = 0;
+        var partsrow = $('#partstbody tr');
+        if (partsrow.length > 0) {
+            for (var i = 0; i < partsrow.length; i++) {
+                //var activevalue = $(partsrow[i]).find('#activeparts').text().trim();
+                //if (activevalue == "true")
+                //{
+                var cost = partsrow[i].cells[4].children[0].value;
+
+                //Resale Cost
+                handleDecimalDot(partsrow[i].cells[5].children[0]);
+                var resalecost = partsrow[i].cells[5].children[0].value;
+
+
+                var qty = partsrow[i].cells[6].children[0].value;
+                resalecost = Number(resalecost).toFixed(2);
+                qty = Number(qty);
+                EstQty_Total = Number(EstQty_Total) + Number(qty);
+                if (isNaN(EstQty_Total)) {
+                    EstQty_Total = 0;
+                }
+
+                //Est.Cost Total
+                var estcosttotal = Number(Number(cost) * Number(qty));
+                if (isNaN(estcosttotal)) {
+                    estcosttotal = 0;
+                }
+                partsrow[i].cells[8].children[0].value = estcosttotal.toFixed(2);
+
+                //Est.Resale Total calculation
+                var estresaletotal = Number(Number(resalecost) * Number(qty));
+                if (isNaN(estresaletotal)) {
+                    estresaletotal = 0;
+                }
+                partsrow[i].cells[9].children[0].value = estresaletotal.toFixed(2);
+
+                PartsCost_Total = Number(PartsCost_Total) + Number(partsrow[i].cells[8].children[0].value);
+                if (isNaN(PartsCost_Total)) {
+                    PartsCost_Total = 0;
+                }
+                PartsResaleCost_Total = Number(PartsResaleCost_Total) + Number(partsrow[i].cells[9].children[0].value);
+                if (isNaN(PartsResaleCost_Total)) {
+                    PartsResaleCost_Total = 0;
+                }
+                //}
+
+            }
+        }
+
+        //Labor unit calculation
+        var LaborUnitTxtBoxes = partsrow.find('[name = "txtLaborUnit"]');
+        var estQtyTxtBoxes = partsrow.find('[name = "txtEstimatedQty"]');
+        var estLaborUnitTxtBoxes = partsrow.find('[name = "txtCalcLaborUnit"]');
+        MultiplyOnSeries(LaborUnitTxtBoxes, estQtyTxtBoxes, estLaborUnitTxtBoxes, 4)
+        LaborValue = AdditionOnSeries(estLaborUnitTxtBoxes, 4);
+        $('#assmeblymasterinfo_Estimated_Hour').val(LaborValue);
+
+
+        $('#assmeblymasterinfo_Estimated_Qty_Total').val(Number(EstQty_Total).toFixed(4));
+        $('#assmeblymasterinfo_PartCostTotal').val(Number(PartsCost_Total).toFixed(2));
+        $('#assmeblymasterinfo_PartResaleTotal').val(Number(PartsResaleCost_Total).toFixed(2));
+        OnKeypressEvent();
+        var LaborEstCost = $("#assmeblymasterinfo_LaborEst_CostTotal").val();
+        var LaborEstRcost = $("#assmeblymasterinfo_LaborEst_ResaleTotal").val();
+        var GrandCostTotal = 0.00;
+        var GrandRcostTotal = 0.00;
+        GrandCostTotal = Number($('#assmeblymasterinfo_PartCostTotal').val()) + Number(LaborEstCost);
+        if (isNaN(GrandCostTotal)) {
+            GrandCostTotal = 0;
+        }
+        GrandRcostTotal = Number($('#assmeblymasterinfo_PartResaleTotal').val()) + Number(LaborEstRcost);
+        if (isNaN(GrandRcostTotal)) {
+            GrandRcostTotal = 0;
+        }
+        $("#assmeblymasterinfo_GrandCostTotal").val(Number(GrandCostTotal).toFixed(2));
+        $("#assmeblymasterinfo_GrandResaleTotal").val(Number(GrandRcostTotal).toFixed(2));
+    }
+
+    function OnKeypressEvent() {
+
+        var laborcost = $("#assmeblymasterinfo_labor_cost").val();
+        var laborResale = $("#assmeblymasterinfo_Lobor_Resale").val();
+        var laborEstHr = $("#assmeblymasterinfo_Estimated_Hour").val();
+        EstLaborCostTot = 0;
+        EstLaborResaleCostTot = 0;
+        PartsResaleCost_Total = 0
+
+        GrandCostTotal = 0;
+        GrandResaleTotal = 0;
+
+        PartsCost_Total = 0;
+
+        if (laborcost != "" && laborResale != "" && laborEstHr != "") {
+
+            EstLaborCostTot = parseFloat(laborcost) * parseFloat(laborEstHr);
+            if (isNaN(EstLaborCostTot)) {
+                EstLaborCostTot = 0;
+            }
+            //alert(EstLaborCostTot);
+            $("#assmeblymasterinfo_LaborEst_CostTotal").val(Number(EstLaborCostTot).toFixed(2));
+
+            EstLaborResaleCostTot = parseFloat(laborResale) * parseFloat(laborEstHr);
+            if (isNaN(EstLaborResaleCostTot)) {
+                EstLaborResaleCostTot = 0;
+            }
+            // alert(EstLaborResaleCostTot);
+            $("#assmeblymasterinfo_LaborEst_ResaleTotal").val(Number(EstLaborResaleCostTot).toFixed(2));
+
+            var tablRows = $('#partstbody tr')
+
+            for (i = 0; i < tablRows.length; i++) {
+
+                var estcost = $('#' + "P_" + i + "_3").val();
+                //alert(estcost);
+                PartsCost_Total += parseFloat(estcost);
+                //alert(PartsCost_Total);
+
+            }
+
+            GrandCostTotal = PartsCost_Total + EstLaborCostTot;
+            $("#assmeblymasterinfo_GrandCostTotal").val(Number(GrandCostTotal).toFixed(2));
+            // alert(GrandCostTotal);
+
+            var tablRows = $('#partstbody tr')
+
+            for (i = 0; i < tablRows.length; i++) {
+                var estresalecost = $('#' + "P_" + i + "_4").val();
+                //alert(estresalecost);
+                PartsResaleCost_Total += parseFloat(estresalecost);
+
+            }
+            GrandResaleTotal = PartsResaleCost_Total + EstLaborResaleCostTot;
+            if (isNaN(GrandResaleTotal)) {
+                GrandResaleTotal = 0;
+
+            }
+            //alert(GrandResaleTotal);
+            $("#assmeblymasterinfo_GrandResaleTotal").val(Number(GrandResaleTotal).toFixed(2))
+
+        }
+        else {
+            if (laborcost == "" || laborEstHr == "") {
+                $("#assmeblymasterinfo_LaborEst_CostTotal").val("0.00");
+                $("#assmeblymasterinfo_GrandCostTotal").val("0.00");
+            }
+            if (laborResale == "" || laborEstHr == "") {
+                $("#assmeblymasterinfo_LaborEst_ResaleTotal").val("0.00");
+                $("#assmeblymasterinfo_GrandResaleTotal").val("0.00")
+            }
+        }
+    }
+    //Here to validate assembly Category List
+    function AScatgoryValidate() {
+        var ASCategory = $('#Assemblies_Category').val();
+        if (ASCategory != "") {
+            var otherCategory = $("#OtherAssemblies_Category").val();
+            othercatgoryMsg = "\"Other Category\" field is required, If you had selected \"Other\" in category field.";
+            if (ASCategory == "1" && (otherCategory == '' || otherCategory.toLowerCase() == 'other')) {
+                $("#OtherAssemblies_Category").val('');
+                DisplayNotification(othercatgoryMsg, "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            DisplayNotification("Assembly “Category” is required.", "error");
+            return false;
+        }
+    }
+
+    function AsnameValidate(val) {
+
+        var asname = $(val).val();
+        //var characterReg = /^[A-Za-z\d=#$%...-]+$/;
+        //var characterReg = /^[-_ a-zA-Z0-9]+$/;
+        //if (!characterReg.test(asname)) {
+        //    $("#asnamemsg").text("special characters are not allowed");
+        //    $('#Assemblies_Name').focus();
+        //    return false;
+        //}
+        //else {
+        //    $("#asnamemsg").text("");
+        //    return true;
+        //}
+        return true;
+    }
+    function nameValidate(val) {
+
+        var asname = val;
+        //var characterReg = /^[A-Za-z\d=#$%...-]+$/;
+        //var characterReg = /^[-_ a-zA-Z0-9]+$/;
+        //if (!characterReg.test(asname)) {
+        //    $("#asnamemsg").text("special characters are not allowed");
+        //    $('#Assemblies_Name').focus();
+        //    return false;
+        //}
+        //else {
+        //    $("#asnamemsg").text("");
+        //    return true;
+        //}
+        return true;
+    }
+
+    //Here to Save Assembly Details
+    function saveassembly() {
+        msg = "Would you like to add this assembly?"
+
+        var formData = new FormData();
+        if (($("#Assemblies_Name").val() != "" && $("#Assemblies_Description").val() != "") && $('#PartsLabortblInfo >tbody >tr').length > 0 && nameValidate($("#Assemblies_Name").val()) == true) {
+            if (AScatgoryValidate() == true) {
+                var model = new Array();
+                var partslist = new Array();
+                var LaborwithPartTotalList = new Array();
+                var partsCostTotal = 0;
+                var partsResaleTotal = 0;
+                var laborCost = 0;
+                var laboresale = 0;
+                var EstHours = 0;
+                var laborCostTotal = 0;
+                var laborResaleTotal = 0;
+                var grandCostTotal = 0;
+                var grandResaleTotal = 0;
+                var EstQtyTotal = 0;
+                var isvalid = true;
+                var errormsg = "";
+                var tablRows = $('#partstbody tr')
+                if (tablRows.length > 0) {
+                    var tablRows = $('#partstbody tr')
+                    var txtLaborUnitList = $(tablRows).find("[name='txtLaborUnit']");
+
+                    for (i = 0; i < tablRows.length; i++) {
+
+                        if ($(tablRows).find('#' + "P_" + i + "_0").val() == "0" || $(tablRows).find('#' + "P_" + i + "_0").val() == "" || $(tablRows).find('#' + "P_" + i + "_1").val() == "0" || $(tablRows).find('#' + "P_" + i + "_1").val() == "" || $(tablRows).find('#' + "P_" + i + "_2").val() == "0" || $(tablRows).find('#' + "P_" + i + "_2").val() == "") {
+                            if (!confirm('“Est.Qty” is “0” in the Parts - ' + $(tablRows[i]).find('#partnumber').text().trim() + '. Press OK to continue.')) {
+                                $(tablRows).find('#' + "P_" + i + "_0").val(0);
+                                isvalid = false;
+                                errormsg = "User cancelled the operation!"
+                            }
+                        }
+
+                        if (Number($(tablRows).find('#' + "P_" + i + "_0").val()) >= Number($(tablRows).find('#' + "P_" + i + "_1").val())) {
+                            if (!confirm('“Cost” is greater than the “Resale Cost” in the Parts - ' + $(tablRows[i]).find('#partnumber').text().trim() + '. Press OK to continue.')) {
+                                isvalid = false;
+                                errormsg = "User cancelled the operation!"
+                            }
+                        }
+
+                        partslist.push({
+                            'Part_Number': $(tablRows[i]).find('#partnumber').text().trim(),
+                            'Part_Category': $(tablRows[i]).find('#Part_Category').text().trim(),
+                            'Part_Cost': $(tablRows).find('#' + "P_" + i + "_0").val(),
+                            'Resale_Cost': $(tablRows).find('#' + "P_" + i + "_1").val(),
+                            'Estimated_Qty': $(tablRows).find('#' + "P_" + i + "_2").val(),
+                            'EstCost_Total': $(tablRows).find('#' + "P_" + i + "_3").val(),
+                            'EstResaleCost_Total': $(tablRows).find('#' + "P_" + i + "_4").val(),
+                            'LaborUnit': $(txtLaborUnitList[i]).val()
+                        });
+
+                    }
+                }
+                if (isvalid == true) {
+                    var labortablRows = $('#laborDatatbl tr')
+                    if (labortablRows.length > 0) {
+
+                        if ($(labortablRows).find("#assmeblymasterinfo_labor_cost").val().trim() == "") {
+                            $(labortablRows).find("#assmeblymasterinfo_labor_cost").val("0.00");
+                        }
+
+                        if ($(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val().trim() == "") {
+                            $(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val("0.00");
+                        }
+
+                        if ($(labortablRows).find("#assmeblymasterinfo_labor_cost").val().trim() == "0" || $(labortablRows).find("#assmeblymasterinfo_labor_cost").val().trim() == "" || $(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val().trim() == "0" || $(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val().trim() == "" || $(labortablRows).find("#assmeblymasterinfo_Estimated_Hour").val().trim() == "0" || $(labortablRows).find("#assmeblymasterinfo_Estimated_Hour").val().trim() == "") {
+                            if (!confirm('“Labor cost” is “0”. Press OK to continue.')) {
+                                isvalid = false;
+                                errormsg = "User cancelled the operation!";
+                            }
+                        }
+                        else {
+                            if (Number($(labortablRows).find("#assmeblymasterinfo_labor_cost").val()) >= Number($(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val())) {
+                                if (!confirm('“Labor cost” is greater than the “Labor Resale Cost”. Press OK to continue.')) {
+                                    isvalid = false;
+                                    errormsg = "User cancelled the operation!";
+                                }
+                            }
+                        }
+                        $(labortablRows).each(function (index, row) {
+                            EstQtyTotal = $(labortablRows).find('#assmeblymasterinfo_Est_Qty_Total').val();
+                            partsCostTotal = $(labortablRows).find('#assmeblymasterinfo_PartCostTotal').val();
+                            partsResaleTotal = $(labortablRows).find('#assmeblymasterinfo_PartResaleTotal').val();
+                            laborCost = $(labortablRows).find("#assmeblymasterinfo_labor_cost").val();
+                            laboresale = $(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val();
+                            EstHours = $(labortablRows).find("#assmeblymasterinfo_Estimated_Hour").val();
+                            laborCostTotal = $(labortablRows).find("#assmeblymasterinfo_LaborEst_CostTotal").val();
+                            laborResaleTotal = $(labortablRows).find("#assmeblymasterinfo_LaborEst_ResaleTotal").val();
+                            grandCostTotal = $(labortablRows).find("#assmeblymasterinfo_GrandCostTotal").val();
+                            grandResaleTotal = $(labortablRows).find("#assmeblymasterinfo_GrandResaleTotal").val();
+                        });
+
+                    }
+                    if (isvalid == true) {
+                        var activestatus = $("#Isactive");
+                        //var assemName = string.replace(/\s\s+/g, ' ');
+                        var model = {
+                            'Assemblies_Name': $('#Assemblies_Name').val().replace(/\s\s+/g, ' '),
+                            'Assemblies_Description': $('#Assemblies_Description').val(),
+                            'Assemblies_Category': $('#Assemblies_Category').val(),
+                            'severity': $('#severity').val(),
+                            'Active': true,
+                            'OtherAssemblies_Category': $('#OtherAssemblies_Category').val(),
+                            'PartsListData': partslist,
+                            'Est_Qty_Total': EstQtyTotal,
+                            'PartCostTotal': partsCostTotal,
+                            'PartResaleTotal': partsResaleTotal,
+                            'labor_cost': laborCost,
+                            'Lobor_Resale': laboresale,
+                            'Estimated_Hour': EstHours,
+                            'LaborEst_CostTotal': laborCostTotal,
+                            'LaborEst_ResaleTotal': laborResaleTotal,
+                            'GrandCostTotal': grandCostTotal,
+                            'GrandResaleTotal': grandResaleTotal
+
+
+                        };
+                        if (confirm(msg)) {
+                            formData.append('model', JSON.stringify(model));
+                            $.ajax({
+                                url: '../Assemblies_Master/AddAssembliesDetails',
+                                data: formData,
+                                type: 'POST',
+                                processData: false,
+                                contentType: false,
+                                success: function (data) {
+                                    if (data == "“Assemblies details” are added successfully.") {
+                                        DisplayNotification(data, "success");
+                                        getassemblyInfo('');
+                                        ClientAssemblyMasterDataTable.ajax.reload(null, false);
+                                        //getassemblyList($('#lstassembly_cat').val());
+                                        isassembly = 0;
+                                        $('#partstbody').html('');
+                                        $('#laborDatatbl').html('');
+                                        $("#PartsLabortblInfo").hide();
+                                        updatestatus = 1;
+                                    }
+                                    else {
+                                        DisplayNotification(data, "error");
+                                    }
+                                },
+                                error: function (err) {
+                                }
+                            });
+                        }
+
+                    }
+                    else {
+                        DisplayNotification(errormsg, "error");
+                    }
+                }
+                else {
+                    DisplayNotification(errormsg, "error");
+                }
+            }
+
+        }
+        else {
+            $('#Assemblies_Category').focus();
+            DisplayNotification("Please fill the \"Name, Category, Description & Parts & Labor Details List\" fields!", "error");
+        }
+    }
+    //Here to Update Assembly Details
+    function UpdateAssembly() {
+        msg = "Would you like to update this assembly?";
+        var formData = new FormData();
+        if (($("#Assemblies_Name").val() != "" && $("#Assemblies_Description").val() != "") && ($("#Assemblies_Category").val() != 0 || ($("#Assemblies_Category").val() == 1 && $("#OtherAssemblies_Category").val() != "" && $("#OtherAssemblies_Category").val().toLowerCase() != "other")) && $('#PartsLabortblInfo >tbody >tr').length > 0 && nameValidate() == true) {
+            if (AScatgoryValidate() == true) {
+                var model = new Array();
+                var partslist = new Array();
+                var LaborwithPartTotalList = new Array();
+                var partsCostTotal = 0;
+                var partsResaleTotal = 0;
+                var laborCost = 0;
+                var laboresale = 0;
+                var EstHours = 0;
+                var laborCostTotal = 0;
+                var laborResaleTotal = 0;
+                var grandCostTotal = 0;
+                var grandResaleTotal = 0;
+                var EstQtyTotal = 0;
+                var isvalid = true;
+                var errormsg = "";
+                var tablRows = $('#partstbody tr')
+                if (tablRows.length > 0) {
+                    var tablRows = $('#partstbody tr')
+                    var txtLaborUnitList = $(tablRows).find("[name='txtLaborUnit']");
+
+                    for (i = 0; i < tablRows.length; i++) {
+
+                        if ($(tablRows).find('#' + "P_" + i + "_0").val() == "0" || $(tablRows).find('#' + "P_" + i + "_0").val() == "" || $(tablRows).find('#' + "P_" + i + "_1").val() == "0" || $(tablRows).find('#' + "P_" + i + "_1").val() == "" || $(tablRows).find('#' + "P_" + i + "_2").val() == "0" || $(tablRows).find('#' + "P_" + i + "_2").val() == "") {
+                            if (!confirm('“Est.Qty” is “0” in the Parts - ' + $(tablRows[i]).find('#partnumber').text().trim() + '. Press OK to continue.')) {
+                                isvalid = false;
+                                errormsg = "User cancelled the operation!"
+                            }
+                        }
+
+                        if (Number($(tablRows).find('#' + "P_" + i + "_0").val()) >= Number($(tablRows).find('#' + "P_" + i + "_1").val())) {
+                            if (!confirm('“Cost” is greater than the “Resale Cost” in the Parts - ' + $(tablRows[i]).find('#partnumber').text().trim() + '. Press OK to continue.')) {
+                                isvalid = false;
+                                errormsg = "User cancelled the operation!"
+                            }
+                        }
+
+                        partslist.push({
+                            'Part_Number': $(tablRows[i]).find('#partnumber').text().trim(),
+                            'Part_Category': $(tablRows[i]).find('#Part_Category').text().trim(),
+                            'Parts_Description': $(tablRows[i]).find('#Parts_Description').text().trim(),
+                            'Part_Cost': $(tablRows).find('#' + "P_" + i + "_0").val(),
+                            'Resale_Cost': $(tablRows).find('#' + "P_" + i + "_1").val(),
+                            'Estimated_Qty': $(tablRows).find('#' + "P_" + i + "_2").val(),
+                            'EstCost_Total': $(tablRows).find('#' + "P_" + i + "_3").val(),
+                            'EstResaleCost_Total': $(tablRows).find('#' + "P_" + i + "_4").val(),
+                            'LaborUnit': $(txtLaborUnitList[i]).val()
+                        });
+                    }
+                }
+                if (isvalid == true) {
+                    var labortablRows = $('#laborDatatbl tr')
+                    if (labortablRows.length > 0) {
+
+                        if ($(labortablRows).find("#assmeblymasterinfo_labor_cost").val().trim() == "") {
+                            $(labortablRows).find("#assmeblymasterinfo_labor_cost").val("0.00");
+                        }
+
+                        if ($(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val().trim() == "") {
+                            $(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val("0.00");
+                        }
+
+                        if ($(labortablRows).find("#assmeblymasterinfo_labor_cost").val().trim() == "0" || $(labortablRows).find("#assmeblymasterinfo_labor_cost").val().trim() == "" || $(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val().trim() == "0" || $(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val().trim() == "" || $(labortablRows).find("#assmeblymasterinfo_Estimated_Hour").val().trim() == "0" || $(labortablRows).find("#assmeblymasterinfo_Estimated_Hour").val().trim() == "") {
+                            if (!confirm('“Labor cost” is “0”. Press OK to continue.')) {
+                                isvalid = false;
+                                errormsg = "User cancelled the operation!"
+                            }
+                        }
+                        else {
+                            if (Number($(labortablRows).find("#assmeblymasterinfo_labor_cost").val()) >= Number($(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val())) {
+                                if (!confirm('“Labor cost” is greater than the “Labor Resale Cost”. Press OK to continue.')) {
+                                    isvalid = false;
+                                    errormsg = "User cancelled the operation!"
+                                }
+                            }
+                        }
+                        $(labortablRows).each(function (index, row) {
+                            EstQtyTotal = $(labortablRows).find('#assmeblymasterinfo_Estimated_Qty_Total').val();
+                            partsCostTotal = $(labortablRows).find('#assmeblymasterinfo_PartCostTotal').val();
+                            partsResaleTotal = $(labortablRows).find('#assmeblymasterinfo_PartResaleTotal').val();
+                            laborCost = $(labortablRows).find("#assmeblymasterinfo_labor_cost").val();
+                            laboresale = $(labortablRows).find("#assmeblymasterinfo_Lobor_Resale").val();
+                            EstHours = $(labortablRows).find("#assmeblymasterinfo_Estimated_Hour").val();
+                            laborCostTotal = $(labortablRows).find("#assmeblymasterinfo_LaborEst_CostTotal").val();
+                            laborResaleTotal = $(labortablRows).find("#assmeblymasterinfo_LaborEst_ResaleTotal").val();
+                            grandCostTotal = $(labortablRows).find("#assmeblymasterinfo_GrandCostTotal").val();
+                            grandResaleTotal = $(labortablRows).find("#assmeblymasterinfo_GrandResaleTotal").val();
+                        });
+                    }
+                    if (isvalid == true) {
+                        var activestatus = $("#Isactive");
+                        var model = {
+                            'Assemblies_Name': $('#Assemblies_Name').val().replace(/\s\s+/g, ' '),
+                            'Assemblies_Description': $('#Assemblies_Description').val(),
+                            'Assemblies_Category': $('#Assemblies_Category').val(),
+                            'severity': $('#severity').val(),
+                            'Active': true,
+                            'OtherAssemblies_Category': $('#OtherAssemblies_Category').val(),
+                            'PartsListData': partslist,
+                            'Est_Qty_Total': EstQtyTotal,
+                            'PartCostTotal': partsCostTotal,
+                            'PartResaleTotal': partsResaleTotal,
+                            'labor_cost': laborCost,
+                            'labor_ResaleCost': laboresale,
+                            'labor_EstimatedHours': EstHours,
+                            'LaborEst_CostTotal': laborCostTotal,
+                            'LaborEst_ResaleTotal': laborResaleTotal,
+                            'GrandCostTotal': grandCostTotal,
+                            'GrandResaleTotal': grandResaleTotal
+                        };
+                        if (confirm(msg)) {
+                            formData.append('model', JSON.stringify(model));
+                            $.ajax({
+                                url: '../Assemblies_Master/UpdateAssembliesDetail',
+                                data: formData,
+                                type: 'POST',
+                                processData: false,
+                                contentType: false,
+                                success: function (data) {
+                                    if (data == "“Assemblies details” has been updated successfully.") {
+                                        DisplayNotification("“Assemblies Details” are updated successfully.", "success");
+                                        $("#updatebtn").hide();
+                                        $("#Cancel").hide();
+                                        $("#addbtn").show();
+                                        $("#Reset").show();
+                                        selectedpart = [];
+                                        isassembly = 0;
+                                        isediting = false;
+                                        getassemblyInfo('');
+                                        ClientAssemblyMasterDataTable.ajax.reload(null, false);
+                                        //getassemblyList($('#lstassembly_cat').val());
+                                        $('#partstbody').html('');
+                                        $('#laborDatatbl').html('');
+                                        $("#PartsLabortblInfo").css({ "display": "none" });
+                                        updatestatus = 1;
+
+                                    }
+                                    else {
+                                        DisplayNotification(data, "Error");
+                                    }
+
+                                },
+                                error: function (err) {
+                                }
+                            });
+                        }
+
+                    }
+                    else {
+                        DisplayNotification(errormsg, "error");
+                    }
+                }
+                else {
+                    DisplayNotification(errormsg, "error");
+                }
+            }
+        }
+        else {
+            DisplayNotification("Please fill the \"Name, Category, Description & Parts & Labor Details List\" fields!", "error");
+        }
+    }
+    //Here to Delete Assembly Details
+    function deleteAssembly(val) {
+        msg = "Would you like to delete this assembly?"
+        if (confirm(msg)) {
+            $.ajax({
+                url: '../Assemblies_Master/DeleteAssembliesDetails?AssembliesName=' + encodeURIComponent(val),
+                type: 'Get',
+                success: function (data) {
+                    if (data != "“Assemblies Details” deleted successfully.") {
+                        DisplayNotification(data, "error");
+                    }
+                    else {
+
+                        DisplayNotification(data, "success");
+                        getassemblyInfo('');
+                        ClientAssemblyMasterDataTable.ajax.reload(null, false);
+                        //getassemblyList($('#lstassembly_cat').val());
+                        isassembly = 0;
+                        $("#updatebtn").hide();
+                        $("#Cancel").hide();
+                        $("#addbtn").show();
+                        $("#Reset").show();
+                        $('#partstbody').html('');
+                        $('#laborDatatbl').html('');
+                        $("#PartsLabortblInfo").css({ "display": "none" });
+                        var tablerow = $("#asbody tr");
+                        selectedpart = [];
+                        //for (i = 0; i < tablerow.length; i++) {
+                        //    if (tablerow[i].cells[0].innerText == val) {
+                        //        tablerow[i].closest('tr').remove();
+                        //    }
+                        //}
+                    }
+                },
+                error: function (err) { }
+            });
+        }
+        else {
+            return false;
+        }
+    }
+    //Selection in partslist popup
+    function selectrow(val) {
+
+        var checkbx = $(val).find("input[type=checkbox]");
+        i = 0;
+        var check = checkbx[0];
+        if (typeof check != 'undefined') {
+            if (checkbx[0].checked == false) {
+
+                checkbx[0].checked = true;
+                selectedpart.push(checkbx[0].value);
+            }
+            else {
+                document.getElementById("selectall").checked = false;
+                checkbx[0].checked = false;
+                if (selectedpart.indexOf(checkbx[0].value) > -1)
+                    selectedpart.splice(selectedpart.indexOf(checkbx[0].value), 1);
+            }
+        }
+        else {
+            if (val.checked == false) {
+
+                val.checked = true;
+                //selectedpart.push(val.id);
+            }
+            else {
+                document.getElementById("selectall").checked = false;
+                val.checked = false;
+                //if (selectedpart.indexOf(val.id) > -1)
+                //    selectedpart.splice(selectedpart.indexOf(val.id), 1);
+            }
+        }
+        //Here to check select all checkbox if all prts are Selected
+        $('#partstable').find("input:checkbox").each(function () {
+            if (this.checked == true) {
+                i++
+            }
+            var tablerowlength = $("#partsbody tr").length;
+            if (tablerowlength == i) {
+
+                document.getElementById("selectall").checked = true;
+            }
+        });
+    }
+
+    function selectrow1(val) {
+
+        var checkbx = $(val).find("input[type=checkbox]");
+        i = 0;
+        var check = checkbx[0];
+        if (typeof check != 'undefined') {
+            if (checkbx[0].checked == false) {
+
+                checkbx[0].checked = true;
+                selectedpart.push(checkbx[0].value);
+            }
+            else {
+                document.getElementById("selectall").checked = false;
+                checkbx[0].checked = false;
+                if (selectedpart.indexOf(checkbx[0].value) > -1)
+                    selectedpart.splice(selectedpart.indexOf(checkbx[0].value), 1);
+            }
+        }
+        else {
+            if (val.checked == false) {
+
+                val.checked = true;
+                //selectedpart.push(val.id);
+            }
+            else {
+                document.getElementById("selectall").checked = false;
+                val.checked = false;
+                //if (selectedpart.indexOf(val.id) > -1)
+                //    selectedpart.splice(selectedpart.indexOf(val.id), 1);
+            }
+        }
+        //Here to check select all checkbox if all prts are Selected
+        $('#partstable').find("input:checkbox").each(function () {
+            if (this.checked == true) {
+                i++
+            }
+            var tablerowlength = $("#partsbody tr").length;
+            if (tablerowlength == i) {
+
+                document.getElementById("selectall").checked = true;
+            }
+        });
+
+        if (selectedpart.length == 0) {
+            $("#Dpsubmit").attr('disabled', 'disabled');
+        }
+        else {
+            $("#Dpsubmit").removeAttr('disabled', 'disabled');
+
+        }
+    }
+
+    //Here to Clear all Fields
+    function resetall() {
+        if (confirm("Are you sure, do you want to reset all fields?")) {
+            clear();
+        }
+    }
+
+    function clear() {
+        $('#PartsLabortblInfo').hide();
+            $('#Assemblies_Name').val('');
+            $('#Assemblies_Category').val('0');
+            $('#Assemblies_Description').val('');
+            $('#OtherAssemblies_Category').val('');
+            $('#partstbody').html('');
+            $('#laborDatatbl').html('');
+    }
+
+    var isfirst = true;
+
+    function change() {
+        if (isfirst) {
+            isfirst = false;
+            var activestatus = $("#Isactive")[0].checked;
+            if (activestatus == true) {
+                msg = "Would you like to activate this assembly details?";
+            }
+            else {
+                msg = "Would you like to Deactivate this assembly details?";
+            }
+            if (confirm(msg) == true) {
+
+                return false;
+            }
+            else {
+                if (activestatus == true) {
+                    $("#Isactive").bootstrapToggle('off')
+
+                }
+                else {
+                    $("#Isactive").bootstrapToggle('on')
+
+                }
+                //$("#activateStatus").bootstrapToggle('off');
+                // return false;
+            }
+            setTimeout(function () { isfirst = true; }, 500);
+        }
+
+
+    }
+</script>
+<style>
+    .panel-heading {
+        background: #3D81BD !important;
+        color: white !important;
+        font-size: 15px;
+    }
+
+    .panel-title {
+        font-size: 14px !important;
+        font-weight: bold;
+    }
+
+    a:hover {
+        background: none !important;
+        color: white !important;
+        text-decoration: none !important;
+    }
+
+    th, td {
+        color: black !important;
+    }
+
+    .toggle.btn {
+        display: table-caption !important;
+    }
+</style>
+
+<div class="panel-group" id="accordion" style="display: none">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                    Assembly Information
+                </a><i class="indicator glyphicon glyphicon-chevron-down  pull-right"></i>
+            </h4>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse in">
+            <div class="panel-body">
+                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                    Parts & Labor Details
+                </a><i class="indicator glyphicon glyphicon-chevron-up  pull-right"></i>
+            </h4>
+        </div>
+        <div id="collapseTwo" class="panel-collapse collapse">
+            <div class="panel-body">
+                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                    Assembly List
+                </a><i class="indicator glyphicon glyphicon-chevron-up pull-right"></i>
+            </h4>
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse">
+            <div class="panel-body">
+                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="box-row  profile-hd">
+    <h7 class="box-heading">
+        <strong> &nbsp Assembly Information </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+            <img id="arrow" src="../Images/down-arrow.png" alt="" />
+        </span>
+    </h7>
+
+</div>
+<div id="divasseminfo">
+</div>
+
+<div class=" box-row  profile-hd">
+    <h7 class="box-heading"><strong> &nbsp Parts & Labor Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+</div>
+<div id="divpartsinfo">
+    <button class="btn btn-flat btn-default btn-sm" onclick="OpenPartsPopup();"><i class="fa fa-check-square-o"></i><span>Add Parts List</span></button>
+    <div class="table table-responsive">
+        <table class="table table-bordered" id="PartsLabortblInfo" style="display: none">
+            <thead>
+                <tr style="background-color: #eeeeee !important">
+                    <th class="Head-Align">
+                        Part Number
+                    </th>
+                    <th class="Head-Align">
+                        Part Category
+                    </th>
+                    <th class="Head-Align">
+                        Part Desc
+                    </th>
+                    <th class="Head-Align">
+                        Cost
+                    </th>
+                    <th class="Head-Align">
+                        Resale Cost
+                    </th>
+                    <th class="Head-Align">
+                        Est.Qty/Hrs
+                    </th>
+                    <th class="Head-Align">
+                        Labor Unit
+                    </th>
+                    <th class="Head-Align">
+                        Est.Cost Total
+                    </th>
+                    <th class="Head-Align">
+                        Est.Resal Total
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="partstbody"></tbody>
+            <tfoot id="laborDatatbl">
+            </tfoot>
+        </table>
+
+    </div>
+</div>
+<div class="panel-footer clearfix">
+    <div class="pull-right" style="width: 35%">
+        <button value="Submit" class="btn btn-flat btn-primary btn-sm " style="width: 49%" name="addLabour" tabindex="11" id="addbtn" onclick="saveassembly();">Save</button>
+        <button class="btn btn-flat btn-default btn-sm" role="button" style="width: 49%" tabindex="11" id="Reset" onclick="resetall()">Clear</button>
+        <button value="Submit" class="btn btn-flat btn-primary btn-sm " name="addLabour" tabindex="10" id="updatebtn" style="display:none;width: 49%;margin:2px;" onclick="UpdateAssembly();">Update</button>
+        <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" style="width:49%;display:none;" id="Cancel" onclick="Cancel();">Cancel</a>
+    </div>
+</div>
+<div class=" box-row  profile-hd">
+    <h7 class="box-heading">
+        <strong> &nbsp Assembly List </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+            <img id="arrow" src="../Images/down-arrow.png" alt="" />
+        </span>
+    </h7>
+</div>
+<div id="collapseThree" class="panel-collapse collapse in">
+    <input type="hidden" value=" @ViewBag.LoginUser" id="loguser" />
+    <table id="ClientAssemblyMasterDataTable" class="table table-bordered datatables" cellspacing="0" width="100%">
+        <thead style="background-color: #45525F">
+            <tr>
+                <th>Assemblies Name</th>
+                <th>Assembly Category</th>
+                <th>Assemblies Description</th>
+                <th>Parts Count</th>
+                <th>Type</th>
+                <th>Updated Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+    </table>
+
+    @*<div id="divassemblylist">
+        </div>*@
+</div>
+@*<a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#modalAssignToRM" id="openpopup" style="display: none">popup</a>
+<div id="modalAssignToRM" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 78%; margin-left: 21%; margin-top: 60px;border:2px solid white;border-radius:5px">
+        <div class="modal-header" style="background-color: #333333; height: 35px;">
+            <button type="button" class="close" data-dismiss="modal" id="popupclose" style="color: #fff !important;opacity:0.9">&times;</button>
+            <h4 class="modal-title" style="color: #FFF !important;">Add Parts Details</h4>
+        </div>
+        <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 165px;">
+            <div id="divpartsdata"></div>
+        </div>
+    </div>
+</div>*@
+<a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#PartsPopUp" id="OpenPartsPopUp" style="display: none">popup</a>
+<div id="PartsPopUp" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 78%; margin-left: 21%; margin-top: 60px;">
+        <div class="modal-header" style="background-color: #333333; height: 35px;">
+            <button type="button" class="close" data-dismiss="modal" id="ClosePartsPopUp" style="color: white !important; opacity: 0.9;">&times;</button>
+            <h4 class="modal-title" style="color: #FFF !important;">Add Parts Details</h4>
+        </div>
+        <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+            <table id="ClientPartsTable" class="table table-bordered datatables" cellspacing="0" width="100%">
+                <thead style="background-color: #45525F">
+                    <tr>
+                        <th>Select</th>
+                        <th>Part Category</th>
+                        <th>Description</th>
+                        <th>Parts Number</th>
+                        <th>My Cost</th>
+                        <th>Resale</th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="pull-right popup-btn">
+                <button type="button" class="btn btn-flat btn-primary btn-sm " style="margin: 2px" id="AddParts">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

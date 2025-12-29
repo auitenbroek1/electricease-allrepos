@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "sampp";
+}
+
+<h2>sampp</h2>
+  $(document).ready(function () {
+        alert("table");
+
+        $('#example').dataTable({
+            "scrollY": 200,
+            "scrollX": true,
+            "aLengthMenu": [[5, 25, 50, 100, -1], [5, 25, 50, 100, "All"]],
+            "iDisplayLength": 5,
+            "processing": true,
+            "serverSide": true,
+            "info": true,
+            "stateSave": true,
+            "ajax": "/Ajax/GetMyUserListinAM",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                alert(data);
+                //$.each(data.ListData, function (i, item) {
+                //    $(".online-users").append("<div class='online-box'>" +
+                //        "<div style='margin: 0px;'>" +
+                //        "<a href='/Member/ViewProfile?id=" + item.MEMBER_ID + "' target='_blank'><img src='" + item.THUMBNAIL_PHOTO + "' alt='Member' /></a>" +
+                //        "</div>" +
+                //        "<a href='/Member/ViewProfile?id=" + item.MEMBER_ID + "' target='_blank' class='member-name'>" + item.LOGIN + "</a>" +
+                //        "</div>");
+                //});
+            },
+            error: function (result) {
+                alert("fail");
+                //alert('Service call failed: ' + result.status + ' Type :' + result.statusText);
+            },
+           
+           
+
+
+        });
+    });
+
+
+<div class=" box-row  profile-hd">
+                                <h7 class="box-heading"><strong> &nbsp  Administrative Rights </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                            </div>

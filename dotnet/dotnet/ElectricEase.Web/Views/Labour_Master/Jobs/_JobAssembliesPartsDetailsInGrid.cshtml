@@ -1,0 +1,442 @@
+﻿@model List<ElectricEase.Models.Assembly_MasterInfo>
+@{
+    Layout = null;
+    var PartsGrid = new WebGrid(source: Model, canPage: false, canSort: false);
+
+}
+<script>
+    $(document).ready(function () {
+        //alert("partsss");
+
+        //$("#addnewPartsBtn").hide();
+        //$("#addnewlabourBtn").hide();
+        // $("#addAssembliesBtn").hide();
+        $(".ASPartsListGrid").dataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bInfo": false,
+            "bAutoWidth": false,
+            stateSave: true
+
+
+        });
+    });
+    function modalAssignToRM() {
+
+        // var AssembliesName = $("#Assemblies_Name").val();
+        var Description = $("#Assemblies_Description").val();
+        var AssembliesName = $("#asname").val();
+        // alert(AssembliesName);
+        var AsName = $("#Assemblies_Name").val();
+        //alert(AsName);
+        var JobID = $("#Job_ID").val();
+        var JobStatus = $("#Job_Status").val();
+        var JobDescription = $("#Job_Description").val();
+        var ClientName = $("#Client_Name").val();
+        var OtherClientName = $("#Other_ClientName").val();
+        var ClientContactPerson = $("#Client_ContactPerson").val();
+        var ClientAddress = $("#Client_Address").val();
+        var ClientAddress2 = $("#Client_Address2").val();
+        var ClientCity = $("#Client_City").val();
+        var ClientState = $("#Client_State").val();
+        var ClientZipCode = $("#Client_ZipCode").val();
+        var ClientFax = $("#Client_Fax").val();
+        var ClientEmail = $("#Client_Email").val();
+        var ClientPhone = $("#Client_Phone").val();
+        var ClientMobile = $("#Client_Mobile").val();
+        var PreviousLocation = $("#Previous_Location").val();
+        var OtherPreviousLocation = $("#Other_Previous_Location").val();
+        var WorkAddress = $("#Work_Address").val();
+        var WorkAddress2 = $("#Work_Address2").val();
+        var WorkCity = $("#Work_City").val();
+        var WorkState = $("#Work_State").val();
+        var DirectionsTo = $("#Directions_To").val();
+        var DoingWhat = $("#Doing_What").val();
+        //Mileage Table Values
+        var MileageEstimated = $("#Estimated").val();
+        var MileageActualCost = $("#ActualCost").val();
+        var MileageCost = $("#MileageCost").val();
+        var MileagExpTotal = $("#MileExpTotal").val();
+        var MileageEstTotal = $("#MileEstTotal").val();
+        var MileageActTotal = $("#MileActTotal").val();
+        //Estimate Values
+        var EstimateOverExpTotal = $("#OverExpTotal").val();
+        var EstimateProfitPercentage = $("#ProfitPercentage").val();
+        var EstimateSubTotal = $("#SubEstTotal").val();
+        var EstimateExpTotal = $("#EstimateExpTotal").val();
+        var EstimateProfitTotal = $("#ProfitEstTotal").val();
+        var EstimateOverride = $("#EstimateOverride").val();
+        //Job Total Values
+        var JobExpensesTotal = $("#JobExpensesTotal").val();
+        var JobEstimateTotal = $("#EstimateTotal").val();
+        var JobActualTotal = $("#ActualTotal").val();
+        var JobProfitLossTotal = $("#ProfitLossTotal").val();
+        var _Partsgriddata = gridTojson();
+        var _LabourGridData = LabourgridTojson();
+        var _LegalGridData = LegalGridTojson();
+        var _JobASPartsGridData = JobAssembliesgridTojson();
+        LoadContent($("#profileAssignToRM"), "/Jobs/JobAssembliesPartsDetails?AssembliesName=" + AssembliesName +
+            "&ASPartsgriddata=" + _Partsgriddata +
+            "&AsLabourDridata=" + _LabourGridData +
+            "&LegalGridData=" + _LegalGridData +
+            "&JobASPartsGridData=" + _JobASPartsGridData +
+            "&AsName=" + AsName +
+            "&JobID=" + JobID +
+            "&JobStatus=" + JobStatus +
+            "&JobDescription=" + JobDescription +
+            "&ClientName=" + ClientName +
+            "&OtherClientName=" + OtherClientName +
+            "&ClientContactPerson=" + ClientContactPerson +
+            "&ClientAddress=" + ClientAddress +
+            "&ClientAddress2=" + ClientAddress2 +
+            "&ClientCity=" + ClientCity +
+            "&ClientState=" + ClientState +
+            "&ClientZipCode=" + ClientZipCode +
+            "&ClientFax=" + ClientFax +
+            "&ClientEmail=" + ClientEmail +
+            "&ClientPhone=" + ClientPhone +
+            "&ClientMobile=" + ClientMobile +
+            "&PreviousLocation=" + PreviousLocation +
+            "&OtherPreviousLocation=" + OtherPreviousLocation +
+            "&WorkAddress=" + WorkAddress +
+            "&WorkAddress2=" + WorkAddress2 +
+            "&WorkCity=" + WorkCity +
+            "&WorkState=" + WorkState +
+            "&DirectionsTo=" + DirectionsTo +
+            "&DoingWhat=" + DoingWhat +
+
+            //Mileage Table Values
+            "&MileageEstimated=" + MileageEstimated +
+            "&MileageActualCost=" + MileageActualCost +
+            "&MileageCost=" + MileageCost +
+            "&MileagExpTotal=" + MileagExpTotal +
+            "&MileageEstTotal=" + MileageEstTotal +
+            //Estimate Values
+            "&EstimateOverExpTotal=" + EstimateOverExpTotal +
+            "&EstimateProfitPercentage=" + EstimateProfitPercentage +
+            "&EstimateSubTotal=" + EstimateSubTotal +
+            "&EstimateExpTotal=" + EstimateExpTotal +
+            "&EstimateProfitTotal=" + EstimateProfitTotal +
+            "&EstimateOverride=" + EstimateOverride +
+            //Job Total Values
+            "&JobExpensesTotal=" + JobExpensesTotal +
+            "&JobEstimateTotal=" + JobEstimateTotal +
+            "&JobActualTotal=" + JobActualTotal +
+            "&JobProfitLossTotal=" + JobProfitLossTotal +
+
+            "");
+        $('#modalAssignToRM').modal({ backdrop: 'static' });
+    }
+    $(function () {
+        var $tblrows = $("#grid tbody tr");
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#JobRcost').on('change', function () {
+                var Cost = $tblrow.find("[name=Cost]").val();
+                var ResaleCost = $tblrow.find("[name=Resale]").val();
+                costMsg = "Resale price should be higher than “My Cost” price.";
+                if (ResaleCost <= Cost) {
+                    if (confirm(costMsg)) {
+                        $('#EstQty, #ActQty').prop('readonly', true);
+                        $("#JobRcost").focus();
+                        return false;
+                    }
+                }
+                else {
+                    $('#EstQty, #ActQty').prop('readonly', false);
+                }
+            });
+
+        });
+    });
+
+
+
+
+    $(function () {
+        $('#JobPartExpTotal, #ExpGrandTotal').prop('readonly', true);
+        var $tblrows = $("#grid tbody tr");
+        jobPartGrandTotal = 0;
+        jobPartGrandTotalsum = 0;
+        ExpTotalsum = 0;
+        ExpTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#JobCost, #ActQty').on('keyup', function () {
+                var actQty = $tblrow.find("[name=ActQty]").val();
+                var cost = $tblrow.find("[name=Cost]").val();
+                ExpTotal = cost * actQty;
+                ExpTotal = isNaN(ExpTotal) ? 0 : ExpTotal;
+                if (actQty != 0 && cost != 0) {
+                    if (!isNaN(ExpTotal)) {
+                        $tblrow.find('#JobPartExpTotal').val(ExpTotal.toFixed(2));
+                        $("#JobPartExpTotal").each(function () {
+                            jobPartGrandTotal += parseFloat(ExpTotal);
+                            ii = ii + 1;
+                        });
+                        $('#ExpGrandTotal').val(0);
+                        var $tblrowssum = $('#grid tbody tr');
+                        var sum = 0;
+                        jobPartGrandTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $tblrowssum.each(function () {
+                            var $tblrowsum = $(this);
+                            var actQtysum = $tblrowsum.find("[name=ActQty]").val();
+                            var costsum = $tblrowsum.find("[name=Cost]").val();
+                            if (actQtysum != 0 && costsum != 0) {
+                                ExpTotalsum = costsum * actQtysum;
+                                if (!isNaN(ExpTotalsum)) {
+                                    jobPartGrandTotalsum += parseFloat(ExpTotalsum);
+                                }
+                            }
+                        });
+                        $('#ExpGrandTotal').val(jobPartGrandTotalsum.toFixed(2));
+
+                    }
+                }
+            });
+        });
+    });
+
+    $(function () {
+        $('#JobPartEstTotal, #EstGrandTotal').prop('readonly', true);
+        var $tblrows = $("#grid tbody tr");
+        jobPartGrandTotal = 0;
+        jobPartGrandTotalsum = 0;
+        ExpTotalsum = 0;
+        ExpTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#EstQty, #JobRcost').on('keyup', function () {
+                var actQty = $tblrow.find("[name=EstQty]").val();
+                var cost = $tblrow.find("[name=Resale]").val();
+                ExpTotal = cost * actQty;
+                ExpTotal = isNaN(ExpTotal) ? 0 : ExpTotal;
+                if (actQty != 0 && cost != 0) {
+                    if (!isNaN(ExpTotal)) {
+                        $tblrow.find('#JobPartEstTotal').val(ExpTotal.toFixed(2));
+                        $("#JobPartEstTotal").each(function () {
+                            jobPartGrandTotal += parseFloat(ExpTotal);
+                            ii = ii + 1;
+                        });
+                        $('#EstGrandTotal').val(0);
+                        var $tblrowssum = $('#grid tbody tr');
+                        var sum = 0;
+                        jobPartGrandTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $tblrowssum.each(function () {
+                            var $tblrowsum = $(this);
+                            var actQtysum = $tblrowsum.find("[name=EstQty]").val();
+                            var costsum = $tblrowsum.find("[name=Resale]").val();
+                            if (actQtysum != 0 && costsum != 0) {
+                                ExpTotalsum = costsum * actQtysum;
+                                if (!isNaN(ExpTotalsum)) {
+                                    jobPartGrandTotalsum += parseFloat(ExpTotalsum);
+                                }
+                            }
+                        });
+                        $('#EstGrandTotal').val(jobPartGrandTotalsum.toFixed(2));
+
+                    }
+                }
+            });
+        });
+    });
+
+    function update() {
+        var ExpGrandTotal = $tblrow.find("#ExpGrandTotal").val();
+        var ExtLaborGrandTotal = $tblrow.find("#ExpLaborGrandTotal").val();
+        var MileExpTotal = $tblrow.find("#MileExpTotal").val();
+        var subExpTotal = parseInt(ExpGrandTotal) + parseFloat(ExtLaborGrandTotal) + parseFloat(MileExpTotal);
+        //alert(subExpTotal);
+        if (!isNaN(subExpTotal)) {
+            $('#JobExpensesTotal').val(subExpTotal.toFixed(2));
+        }
+    }
+
+    $(function () {
+        $('#ActTotal').prop('readonly', true);
+        $('#JobPartActTotal, #ActGrandTotal').prop('readonly', true);
+        var $tblrows = $("#grid tbody tr");
+        jobPartGrandTotal = 0;
+        jobPartGrandTotalsum = 0;
+        ExpTotalsum = 0;
+        ExpTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#ActQty, #JobRcost').on('keyup', function () {
+                var actQty = $tblrow.find("[name=ActQty]").val();
+                var cost = $tblrow.find("[name=Resale]").val();
+                ExpTotal = cost * actQty;
+                ExpTotal = isNaN(ExpTotal) ? 0 : ExpTotal;
+                if (actQty != 0 && cost != 0) {
+                    if (!isNaN(ExpTotal)) {
+                        $tblrow.find('#JobPartActTotal').val(ExpTotal.toFixed(2));
+                        $("#JobPartActTotal").each(function () {
+                            jobPartGrandTotal += parseFloat(ExpTotal);
+                            ii = ii + 1;
+                        });
+                        $('#ActGrandTotal').val(0);
+                        var $tblrowssum = $('#grid tbody tr');
+                        var sum = 0;
+                        jobPartGrandTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $tblrowssum.each(function () {
+                            var $tblrowsum = $(this);
+                            var actQtysum = $tblrowsum.find("[name=ActQty]").val();
+                            var costsum = $tblrowsum.find("[name=Resale]").val();
+                            if (actQtysum != 0 && costsum != 0) {
+                                ExpTotalsum = costsum * actQtysum;
+                                if (!isNaN(ExpTotalsum)) {
+                                    jobPartGrandTotalsum += parseFloat(ExpTotalsum);
+                                }
+                            }
+                        });
+                        $('#ActGrandTotal').val(jobPartGrandTotalsum.toFixed(2));
+                        // $('#SubEstTotal').val(0);
+                    }
+                }
+            });
+        });
+    });
+</script>
+<style>
+
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+@{
+    List<ElectricEase.Models.Parts_GrandTotal> partsGrandTotal = ViewData["GrandTotalList"] as List<ElectricEase.Models.Parts_GrandTotal>;
+}
+
+@*<div class="row">
+           <a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#AssignModal" onclick="modalAssignToRM();"><i class="fa fa-check-square-o"></i><span>Add Assemblies</span></a>
+          </div>
+    <div id="modalAssignToRM" class="modal fade" role="dialog">
+                            <div class="modal-dialog" style="width: 60%; margin-left: 25%;    margin-top: 40px;"">
+                                <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                                    <div id="profileAssignToRM"></div>
+                                </div>
+                            </div>
+                        </div>*@
+<div class="col-md-20">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="ajax-refresh2">
+
+                <input type="hidden" name="Assemblies_Name" value=" @ViewBag.assembliesName" />
+                <input type="hidden" name="Assemblies_Description" value="@ViewBag.Description" />
+
+
+                @PartsGrid.GetHtml(
+                            tableStyle: "table table-bordered datatables ASPartsListGrid",
+                             alternatingRowStyle: "alt",
+                             htmlAttributes: new { id = "grid" },
+                             rowStyle: "webgrid-row-style",
+                            columns: PartsGrid.Columns(
+                             PartsGrid.Column("Assemblies Name", format: @<text><label id="lblAssembliesName" class="col-md-11">@item.Assemblies_Name</label> </text>),
+PartsGrid.Column("Assemblies Category", format: @<text><label id="lblAssembliesCategory" class="col-md-11">@item.Assemblies_Category</label> </text>),
+PartsGrid.Column("Part Number", format: @<text><label id="lblPartNumber" class="col-md-11">@item.Part_Number</label> </text>),
+PartsGrid.Column("Cost", format: (item) =>
+{
+var cost = item.Value as ElectricEase.Models.Assembly_MasterInfo;
+return Html.TextBox("Cost", cost.Part_Cost, new { @class = "col-md-10", @data_value = cost.Part_Cost, @id = "JobCost" });
+}),
+PartsGrid.Column("Resale", format: (item) =>
+{
+var resaleCost = item.Value as ElectricEase.Models.Assembly_MasterInfo;
+return Html.TextBox("Resale", resaleCost.Part_Resale, new { @class = "col-md-10", @data_value = resaleCost.Part_Resale, @id = "JobRcost" });
+}),
+PartsGrid.Column("Est Qty", format: (item) =>
+{
+var estQty = item.Value as ElectricEase.Models.Assembly_MasterInfo;
+return Html.TextBox("EstQty", estQty.Estimated_Qty, new { @class = "col-md-10", @data_value = estQty.Estimated_Qty, @id = "EstQty" });
+}),
+PartsGrid.Column("Act Qty", format: (item) =>
+{
+var actQty = item.Value as ElectricEase.Models.Assembly_MasterInfo;
+return Html.TextBox("ActQty", actQty.Actual_Qty, new { @class = "col-md-10", @data_value = actQty.Actual_Qty, @id = "ActQty" });
+}),
+PartsGrid.Column("Exp Total", format: (item) =>
+{
+var expTotal = item.Value as ElectricEase.Models.Assembly_MasterInfo;
+return Html.TextBox("ExpTotal", expTotal.Expected_Total, new { @class = "col-md-10", @data_value = expTotal.Expected_Total, @id = "JobPartExpTotal" });
+}),
+PartsGrid.Column("Est Total", format: (item) =>
+{
+var estTotal = item.Value as ElectricEase.Models.Assembly_MasterInfo;
+return Html.TextBox("EstTotal", estTotal.Estimated_Total, new { @class = "col-md-10", @data_value = estTotal.Estimated_Total, @id = "JobPartEstTotal" });
+
+}),
+PartsGrid.Column("Act Total", format: (item) =>
+{
+var actTotal = item.Value as ElectricEase.Models.Assembly_MasterInfo;
+return Html.TextBox("ActTotal", actTotal.Actual_Total, new { @class = "col-md-10", @data_value = actTotal.Actual_Total, @id = "JobPartActTotal" });
+
+})
+
+)
+)
+                @if (partsGrandTotal != null)
+                {
+
+                    foreach (ElectricEase.Models.Parts_GrandTotal total in partsGrandTotal)
+                    {
+                        <table class="table table-bordered datatables">
+                            <tr class=".webgrid-row-style">
+                                <td style="padding-right:598px;text-align:right">
+                                    <label id="lblTotal"><strong>Total</strong></label>
+                                </td>
+                                <td>
+                                    <input type="text" id="ExpGrandTotal" class="col-md-10" value="@total.ExpGrandTotal" />
+                                </td>
+                                <td>
+                                    <input type="text" id="EstGrandTotal" class="col-md-10" Value="@total.EstGrandTotal" />
+                                </td>
+                                <td>
+                                    <input type="text" id="ActGrandTotal" class="col-md-10" value="@total.ActGrandTotal" />
+                                </td>
+                            </tr>
+                        </table>
+                    }
+
+                }
+                else
+                {
+                    <table class="table table-bordered datatables">
+                        <tr class="webgrid-row-style">
+                            <td style="padding-right:598px;text-align:right">
+                                <label id="lblTotal"><strong>Total</strong></label>
+                            </td>
+                            <td>
+                                <input type="text" id="ExpGrandTotal" class="col-md-10" />
+                            </td>
+                            <td>
+                                <input type="text" id="EstGrandTotal" class="col-md-10" />
+                            </td>
+                            <td>
+                                <input type="text" id="ActGrandTotal" class="col-md-10" />
+                            </td>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>

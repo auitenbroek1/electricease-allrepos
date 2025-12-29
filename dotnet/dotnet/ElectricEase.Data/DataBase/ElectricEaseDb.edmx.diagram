@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="6fac27b30a1942b4b6b38d5d13e7aa2a" Name="Diagram1" ZoomLevel="90">
+        <EntityTypeShape EntityType="ElectricEaseModel.Account_Master" Width="1.5" PointX="5.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Assemblies_Labor" Width="2" PointX="12.125" PointY="8.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Assemblies_Master" Width="1.5" PointX="7.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Assemblies_Parts" Width="1.5" PointX="9.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Client_Master" Width="1.5" PointX="0.75" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Distributor_Assemblies_Master" Width="1.5" PointX="10" PointY="1.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Distributor_Assemblies_Parts" Width="1.5" PointX="12.25" PointY="2.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Distributor_Master" Width="1.5" PointX="7.75" PointY="5" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Distributor_Parts_Details" Width="1.5" PointX="10" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_AssembliesDetails" Width="1.5" PointX="11.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_Assembly_Labor" Width="1.5" PointX="13.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_Assembly_Parts" Width="1.5" PointX="14.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_Attachments" Width="1.5" PointX="14.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_Calendar" Width="1.5" PointX="14.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_DJE_VQ_Details" Width="1.5" PointX="15.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_EstimationDetails" Width="1.5" PointX="16.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_Labor" Width="1.5" PointX="17.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_Legal" Width="1.5" PointX="17.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_Master" Width="1.5" PointX="3" PointY="18.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Job_Parts" Width="1.5" PointX="18.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Labor_Details" Width="1.5" PointX="18.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Legal_Details" Width="1.5" PointX="13.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Parts_Audit" Width="1.5" PointX="5.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Parts_Details" Width="1.5" PointX="7.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Sow_Master" Width="1.5" PointX="19.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Super_Admin_Assemblies_Master" Width="1.5" PointX="0.75" PointY="11.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Super_Admin_Assemblies_Parts" Width="1.5" PointX="3" PointY="11.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.Super_Admin_Parts_Details" Width="1.5" PointX="19.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.sysdiagram" Width="1.5" PointX="15.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.TimeSheet_Details" Width="1.5" PointX="5.25" PointY="2.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.TimeSheet_Log" Width="1.5" PointX="5.25" PointY="6.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.TimeSheet_Master" Width="1.5" PointX="3" PointY="2.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ElectricEaseModel.ImportPart" Width="1.5" PointX="17.75" PointY="19.75" IsExpanded="true" />
+        <AssociationConnector Association="ElectricEaseModel.FK_TimeSheet_Master_Client_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="ElectricEaseModel.FK__Distribut__Distr__02C83540" ManuallyRouted="false" />
+        <AssociationConnector Association="ElectricEaseModel.FK_DistributorAssemblyMaster_DistributorAssemblyParts" ManuallyRouted="false" />
+        <AssociationConnector Association="ElectricEaseModel.FK_Distributor_DistributorID" ManuallyRouted="false" />
+        <AssociationConnector Association="ElectricEaseModel.FK__Distribut__Distr__08810E96" ManuallyRouted="false" />
+        <AssociationConnector Association="ElectricEaseModel.FK_TimeSheet_Details_Job_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="ElectricEaseModel.FK_Assemblies_Id" ManuallyRouted="false" />
+        <AssociationConnector Association="ElectricEaseModel.FK_TimeSheet_Details_TimeSheet_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="ElectricEaseModel.FK_TimeSheet_Log_TimeSheet_Master" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

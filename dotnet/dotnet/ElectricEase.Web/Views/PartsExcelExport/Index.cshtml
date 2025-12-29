@@ -1,0 +1,444 @@
+﻿@model ElectricEase.Models.Assembly_MasterInfo
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+<style>
+    #Loading {
+        display: none;
+    }
+</style>
+<div class="app-body" id="Scroll">
+    <!-- app content here -->
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full" id="">
+            <fieldset>
+                <div id="accordion" class="partsmobile">
+                    <div class="box-row  profile-hd">
+                        <h7 class="box-heading">
+                            <strong> &nbsp  Parts Import </strong> <span id="togglecont" class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                            </span>
+                        </h7>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="row typerdio">
+                                <div class="col-md-12">
+                                    @*<div class="col-md-2">
+                                            <div class="radio">
+                                                <input id="Distributor" name="radio" type="radio" value="Distributor" onclick="radioExport();">
+                                                <label for="Distributor" class="radio-label">Distributor</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            @Html.DropDownListFor(x => x.DistributorID, ViewBag.Distributor as SelectList, "Select", new { @class = "form-control selectpicker", @style = "display: none;", @name = "test" })
+                                        </div>*@
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="radio">
+                                                <input id="Standared" name="radio" type="radio" value="Standared" onclick="radioExport();">
+                                                <label for="Standared" class="radio-label">Standard Client </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            @Html.DropDownListFor(x => x.Client_ID, ViewBag.Standared as SelectList, "Select", new { @class = "form-control selectpicker", @style = "display: none;", @name = "test" })
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="radio">
+                                                <input id="DistributorClients" name="radio" type="radio" value="DistributorClients" onclick="radioExport();">
+                                                <label for="DistributorClients" class="radio-label">Distributor Client</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            @Html.DropDownListFor(x => x.DistributorID, ViewBag.Distributor as SelectList, "Select Distributor", new { @class = "form-control selectpicker", @id = "Distributor_Clients", @style = "display: none;", @name = "test", @onchange = "GetClient(this.value);" })
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div id="disclientdrpodown"></div>
+                                        </div>
+                                    </div>
+                                    @*</div>
+                                        <div class="col-md-12">*@
+                                </div>
+                                <br /><br /><br /><br /><br />
+                                <div class="col-md-12 pull-left">
+                                    <input type="button" value="Download Template" class="btn btn-flat btn-primary btn-sm" style="background-color: #3276b1" id="downloadtemp" onclick="window.open('../Parts_Data_Template.xlsx')" />
+                                    <input type="file" id="importNewfile" style="display: none" onchange="ImportParts()" />
+                                    <input type="button" id="btnimport" class="btn btn-flat btn-primary btn-sm" style="background-color: #3276b1" value="Import Parts" onclick="confirmImport();" />
+                                </div>
+                                <div class="col-md-6">
+                                    <br />
+                                    <label for="title"> <span style="color:#f00">Note:</span> For parts import, the "Part Number & Part Category" are the mandatory fields.</label><br />
+                                    <br /><br />
+                                    <button style="display:none" data-toggle="modal" data-target="#failedreport" id="failedbtn" class="btn btn-primary">Click here for "Parts Import" report</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="OpenImgUpload" style="display:none">Image Upload</button>
+                <br /><br />
+            </fieldset>
+            <div class="panel-body">
+                <div id="divassemblylist"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="failedreport" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 50%; margin-left: 30%; margin-top: 60px;">
+        <div class="modal-header" style="background-color: #333333; height: 35px;">
+            <button type="button" class="close" data-dismiss="modal" id="SowPreviewpopupclose" style="color: white !important; opacity: 0.9;">&times;</button>
+            <h4 class="modal-title" id="sowhead" style="color: #FFF !important;">Parts Import Report</h4>
+        </div>
+        <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+            @* <div id="divPreviewdata"></div>*@
+            <div class="col-md-12">
+                <div id="lblreport" style="color:#000"></div>
+                <div>Please click @Html.ActionLink(linkText: "here", actionName: "GenerateExcelReport", controllerName: "PartsExcelExport") for status report.</div>
+            </div>
+            <div class="pull-right popup-btn">
+                <button value="Submit" data-dismiss="modal" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" onclick="">Ok</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@*<button type="button" value="Reject" class="btn btn-flat btn-primary btn-sm" id="btnConfirm" data-toggle="modal" data-target="#RejectPopUp" style="background:#f39c12;border:none;display:none">confirm</button>*@
+@*<div id="RejectPopUp" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 26%; margin-left: 38%; margin-top: 80px;">
+            <div class="modal-header" style="background-color: #333333; height: 35px;">
+                <button type="button" class="close" data-dismiss="modal" id="popupclose" style="color: white !important; opacity: 0.9;">&times;</button>
+                <h4 class="modal-title" style="color: #FFF !important;">Confirm Import</h4>
+            </div>
+            <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <label style="color:#333;margin:15px 0px"> Are you sure you want to import parts?</label>
+
+                                <div class="row">
+                                    <div class="pull-right popup-btn" style="margin-top:10px">
+                                        <button type="button" value="Save" class="btn btn-flat btn-primary btn-sm" id="submit" style="background:#87de75;border:none" onclick="ImportYesParts();">Yes</button>
+                                        <button type="button" value="Cancel" class="btn btn-flat btn-primary btn-sm" style="background:#e74c3c;border:none" data-dismiss="modal">No</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+<script>
+    $(document).ready(function () {
+        $('li').removeClass('active');
+        $("#partsExport").addClass('active');
+    })
+    function radioExport() {
+        var val = $('input[name=radio]:checked').val();
+        //if (val == "Distributor") {
+        //    $("#Client_ID").hide();
+        //    $("#DistributorID").show();
+        //    $("#Distributor_Clients").hide();
+        //    $("#DstClients").hide();
+        //    //   $("#DistributorID").select2();
+        //    $("#Client_ID").val("");
+        //    $("#Distributor_Clients").val("");
+        //    $("#DstClients").val("");
+        //}
+        //else
+        if (val == "Standared") {
+            $("#Client_ID").show();
+            $("#DistributorID").hide();
+            $("#DstClients").hide();
+            $("#Distributor_Clients").hide();
+            var val = $("#Client_ID").val();
+            $("#DistributorID").val("");
+            $("#Distributor_Clients").val("");
+            $("#DstClients").val("");
+            // $("#Client_ID").select2();
+        }
+        else {
+            $("#Client_ID").hide();
+            $("#DistributorID").hide();
+            $("#Distributor_Clients").show();
+            $("#DstClients").show();
+            $("#DistributorID").val("");
+            $("#Client_ID").val("");
+            //$("#Distributor_Clients").select2();
+            //var val = $("#Distributor_Clients").val();
+            //GetClient(val);
+        }
+    }
+    function GetClient(val) {
+        if (val != "") {
+            $.ajax({
+                url: '../PartsExcelExport/GetClients?DistId=' + val,
+                type: 'GET',
+                success: function (data) {
+                    if (data.length > 0) {
+                        var options = "<select class='form-control' id='DstClients'><option value='0'>Select Clients</option>";
+                        for (i = 0; i < data.length; i++) {
+                            options += "<option value='" + data[i].value + "'>" + data[i].Name + "</option>";
+                        }
+                        options += "</select>";
+                        $("#disclientdrpodown").html(options);
+                    }
+                    else {
+                        var options = "<select class='form-control selectpicker' id='DstClients'><option value='0'>Select Clients</option></select>";
+                        $("#disclientdrpodown").html(options);
+                    }
+                    //  $("#DstClients").select2();
+                },
+                error: function (err) { }
+            });
+        } else {
+            var options = "<select class='form-control selectpicker' id='DstClients'><option value='0'>Select Clients</option></select>";
+            $("#disclientdrpodown").html(options);
+        }
+    }
+    function ImportYesParts() {
+        //$("#popupclose").click();
+        $('#importNewfile').click();
+    }
+    function confirmImport() {
+        $('#failedbtn').hide();
+        var val = $('input[name=radio]:checked').val();
+        $("#importNewfile").val("").clone(true);
+        //if (val == "Distributor") {
+        //    var Did = $("#DistributorID").val();
+        //    if (Did != "") {
+        //        // if (confirm('Are you sure you want to import parts?')) {
+        //        $("#btnConfirm").click();
+
+        //        // document.getElementById('OpenImgUpload').click();; //$('#').trigger('click');
+        //        // }
+        //    }
+        //    else {
+        //        DisplayNotification("Please select distributor", 'error');
+        //    }
+        //}
+        //else
+        if (val == "Standared") {
+            var clientid = $("#Client_ID").val();
+            if (clientid != "") {
+                swal({
+                    title: "Are you sure, want to \"Import\" parts?",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn btn-success",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No"
+                }, function () {
+                    $('#importNewfile').click();
+                });
+                // if (confirm('Are you sure you want to import parts?')) {
+                //$('#btnConfirm').click();
+                // }
+            }
+            else {
+                DisplayNotification("Please select “Standard Client Name”.", 'error');
+            }
+        }
+        else if (val == "DistributorClients") {
+            var Did = $("#Distributor_Clients").val();
+            var Clientids = $("#DstClients").val();
+            if (Did != "" && Clientids != 0) {
+                swal({
+                    title: "Are you sure want to \"Import\" parts?",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn btn-success",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No"
+                }, function () {
+                    $('#importNewfile').click();
+                });
+                //  if (confirm('Are you sure you want to import parts?')) {
+                //$('#btnConfirm').click();
+                //  }
+            } else {
+                if (Did == "") {
+                    DisplayNotification("Please select “Distributor”.", 'error');
+                }
+                else {
+                    DisplayNotification("Please select “Clients”.", 'error');
+                }
+            }
+        } else {
+            DisplayNotification("Please select “Standard Client” or “Distributor Client”. ", 'error');
+        }
+    }
+    function ImportParts() {
+        $("#Loading").show();
+        var val = $('input[name=radio]:checked').val();
+        //if (val == "Distributor") {
+        //    var Did = $("#DistributorID").val();
+        //    if (Did != "") {
+        //        var formdata = new FormData();
+        //        var doc = document.getElementById('importNewfile');
+        //        if (doc.files.length > 0) {
+        //            formdata.append('partsheet', doc.files[0]);
+        //            var target = $("body");
+        //            $.ajax({
+        //                url: '../PartsExcelExport/DistributorImportparts?Did=' + Did,
+        //                data: formdata,
+        //                processData: false,
+        //                contentType: false,
+        //                type: 'POST',
+        //                success: function (data) {
+        //                    if (data != "No records in uploaded excel" && data != "Please import the valid template, file should be xlsx only" && data != "Invalid Parts Template") {
+        //                        $("#Loading").hide();
+        //                        DisplayNotification("Parts are Uploaded Successfully", 'success');
+        //                        //DisplayNotification("Kindly check the failed uploads report", 'success');
+        //                        $('#lblreport').html(data);
+        //                        $('#failedbtn').show();
+        //                        $("#importNewfile").val("").clone(true);
+        //                        $("#DistributorID").val("");
+        //                    }
+        //                    else {
+        //                        $("#Loading").hide();
+        //                        DisplayNotification(data, 'error');
+        //                        $("#importNewfile").val("").clone(true);
+        //                        $("#DistributorID").val("");
+        //                    }
+
+        //                },
+        //                error: function (err) {
+        //                    $("#Loading").hide();
+        //                }
+        //            });
+        //        }
+        //    }
+        //    else {
+        //        $("#Loading").hide();
+        //        DisplayNotification("Please select distributor", 'error');
+        //    }
+        //}
+        //else
+        if (val == "Standared") {
+            var clientid = $("#Client_ID").val();
+            if (clientid != "") {
+                var formdata = new FormData();
+                var doc = document.getElementById('importNewfile');
+                if (doc.files.length > 0) {
+                    formdata.append('partsheet', doc.files[0]);
+                    //var target = $("body");
+                    $.ajax({
+                        //url: '../PartsExcelExport/StClientImportparts?ClientId=' + clientid,
+                        url: '../PartsExcelExport/ImportParts?clientID=' + clientid,
+                        data: formdata,
+                        processData: false,
+                        contentType: false,
+                        type: 'POST',
+                        success: function (data) {
+
+                            $("#Loading").hide();
+                            if (data.includes("Error")) {
+                                $("#importNewfile").val("").clone(true);
+                                DisplayNotification(data, 'error');
+                            }
+                            else {
+                                $('#lblreport').html(data);
+                                $('#failedbtn').show();
+                                DisplayNotification("\"Import Parts\" completed. Please check the report for status.", 'success');
+                                $("#importNewfile").val("").clone(true);
+                                $("#Client_ID").val("");
+                            }
+
+                            //if (data != "In excel \"No\" records are available!" && data != "Please import the valid template, the file should be \"xlsx\" format only!" && data != "Invalid parts template!") {
+                            //    $("#Loading").hide();
+                            //    DisplayNotification("\"Import Parts\" completed. Please check the report for status.", 'success');
+                            //    // DisplayNotification("Kindly check the failed uploads report", 'success');
+                            //    $('#lblreport').html(data);
+                            //    $('#failedbtn').show();
+                            //    $("#importNewfile").val("").clone(true);
+                            //    $("#Client_ID").val("");
+
+                            //}
+                            //else {
+                            //    $("#Loading").hide();
+                            //    DisplayNotification(data, 'error');
+                            //    $("#importNewfile").val("").clone(true);
+                            //    $("#Client_ID").val("");
+                            //}
+                        },
+                        error: function (err) {
+                            $("#Loading").hide();
+                        }
+                    });
+                }
+            }
+            else {
+                $("#Loading").hide();
+                DisplayNotification("Please select \"Standard Client Name\".", 'error');
+            }
+        }
+        else {
+            var Did = $("#Distributor_Clients").val();
+            var Clientids = $("#DstClients").val();
+            if (Did != "" && Clientids != 0) {
+                var formdata = new FormData();
+                var doc = document.getElementById('importNewfile');
+                if (doc.files.length > 0) {
+                    formdata.append('partsheet', doc.files[0]);
+                    var target = $("body");
+                    $.ajax({
+                        //url: '../PartsExcelExport/DistributorClientImportparts?Did=' + Did + '&ClientId=' + Clientids,
+                        url: '../PartsExcelExport/ImportParts?clientID=' + Clientids,
+                        data: formdata,
+                        processData: false,
+                        contentType: false,
+                        type: 'POST',
+                        success: function (data) {
+
+                            $("#Loading").hide();
+                            if (data.includes("Error")) {
+                                $("#importNewfile").val("").clone(true);
+                                $("#Distributor_Clients").val("");
+                                $("#DstClients").val(0);
+                                DisplayNotification(data, 'error');
+                            }
+                            else {
+                                $('#lblreport').html(data);
+                                $('#failedbtn').show();
+                                $("#importNewfile").val("").clone(true);
+                                $("#Distributor_Clients").val("");
+                                $("#DstClients").val(0);
+                                DisplayNotification("\"Import Parts\" completed. Please check the report for status.", 'success');
+                            }
+
+
+                            //if (data != "In excel \"No\" records are available!" && data != "Please import the valid template, the file should be \"xlsx\" format only!" && data != "Invalid parts template!") {
+                            //    $("#Loading").hide();
+                            //    DisplayNotification("\"Import Parts\" completed. Please check the report for status.", 'success');
+                            //    $('#lblreport').html(data);
+                            //    $('#failedbtn').show();
+                            //    $("#importNewfile").val("").clone(true);
+                            //    $("#Distributor_Clients").val("");
+                            //    $("#DstClients").val(0)
+                            //}
+                            //else {
+                            //    $("#Loading").hide();
+                            //    DisplayNotification(data, 'error');
+                            //    $("#importNewfile").val("").clone(true);
+                            //    $("#Distributor_Clients").val("");
+                            //    $("#DstClients").val(0)
+                            //}
+
+                        },
+                        error: function (err) {
+                            $("#Loading").hide();
+                        }
+                    });
+                }
+            }
+            else {
+                $("#Loading").hide();
+                DisplayNotification("Please select \"Distributor\" and its \"Client\".", 'error');
+            }
+        }
+    }
+</script>

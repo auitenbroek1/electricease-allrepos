@@ -1,0 +1,382 @@
+﻿@model ElectricEase.Models.Parts_DetailsInfo
+@{
+    Layout = null;
+}
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#Client_ID").select2();
+        $("#ddlPartCategory").select2();
+        $("[name=OtherPart_Category]").attr("disabled", "disabled");
+        if ($("#ddlPartCategory option:selected").val('')) {
+            $("[name=OtherPart_Category]").attr("disabled", "disabled");
+        }
+        $("#ddlPartCategory").change(function () {
+            var value = $("#ddlPartCategory option:selected").val();
+            ShowOtherCategory(value);
+        });
+        setRegexValidations();
+    });
+
+    function assignToAdminEventsColumns(data) {
+
+        var table = $('#example').dataTable({
+
+            "aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+            "bAutoWidth": false,
+            "aaData": data,
+            "aoColumnDefs": [
+                {
+                    "aTargets": [0],
+                    "mData": "EventTypeId",
+                    "mRender": function (event) {
+                        return event;
+                    }
+                },
+
+                {
+                    "aTargets": [1],
+                    "mData": "EventType"
+                }
+
+
+            ], "aoColumns": [
+
+                { "mData": "Client_Company" },
+                { "mData": "Part_Number" },
+                { "mData": "Part_Category" },
+                { "mData": "Resale_Cost" },
+                { "mData": "Purchased_From" },
+                {
+                    "mDataProp": function (source, type, val) {
+                        return '<a href="/Parts_Master/EditPartsDetails?PartsNumber=' + encodeURIComponent(source.Part_Number) + '&ClientID=' + source.Client_ID + '"> <span class="glyphicon glyphicon-pencil"></span></a> &nbsp;&nbsp;&nbsp;<a class=confirm id=alert href="/Parts_Master/DeletePartsDetails?PartNumber=' + encodeURIComponent(source.Part_Number) + '&ClientID=' + source.Client_ID + '"><span class="glyphicon glyphicon-trash"></span></a>'
+                    }
+                }
+            ]
+
+        });
+
+    }
+    function assignToUserEventsColumns(data) {
+
+        var table = $('#example').dataTable({
+
+
+
+        });
+
+    }
+    $(function () {
+        $("#Reset").click(function () {
+            if (confirm("Are you sure? Do you want to reset?")) {
+                $("#Part_Number").val("");
+                $("#Description").val("");
+                $("#Client_Description").val("");
+                $("#Cost").val("");
+                $("#Rcost").val("");
+                $("#Purchased_From").val("");
+                $("#OtherPart_Category").val("");
+                $("#ddlPartCategory").val("");
+            }
+        });
+
+    });
+
+    //$(document).on('click', '.confirm', function () {
+    //    //message = "Are you sure you want to Delete this user?"
+    //    if (confirm(message))
+    //        return true;
+    //    else
+    //        return false;
+    //});
+</script>
+<style>
+    .controls > input,
+    .controls > select,
+    .controls > .row,
+    .controls > .input-group,
+    .controls > .form-group > .input-group {
+        margin-bottom: 15px;
+    }
+
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: rgba(52, 73, 94, 0.33);
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+
+
+<div id="collapseOne" class="panel-collapse collapse in">
+    @Html.HiddenFor(a => a.Part_CategoryCl, new { @id = "hdnPart_CategoryCl" })
+    @Html.ValidationSummary(true)
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="ajax-refresh2">
+
+                        <div class="panel-body">
+                            <input type="hidden" value=" @ViewBag.LoginUser" id="loguser" />
+                            @*@if (HttpContext.Current.User.IsInRole("Admin"))
+                                {
+                                    <div class="row-fluid">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="title"><strong>Client Name <span class="err">*</span>:</strong></label>
+                                                <input type="hidden" value="Admin" id="IsAdmin" />
+                                                <span id="ClietName_Errmsg" class="error"></span>
+                                                @if (Model.Part_Number == null)
+                                                {
+                                                    @Html.DropDownListFor(m => m.Client_ID, ViewBag.Clientid as SelectList, "Select", new { Name = "Client_ID", @class = "form-control selectpicker", onchange = "GetMyPartsCatgory(this);" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownListFor(m => m.Client_ID, ViewBag.Clientid as SelectList, "Select", new { Name = "Client_ID", @class = "form-control selectpicker", disabled = "disabled" })
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <input type="hidden" value="notAdminAdmin" id="notAdmin" />
+                                }*@
+                            <div class="row-fluid">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="label"><strong>Category<span class="err">*</span>:</strong></label>
+                                        <span id="Category_errmsg" class="error"></span>
+                                        @if (HttpContext.Current.User.IsInRole("Admin"))
+                                        {
+                                            if (Model.Part_Number != "" && Model.Part_Number != null)
+                                            {
+                                                @Html.DropDownListFor(m => m.Part_Category, ViewBag.PartCategory as SelectList, "Select", new { @id = "ddlPartCategory", Name = "Part_Category", @class = "form-control selectpicker", data_type = "other", onchange = "ShowOtherCategory(this.value);" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownListFor(m => m.Part_Category, ViewBag.PartCategory as SelectList, "Select", new { @id = "ddlPartCategory", Name = "Part_Category", @class = "form-control selectpicker", data_type = "other", onchange = "ShowOtherCategory(this.value);", disabled = "disabled" })
+                                                @Html.HiddenFor(m => m.Part_Category)
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            //@Html.DropDownListFor(m => m.Part_Category, ViewBag.PartCategory as SelectList, "Select", new { @id = "ddlPartCategory", Name = "Part_Category", @class = "form-control selectpicker", data_type = "other", onchange = "ShowOtherCategory(this.value);" })
+                                            @Html.DropDownListFor(m => m.Part_Category, ViewBag.PartCategory as SelectList, "Select", new { @id = "ddlPartCategory", Name = "Part_Category", @class = "form-control selectpicker", data_type = "other", onchange = "ShowOtherCategory(this.value);" })
+
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div class="col-md-4" style="margin-left:10px">
+
+                                    <div class="form-group">
+                                        <label for="label"><strong>If Other Category :</strong></label>
+                                        @Html.TextBoxFor(m => m.OtherPart_Category, new { @class = "form-control", @maxlength = "50", @placeholder = "", disabled = "disabled" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div class="col-md-3">
+
+                                    <div class="form-group">
+                                        <label for="label"><strong>Part Number <span class="err">*</span>:</strong></label>
+                                        @if (Model != null && (Model.Part_Number == null || Model.Part_Number == ""))
+                                        {
+                                            @Html.TextBoxFor(m => m.Part_Number, new { @class = "form-control", @maxlength = "50", @placeholder = "Part Number", onchange = "partnameValidate(this);" })
+                                            <span class="err" id="partnumsg"></span>
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(m => m.Part_Number, new { @class = "form-control", @maxlength = "50", @placeholder = "Part Number", disabled = "disabled" })
+                                        }
+
+                                        <span id="PartNumber_errmsg" class="error"></span>
+                                        @Html.ValidationMessageFor(m => m.Part_Number)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="label"><strong>My Cost  <span class="err">*</span>:</strong></label>
+                                        @if (Model != null && (Model.Cost == 0 || Model.Cost == 0.00M))
+                                        {
+                                            <input type="text" value="" id="Cost" class="form-control" maxlength="8" placeholder="0.00" style="text-align:right" onkeyup="checknum(this);" />
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(m => m.Cost, new { @class = "form-control", @maxlength = "8", @placeholder = "0.00", style = "text-align:right", onkeyup = "checknum(this);" })
+                                        }
+                                        <span id="errmsg" class="error"></span>
+                                        @Html.ValidationMessageFor(m => m.Cost)
+                                        @*<input type="text" class="form-control" name="MyCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">*@
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="row-fluid">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="label"><strong>UOM :</strong></label>
+                                        @Html.TextBoxFor(m => m.UOM, new { @class = "form-control", @maxlength = "150", @placeholder = "Unit of measurement" })
+                                        @*<input type="text" class="form-control" name="PurchasedFrom" id="Ipurchasefrom" autofocus maxlength="50" placeholder="Purchased from" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="label"><strong>Resale <span class="err">*</span>:</strong></label>
+                                        @if (Model != null && (Model.Resale_Cost == 0 || Model.Resale_Cost == 0.00M))
+                                        {
+                                            <input type="text" class="form-control" value="" maxlength="8" placeholder="0.00" id="Rcost" style="text-align:right" onkeyup="checknum(this);" />
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(m => m.Resale_Cost, new { @class = "form-control", @maxlength = "8", @placeholder = "0.00", @id = "Rcost", style = "text-align:right", onkeyup = "checknum(this);" })
+                                        }
+                                        <span id="RCosterrmsg" class="error"></span>
+                                        @Html.ValidationMessageFor(m => m.Resale_Cost)
+                                        @*<input type="text" class="form-control" name="ResaleCost" id="IPurchaseRate" maxlength="8" placeholder="0.00" tabindex="5" onkeypress="return numbersonly(event)" style="text-align: right;">*@
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row-fluid">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="label"><strong>Purchased From :</strong></label>
+                                        @Html.TextBoxFor(m => m.Purchased_From, new { @class = "form-control", @maxlength = "500", @placeholder = "Purchased from" })
+                                        @*<input type="text" class="form-control" name="PurchasedFrom" id="Ipurchasefrom" autofocus maxlength="50" placeholder="Purchased from" tabindex="1" onkeypress="return onKeyValidate(event,alphanumeric);">*@
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row-fluid">
+                                <div class="col-sm-5">
+                                    <div class="form-group">
+
+                                        <label for="title"><strong>My Description :</strong></label>
+                                        @Html.TextAreaFor(m => m.Description, new { @class = "form-control", @maxlength = "1000" })
+                                        @Html.ValidationMessageFor(m => m.Description)
+                                        @*<textarea rows="3" class="form-control" name="MYDescription" id="IDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>*@
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="row-fluid">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label for="title"><strong>Client Description :</strong></label>
+                                        @Html.TextAreaFor(m => m.Client_Description, new { @class = "form-control", @maxlength = "1000" })
+                                        @Html.ValidationMessageFor(m => m.Client_Description)
+                                        @*<textarea rows="3" class="form-control" name="ClientDescription" id="ClientDescription" tabindex="6" maxlength="75" onkeypress="return onKeyValidate(event,alphanumeric);"></textarea>*@
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="label"><strong>Labor Unit :</strong></label>
+                                        @Html.TextBoxFor(m => m.LaborUnit, new { @class = "form-control", @placeholder = "0.0000", style = "text-align:right" })
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="panel-footer clearfix">
+                            @if (ViewBag.distcompany == -1)
+                            {
+                                <div class="pull-left">
+                                    <input type="button" value="Download Template" class="btn btn-flat btn-primary btn-sm" style="background-color: #3276b1" id="downloadtemp" onclick="window.open('../Parts_Data_Template.xlsx')" />
+                                    <input type="file" id="importfile" style="display: none" onchange="ImportParts()" accept=".xls,.xlsx" />
+                                    <input type="button" id="btnimport" class="btn btn-flat btn-primary btn-sm" style="background-color: #3276b1" value="Import Parts" onclick="confirmImport();" />
+                                </div>
+                                <div style="padding-top:50px">
+                                    <label for="title"> <span style="color:#f00">Note:</span> For parts import, the "Part Number & Part Category" are the mandatory fields.</label><br />
+                                    <button style="display:none" data-toggle="modal" data-target="#failedreport" id="failedbtn" class="btn btn-primary">Click here for "Parts Import" report</button>
+                                </div>
+                            }
+                            @*else if (HttpContext.Current.User.IsInRole("Admin"))
+                            {
+                                <div class="pull-left">
+                                    <input type="button" value="Download Template" class="btn btn-flat btn-primary btn-sm" style="background-color: #3276b1" id="downloadtemp" onclick="window.open('../Parts_Data_Template.xlsx')" />
+                                    <input type="file" id="importfile" style="display: none" onchange="ImportParts()" accept=".xls,.xlsx" />
+                                    <input type="button" id="btnimport" class="btn btn-flat btn-primary btn-sm" style="background-color: #3276b1" value="Import Parts" onclick="confirmImport();" />
+                                </div>
+                            }*@
+
+                            <div class="pull-right" style="width: 35%; margin-top: 7px;">
+                                @if (Model != null && Model.Client_ID == 0)
+                                {
+                                    <button onclick="saveParts();" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" id="submit" tabindex="10" style="width: 49%">Save </button>
+                                    <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" style="width: 49%" onclick="ResetParts();">Clear </a>
+                                }
+                                else
+                                {
+                                    <button onclick="saveParts();" value="Submit" class="btn btn-flat btn-primary btn-sm " name="addLabour" id="submit" tabindex="10" style="width: 49%">Update </button>
+                                    <a href="#" class="btn btn-flat btn-default btn-sm" role="button" tabindex="11" style="width:49%;" id="Cancel" onclick="Cancel();">Cancel</a>
+                                }
+                            </div>
+                            @*@if (ViewBag.distcompany == -1)
+                                {
+                                    <div style="padding-top:50px">
+                                        <label for="title"> <span style="color:#f00">Note:</span> For parts import, the "Part Number & Part Category" are the mandatory fields.</label><br />
+                                        <button style="display:none" data-toggle="modal" data-target="#failedreport" id="failedbtn" class="btn btn-primary">Click here for "Parts Import" report</button>
+                                    </div>
+                                }
+                                else if (HttpContext.Current.User.IsInRole("Admin"))
+                                {
+                                    <div style="padding-top:50px">
+                                        <label for="title"> <span style="color:#f00">Note:</span>  To properly import parts, part number and part category fields must not be empty. </label><br />
+                                        <button style="display:none" data-toggle="modal" data-target="#failedreport" id="failedbtn" class="btn btn-primary">Click here for Failed Uploads Report</button>
+                                    </div>
+                                }*@
+                        </div>
+                        @if (Model != null && Model.Part_Number != "" && Model.Part_Number != null)
+                        {
+                            <div class="panel-footer clearfix">
+
+                                <div class="pull-left" style="font-size: x-small;">
+                                    <div>
+                                        <label style="color: #3D81BD !important;">Created By  : &nbsp @Model.Created_By on<span></span> @Model.Created_Date</label>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="pull-right" style=" font-size: x-small;">
+                                    <div>
+                                        <label style="color: #3D81BD !important;">Updated By  : &nbsp @Model.Updated_By on<span></span> @Model.Updated_Date</label>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+

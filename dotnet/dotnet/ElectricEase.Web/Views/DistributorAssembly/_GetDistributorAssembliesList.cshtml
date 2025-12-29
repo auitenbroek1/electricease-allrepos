@@ -1,0 +1,198 @@
+﻿@model ElectricEase.Models.Assembly_MasterInfo
+@*<script>
+    var isloaded = false;
+    $(document).ready(function () {
+        var assemdropdwn = document.getElementsByName("DEAssembliesTbl_length");
+        var searchbox = $('#DEAssembliesTbl_filter input');
+        var pagno = Cookies.get('Assemdtpageno');
+        if (pagno == null || pagno == "") {
+            pagno = 0;
+        }
+        var pagelen = Cookies.get('DEAssemdtpagelen');
+        if (typeof pagelen != 'undefined' && pagelen != null && pagelen != "") {
+            pagelen = Number(pagelen);
+        }
+        else {
+            pagelen = 5;
+        }
+        var table = null;
+        if (Cookies.get('DEAssemdtpagelen') != null && Cookies.get('DEAssemdtpagelen') != "") {
+            var tab = $("#DEAssembliesTbl").dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "order": [[0, "desc"]],
+                "iDisplayLength": pagelen
+
+            });
+            table = tab;
+            pagno = Number(pagno);
+            var total = $('.paginate_button');
+            if (total.length == 3) {
+                pagno = 0;
+            }
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('DEAssemsearch') != null && Cookies.get('DEAssemsearch') != "") {
+                tab.fnFilter(Cookies.get('DEAssemsearch'));
+            }
+        }
+        else {
+            var tab = $("#DEAssembliesTbl").dataTable({
+                "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+                "sDom": '<"top"flp>rt<"bottom"pri>',
+                "order": [[0, "desc"]]
+
+            });
+            table = tab;
+            pagno = Number(pagno);
+            if (pagno > 0) {
+                tab.fnPageChange(pagno, true);
+            }
+            if (Cookies.get('DEAssemsearch') != null && Cookies.get('DEAssemsearch') != "") {
+                tab.fnFilter(Cookies.get('DEAssemsearch'));
+            }
+        }
+        if (isloaded) {
+            setTimeout(function () {
+                var ddl = $("select[name=Assemblies_Category]");
+                var ddlopt = $("select[name=Assemblies_Category] option");
+                var opt = "";
+
+                for (var i = 0; i < ddlopt.length; i++) {
+                    if ($(ddlopt[i]).val() != null && $(ddlopt[i]).val() != "" && $(ddlopt[i]).val() != "1") {
+                        $('#lstassembly_cat').append("<option value='" + $(ddlopt[i]).val() + "'>" + $(ddlopt[i]).val() + "</options>");
+                    }
+                }
+            }, 2000)
+            isloaded = true;
+        }
+        $($('#DEAssembliesTbl_length')[0].parentElement).removeClass('col-md-6')
+        $($('#DEAssembliesTbl_length')[0].parentElement).addClass('col-md-12')
+
+        $(assemdropdwn).change(function () {
+            var len = this.value;
+            Cookies.set('Assemdtpagelen', len);
+        });
+        $('#DEAssembliesTbl_filter input').on("keyup", function () {
+            Cookies.set('Assemsearch', $(this).val());
+        });
+        $('#DEAssembliesTbl').on('page.dt', function () {
+            var info = this;
+            setTimeout(function () {
+                var ss = $('.paginate_button.active');
+                var pgno = ss[0].innerText;
+                if (pgno != "" && pgno != "0") {
+                    pgno = Number(pgno) - Number(1);
+                }
+                Cookies.set('DEAssemdtpageno', pgno);
+            }, 1000);
+            var ss = $('.paginate_button.active');
+        });
+        //var assembdiv = $('#DataTables_Table_0');
+        //$(assembdiv[0].parentElement).removeClass('col-md-12');
+        //$(assembdiv[0].parentElement).addClass('table-responsive');
+    });
+    function assembcatChange() {
+        isloaded = true;
+        category = $('#lstassembly_cat').val();
+        var val = $("#DistributorID").val();
+        Cookies.set("assemfilter", $('#lstassembly_cat').val());
+        GetAssemblylist(val, $('#lstassembly_cat').val());
+    }
+    $(function () {
+        // LoadDistributorAssembliesExportCategorydropdown("");
+    });
+
+</script>*@
+<style>
+    .deletedparts {
+        color: red !important;
+    }
+
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+</style>
+
+
+
+@*<div class="disrightop">
+    <div class="col-md-2 text-right">
+        <label for="Client_ID" style="padding: 9px;margin-left:4px;"><strong> Distributor Clients</strong></label>
+    </div>
+    <div class="col-md-6">*@
+        @Html.DropDownListFor(x => x.Client_ID, ViewBag.Client as SelectList, new { @class = "chosen-select", multiple = "multiple", @name = "test" })
+    @*</div>
+</div>*@
+@*<div class="dripsdropdd">
+        <select id="lstassembly_cat" name="Assemblies_Category" class="form-control" onchange="assembcatChange()">
+            <option value="">All Assembly Category</option>
+        </select>
+    </div>*@
+@*@{ string name = "Distributor";}*@
+@*<table id="DEAssembliesTbl" class="table table-bordered datatables" cellspacing="0" width="100%">
+    <thead style="background-color: #45525F">
+        <tr>
+            <th><input type="checkbox" value="selectall" id="selectall" onchange="AssemblieExportselectall(this);" /> Select all</th>
+            <th>Assemblies Name</th>
+            <th>Assembly Category</th>
+            <th>Assemblies Description</th>
+            <th>AssemblyParts Count</th>
+            <th>Type</th>
+        </tr>
+    </thead>
+    <tbody id="asbody">
+        @foreach (var item in Model.asList)
+        {
+            var rowcolor = "";
+            if (item.assemblypartsCount == 0)
+            {
+                rowcolor = "deletedparts";
+            }
+            <tr style="cursor: pointer" onclick="Assemblyexportname(this);">
+                @{ string Name = "";
+
+                    Name = item.Assemblies_Name;
+                    if (Name.Contains(" "))
+                    {
+                        Name = Name.Replace(" ", "a_a");
+                    }
+                    //item.Assemblies_Name= item.Assemblies_Name.Replace(" ", "");
+                }
+                <td><input type="checkbox" class="form-control" id="Check_@Name" onclick="Assemblyexportname(this);" value="@Name" /></td>
+                <td class="@rowcolor">@item.Assemblies_Name</td>
+                <td class="@rowcolor">@item.Assemblies_Category</td>
+                <td class="@rowcolor">
+                    @{
+                        string desc = "";
+                        desc = item.Assemblies_Description == null ? "" : item.Assemblies_Description;
+                        if (desc.Length > 100)
+                        {
+                            desc = desc.Substring(0, 50) + "...";
+                        }
+                        <span>@desc</span>
+                    }
+                </td>
+                <td class=@rowcolor>@item.assemblypartsCount</td>
+                @if (item.Type != null)
+                {
+                    <td>@item.Type</td>
+                }
+                else
+                {
+                    <td>@name</td>
+                }
+
+            </tr>
+        }
+    </tbody>
+</table>*@

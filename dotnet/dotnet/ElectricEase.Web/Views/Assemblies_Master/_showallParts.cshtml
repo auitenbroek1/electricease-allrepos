@@ -1,0 +1,245 @@
+﻿@model  List<ElectricEase.Models.Parts_DetailsInfoList>
+@{
+    Layout = null;
+}
+<script>
+   $(document).ready(function () {
+        var pagelen = 5;
+        var tab = $("#partstable").dataTable({
+            "order": [[0, "desc"]],
+            "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+            "aLengthMenu": [[5, 10, 15, 25, 100], [5, 10, 15, 25, 100]],
+            "iDisplayLength": pagelen,
+            "sDom": '<"top"flp>rt<"bottom"pri>',
+            "tableTools": {
+                "aButtons": [
+                {
+                    "sExtends": "copy",
+                    "sButtonText": "Copy to clipboard"
+                },
+                {
+                    "sExtends": "csv",
+                    "sButtonText": "Save to CSV"
+                },
+                {
+                    "sExtends": "xls",
+                    "oSelectorOpts": {
+                        page: 'current'
+                    }
+                }]
+        },
+        "proccessing": true,
+        "serverSide": true,
+        "ajax": {
+            url: "@Url.Action("PartsDatatable", "Assemblies_Master")" ,
+            type: 'POST',
+            contentType: "application/json",
+            data: function (d) {
+                d.extra_search = Cookies.get('partsfilter');
+                var lstpartnum = "";
+                if (document.getElementById("selectall").checked == true && d.search.value != "" && d.search.value != null) {
+                    lstpartnum = "selectall";
+                }
+                else {
+                    var tablRows = $('#partstbody tr');
+                    i = 0;
+                    if (tablRows.length > 0) {
+                        $('#partstbody tr ').each(function () {
+                            var customerId = $(this).find("#partnumber").html();
+                            customerId = customerId.replace("+","\\+");
+                            lstpartnum += customerId.trim() + ",";
+                        });
+                    }
+                }
+                d.existing_data = lstpartnum;
+                d.clientID = $('#Client_ID').val();
+                return JSON.stringify(d);
+            }
+        },
+        "fnDrawCallback": function (oSettings) {
+            //  alert('DataTables has redrawn the table');
+            $('#partstable').find("input:checkbox").each(function () {
+                if (this.checked == true) {
+                    i++
+                }
+                var tablerowlength = $("#partsbody tr").length;
+                if (tablerowlength == i) {
+
+                document.getElementById("selectall").checked = true;
+                }
+            });
+
+            if (i == 0) {
+                $("#Npsubmit").attr('disabled', 'disabled');
+            }
+            $('#Part_Category').val("ALL");
+        },
+        //"initComplete": function (settings, json) {
+        //    alert('com' + json);
+        //    // call your function here
+        //},
+        "language": {
+            "search": "",
+            "searchPlaceholder": "Search..."
+        },
+        "columns": [{"mData": "ID"},
+            {
+                "data": function (o) {
+                    var partnaumber = o.Part_Number;
+                    partnaumber = partnaumber.trim().replace(/\\/g, "\\\\").replace("'", "\'");//.replace("+","\+");
+                    if (o.isChekced == true) {
+                        return '<input type="checkbox" id="' + partnaumber + '" onclick="selectrow1(this)" data-id="' + o.Client_ID + '" value="' + partnaumber + '" checked="checked" />';
+                    }
+                    else {
+                        return '<input type="checkbox" id="' + partnaumber + '" onclick="selectrow1(this)" data-id="' + o.Client_ID + '" value="' + partnaumber + '" />';
+                    }
+                }, orderable: false},
+                { "data": "Part_Category" },
+                { "data": "Description" },
+                { "data": "Part_Number" },
+                { "data": "Cost" },
+                { "data": "Resale_Cost" }
+
+            ]
+        });
+
+
+        //if (Cookies.get('nationpartsearch') != null && Cookies.get('nationpartsearch') != "") {
+        //    tab.fnFilter(Cookies.get('nationpartsearch'));
+        //}
+        //$('#partstable_filter input').on("keyup", function () {
+        //    Cookies.set('nationpartsearch', $(this).val());
+        //    document.getElementById("selectall").checked = false;
+        //});
+        $("#partstable").on('draw.dt', function () {
+            for (var i = 0; i < selectedpart.length; i++) {
+                checkboxId = selectedpart[i];
+                $('#' + checkboxId).attr('checked', true);
+            }
+            if (selectedpart.length > 0) {
+                $("#Npsubmit").removeAttr('disabled', 'disabled');
+            }
+            else {
+                $("#Npsubmit").attr('disabled', 'disabled');
+            }
+        });
+        $('#partstable tbody').on('click', 'tr', function () {
+            var checkbx = $(this).find("input[type=checkbox]");
+            i = 0;
+            var check = checkbx[0];
+            if (typeof check != 'undefined') {
+                if (checkbx[0].checked == false) {
+                    checkbx[0].checked = true;
+                    selectedpart.push(checkbx[0].value);
+                }
+                else {
+                    document.getElementById("selectall").checked = false;
+                    checkbx[0].checked = false;
+                    if (selectedpart.indexOf(checkbx[0].value) > -1)
+                        selectedpart.splice(selectedpart.indexOf(checkbx[0].value), 1);
+                }
+            }
+            else {
+                if (this.checked == false) {
+                    this.checked = true;
+                    //selectedpart.push(val.id);
+                }
+                else {
+                    document.getElementById("selectall").checked = false;
+                    this.checked = false;
+                    //if (selectedpart.indexOf(val.id) > -1)
+                    //    selectedpart.splice(selectedpart.indexOf(val.id), 1);
+                }
+            }
+            //Here to check select all checkbox if all prts are Selected
+            $('#partstable').find("input:checkbox").each(function () {
+                if (this.checked == true) {
+                    i++
+                }
+                var tablerowlength = $("#partsbody tr").length;
+                if (tablerowlength == i) {
+
+                    document.getElementById("selectall").checked = true;
+                }
+            });
+
+            if (selectedpart.length == 0) {
+                $("#Npsubmit").attr('disabled', 'disabled');
+            }
+            else {
+                $("#Npsubmit").removeAttr('disabled', 'disabled');
+
+            }
+        });
+
+
+    });
+    function pselectall(val) {
+
+        if (Cookies.get('nationpartsearch') == "" || Cookies.get('nationpartsearch') == null) {
+            DisplayNotification("You can't add all parts at one", "error");
+            document.getElementById("selectall").checked = false;
+            return false;
+        }
+        var vauese = $(val).val();
+        var selected = $(val).attr('checked');
+        var table = $('#partstable').dataTable();
+        var allPages = table.fnGetNodes();
+        if (val.checked) {
+            //selectedpart = [];
+            $("input:checkbox", table.fnGetNodes()).each(function () {
+                var value = this.value;
+                if (value != "selectall") {
+                    if (selectedpart.indexOf(this.value) == -1)
+                        selectedpart.push(this.value);
+                }
+                this.checked = true;
+            });
+            $("#Npsubmit").removeAttr('disabled', 'disabled');
+        }
+        else {
+            $("input:checkbox", table.fnGetNodes()).each(function () {
+                if (selectedpart.indexOf(this.value) > -1)
+                    selectedpart.splice(selectedpart.indexOf(this.value), 1);
+                this.checked = false;
+            });
+            $("#Npsubmit").attr('disabled', 'disabled');
+        }
+    }
+
+</script>
+
+<div class="table-resposive" style="max-height: 500px; overflow-y: auto">
+    <table id="partstable" class="table table-bordered datatables" cellspacing="0" width="100%">
+
+        <thead style="background-color: #45525F">
+            <tr>
+                <th>ID</th>
+                <th style="width:10%">
+                    <input type="checkbox" hidden="hidden" value="selectall" id="selectall" onchange="pselectall(this);" />Select
+                </th>
+                <th>
+                    Part Category
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Part Number
+                </th>
+                <th>
+                    My Cost
+                </th>
+                <th>
+                    Resale
+                </th>
+            </tr>
+        </thead>
+        <tbody id="partsbody"></tbody>
+    </table>
+</div>
+
+<div class="pull-right popup-btn">
+    <button type="button" value="Submit" class="btn btn-flat btn-primary btn-sm " style="margin: 2px" id="submit" onclick="saveparts();" tabindex="10">Submit</button>
+</div>
+

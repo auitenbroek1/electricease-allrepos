@@ -1,0 +1,30 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "Error";
+}
+<style>
+    .mvc-error-container {
+        width: 800px; 
+        margin: auto;
+        padding:5px;
+    }
+    .mvc-error {
+        color: #A30310;
+        background-color: #FFC5C5;
+        padding: 3px;
+        margin-top:3px;
+        text-align:center;
+    }
+
+    h4.mvc-error {
+        font-size:11px;
+        text-align:left;
+    }
+</style>
+<hgroup class="title">
+    <h1 class="error">Error.</h1>
+    <h2 class="error">An error occurred while processing your request.</h2>
+    <h4 class="mvc-error"><b>Message:</b> @Model.Exception</h4>
+    <br />
+</hgroup>

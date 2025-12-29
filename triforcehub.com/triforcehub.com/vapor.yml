@@ -1,0 +1,28 @@
+id: 26988
+name: triforcehub
+environments:
+    production:
+        domain:
+            - triforcehub.com
+            - app.electric-ease.com
+            - 3.electric-ease.com
+        storage: production.triforcehub.com
+        balancer: production
+        database: production
+        database-proxy: false
+        runtime: docker
+        memory: 2048
+        timeout: 60
+        cli-memory: 2048
+        cli-timeout: 900
+        queue-memory: 2048
+        queue-timeout: 900
+        build:
+            - 'COMPOSER_MIRROR_PATH_REPOS=1 composer install'
+            - 'php artisan sidecar:deploy --env=production'
+            - 'php artisan event:cache'
+            - 'npm ci && npm run build && rm -rf node_modules'
+        deploy:
+            - 'php artisan sidecar:activate'
+            - 'php artisan migrate --force'
+            - 'php artisan queue:restart'

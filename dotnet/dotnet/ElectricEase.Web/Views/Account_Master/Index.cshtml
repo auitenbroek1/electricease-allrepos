@@ -1,0 +1,606 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<link href="~/Content/bootstrap-toggle.min.css" rel="stylesheet" />
+
+<script>
+
+    $(document).ready(function () {
+        Cookies.set('Userdtpagelen', "");
+        Cookies.set('Usertpageno', "");
+        Cookies.set('Userearch', "");
+        $('li').removeClass('active');
+        $("#accountmaster").addClass('active');
+
+        //To change content tittles
+        $(".content-title").text("User Master");
+
+        GetUserList()
+        GetUserInfo('0', '0')
+    })
+    //$(function () {
+
+    //    $(".profile-hd").click(function () {
+    //        $(this).next().slideToggle();
+    //    });
+    //});
+    function Cancel() {
+        msg = "Are you sure, do you want to cancel?"
+        if (confirm(msg)) {
+            GetUserList()
+            GetUserInfo('0', '0')
+            $("#title-cont").text("Add User Details")
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/UserMaster.pdf");
+    })
+    function GetImage(val) {
+
+        var fileUpload = document.getElementById("fileupload");
+        $("#firstlogo").hide();
+        $("#dvPreview").html("");
+        var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.jpg|.jpeg|.gif|.png|.bmp)$/;
+        if (regex.test($(val).val().toLowerCase())) {
+            if ($.browser.msie && parseFloat(jQuery.browser.version) <= 9.0) {
+                $("#dvPreview").show();
+                $("#dvPreview")[0].filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = $(val).val();
+            }
+            else {
+                if (typeof (FileReader) != "undefined") {
+
+                    $("#dvPreview").show();
+                    $("#dvPreview").append("<img id='upimg' height='75' width='30%'/>").attr({ width: '300px', height: '150px' });
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $("#dvPreview img").attr("src", e.target.result);
+                    }
+                    reader.readAsDataURL($(val)[0].files[0]);
+                } else {
+                    alert("This browser does not support FileReader.");
+                }
+            }
+        } else {
+            alert("Please upload a valid image file.");
+            $("#fileupload").val("");
+        }
+
+    }
+    //Here to Add  and update client Details
+    function GetUserInfo(val1, val2) {
+        $.ajax({
+            url: '../Account_Master/GetUserDetails?ClientID=' + val1 + '&UserID=' + val2,
+            type: 'GET',
+            success: function (data) {
+                $("#UserInfoDiv").html(data);
+                if (val2 != "0" && val2 != null) {
+                    var s = $("#Reset");
+                    $("#title-cont").text("Edit User Details")
+                    $("#Reset").hide();
+                    $("#Addbtn").text("Update");
+                    $("#First_Name").focus();
+                    //$("#Addbtn").addClass("pull-right")
+                }
+
+            },
+            error: function (err) {
+            }
+        })
+    }
+    //Here Get ClientListDetails
+    function GetUserList(showBot) {
+        $.ajax({
+            url: '../Account_Master/GetUserListDetails',
+            type: 'GET',
+            success: function (data) {
+                $("#UserListDiv").html(data);
+                if (showBot == 1) {
+                    $("#bootomUsers").focus();
+                }
+            },
+            error: function (err) {
+            }
+        })
+    }
+    function emailvalidation() {
+        var email = $('#E_Mail').val()
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+        if (!email.match(emailReg)) {
+            DisplayNotification("“Email” is invalid!", "error");
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    //function phonevalidation()
+    //{
+
+    //    var phoneno = $("#Phone").val();
+    //   // var characterReg = /^[0-9-+]+$/;
+    //    var characterReg = /\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/;
+
+    //    if (characterReg.test(phoneno) == false || phoneno.length < 10)
+    //    {
+    //        DisplayNotification("Invalid “Phone Number”!", "error");
+    //        return false;
+    //    }
+    //    else
+    //    {
+    //        return true;
+    //    }
+    //}
+    //function mobilevalidate()
+    //{
+    //    var characterReg = /^[0-9-+]+$/;
+    //    var reg = /^[2-9]\d{2}-\d{3}-\d{4}$/;
+    //    var mobileno = $("#Mobile").val();
+    //    if (characterReg.test(mobileno) == false || mobileno.length < 10) {
+    //        DisplayNotification("Invalid “Mobile Number”!", "error");
+    //        return false;
+    //    }
+    //    else
+    //    {
+    //        return true;
+    //    }
+
+    //}
+    function colorValidate() {
+        if ($("#UserColor").val() != "#000000") {
+            return true;
+        }
+        else {
+            DisplayNotification(" This “Color” is taken. Please Try another color.", "error");
+            return false;
+        }
+    }
+    function ClientNamevalidate() {
+
+        if ($("#IsAdmin").val() == "Admin") {
+            var valueid = $('#Client_ID').val();
+            if ($('#Client_ID').val() == "") {
+                DisplayNotification("“Client Name” is required.", "error");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            $('#Client_ID').val(0);
+            return true;
+        }
+    }
+    function as() {
+        if ($("#Job_Administrator ").prop("checked") == true) {
+            return true;
+        }
+        else {
+            false;
+        }
+
+    }
+    function PasswordValidation() {
+        var password = $("#Password").val();
+        var exp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@@$%^&*-]).{8,}$"
+        if (!password.match(exp)) {
+            DisplayNotification("For password use 8 or more characters with a mix of letters, numbers & symbols!", "error");
+            return false;
+        }
+        else {
+
+            return true;
+        }
+    }
+    function SendMail() {
+        if (validateUserDetails()) {
+            var model = {
+                "First_Name": $("#First_Name").val(),
+                "Last_Name": $('#Last_Name').val(),
+                "E_Mail": $('#E_Mail').val(),
+                "User_ID": $('#User_ID').val(),
+                "Password": $('#Password').val(),
+                "UserColor": $('#UserColor').val(),
+            };
+            $.ajax({
+                url: '../Account_Master/SendEmail',
+                type: 'GET',
+                data: model,
+                success: function (data) {
+                    if (data == "success") {
+                        DisplayNotification("“Email” sent successfully.", "success");
+                    }
+                    else {
+                        DisplayNotification(data, "error");
+                    }
+                },
+                error: function (err) {
+
+                }
+            })
+        }
+        //else {
+        //    DisplayNotification("Please fill “All” required (*) field.", "error");
+        //}
+    }
+    function CheckUserIdIsExist() {
+        if (validateUserDetails()) {
+            if (emailvalidation() == true && colorValidate() == true && ClientNamevalidate() == true && PasswordValidation() == true) {
+                var UserID = $("#User_ID").val();
+                $.ajax({
+                    url: '../Account_Master/CheckUserIDisvalid?UserId=' + UserID,
+                    type: 'GET',
+                    success: function (data) {
+                        if (data == "True") {
+                            DisplayNotification("“Username” is taken. Try another.", "error");
+                            return false;
+                        }
+                        else {
+                            SaveUserDetails();
+                            return true;
+                        }
+                    },
+                    error: function (err) { }
+                })
+            }
+        }
+        //else {
+        //    DisplayNotification("Please fill “All” required (*) field.", "error");
+        //}
+    }
+    function validateUserDetails() {
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,6})?$/;
+        var valid = true;
+        $("#spanclientnameerror").hide();
+        $("#spanfirstnameerror").hide();
+        $("#spanlastnameerror").hide();
+        $("#spanphoneerror").hide();
+        $("#spaninvalidphoneerror").hide();
+        $("#spanemailerror").hide();
+        $("#spaninvalidemailerror").hide();
+        $("#spancolorerror").hide();
+        if ($("#IsAdmin").val() == "Admin") {
+            if ($("#Client_ID").val() == null || $("#Client_ID").val() == "") {
+                $("#spanclientnameerror").show();
+                valid = false;
+            }
+        }
+        if ($("#First_Name").val() == null || $("#First_Name").val() == "") {
+            $("#spanfirstnameerror").show();
+            valid = false;
+        }
+        if ($("#Last_Name").val() == "" || $("#Last_Name").val() == null) {
+            $("#spanlastnameerror").show();
+            valid = false;
+        }
+        if ($("#Phone").val() == null || $("#Phone").val() == "") {
+            $("#spanphoneerror").show();
+            valid = false;
+        } else if ($("#Phone").val().length < 10) {
+            $("#spanphoneerror").hide();
+            $("#spaninvalidphoneerror").show();
+            valid = false;
+        }
+        if ($("#E_Mail").val() == null || $("#E_Mail").val() == "") {
+            $("#spanemailerror").show();
+            valid = false;
+        }
+        else if (!emailReg.test($("#E_Mail").val())) {
+            $("#spaninvalidemailerror").show();
+            $("#spanemailerror").hide();
+            valid = false;
+        }
+        if ($("#UserColor").val() == null || $("#UserColor").val() == "") {
+            $("#spancolorerror").show();
+            valid = false;
+        }
+        if ($("#User_ID").val() == "" || $("#User_ID").val() == null) {
+            valid = false;
+        }
+        var JobAdmin = $("#Job_Administrator");
+        var PartAdmin = $("#Part_Administrator");
+        var LaborAdmin = $("#Labor_Administrator");
+        var LegalAdmin = $("#Legal_Adminstrator");
+        var AssemblyAdmin = $("#Assembly_Administrator");
+        var JobDescReport = $("#Job_Description_Report");
+        var ClientEstReport = $("#Client_Estimation_Report");
+        if (JobAdmin[0].checked == false && PartAdmin[0].checked == false && LaborAdmin[0].checked == false && LegalAdmin[0].checked == false && AssemblyAdmin[0].checked == false && JobDescReport[0].checked == false && ClientEstReport[0].checked == false) {
+            valid = false;
+            DisplayNotification("Please select atleast one right.", "error");
+        }
+        if (!valid) {
+            DisplayNotification("Please fill “All” required (*) field.", "error");
+        }
+        //$("html, body").animate({ scrollTop: 0 }, 600);
+        return valid;
+    }
+    function SaveUserDetails() {
+        if ($("#Client_ID").val() != null) {
+            if ($("#Password").val() == "") {
+                var pwd = $("#Pwd").val()
+                $("#Password").val(pwd)
+            }
+        }
+        var img = document.getElementById("upimg");
+        if (validateUserDetails()) {
+            if (emailvalidation() == true && colorValidate() == true && ClientNamevalidate() == true && PasswordValidation() == true) {
+                var AccountAdmin = "";
+                var AccountAdminRights = false;
+                var formData = new FormData();
+                var uploadfiles = document.getElementById('fileupload').files[0];
+                // FormData.append("uploadfile", uploadfiles)
+                formData.append("uploadfile", uploadfiles);
+                var JobAdmin = $("#Job_Administrator");
+                var PartAdmin = $("#Part_Administrator");
+                var LaborAdmin = $("#Labor_Administrator");
+                var LegalAdmin = $("#Legal_Adminstrator");
+                var AssemblyAdmin = $("#Assembly_Administrator");
+                var JobDescReport = $("#Job_Description_Report");
+                var ClientEstReport = $("#Client_Estimation_Report");
+                if ($("#IsAdmin").val() == "Admin") {
+                    AccountAdmin = $("#Account_Administrator");
+                    if (AccountAdmin[0].checked) {
+                        AccountAdminRights = true;
+                    }
+                    else {
+                        AccountAdminRights = false;
+                    }
+                }
+                else {
+                    $('#Account_Administrator').bootstrapToggle('off')
+                    AccountAdminRights = false;
+
+                }
+
+                var btn = $("#submit").text();
+                if (btn == "Save") {
+                    msg = "Would you like to add this user?";
+                }
+                else {
+                    msg = "Would you like to update this user?";
+                }
+                if (confirm(msg)) {
+                    msg = "Would you like to send email to this user?";
+                    var mailconfirm = false;
+                    if (confirm(msg)) {
+
+                        mailconfirm = true;
+                    }
+                    var Model = {
+                        "Client_ID": $('#Client_ID').val(),
+                        "First_Name": $("#First_Name").val(),
+                        "Last_Name": $('#Last_Name').val(),
+                        "Phone": $('#Phone').val(),
+                        "E_Mail": $('#E_Mail').val(),
+                        "User_ID": $('#User_ID').val(),
+                        "Password": $('#Password').val(),
+                        "UserColor": $('#UserColor').val(),
+                        "Mailsendconformaition": mailconfirm,
+                        "Job_Administrator": JobAdmin[0].checked,
+                        "Part_Administrator": PartAdmin[0].checked,
+                        "Labor_Administrator": LaborAdmin[0].checked,
+                        "Legal_Adminstrator": LegalAdmin[0].checked,
+                        "Assembly_Administrator": AssemblyAdmin[0].checked,
+                        "Job_Description_Report": JobDescReport[0].checked,
+                        "Client_Estimation_Report": ClientEstReport[0].checked,
+                        "Account_Administrator": AccountAdminRights
+                    }
+                    formData.append('Model', JSON.stringify(Model));
+                    $.ajax({
+                        url: '../Account_Master/SaveUserDetails',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        type: 'POST',
+                        success: function (data) {
+
+                            if (data == "“User Details” are added successfully." || data == "“User Details” are updated successfully.") {
+                                if (mailconfirm == true) {
+                                    DisplayNotification("“User Details” are updated successful & “Email” sent successfully.", "success");
+                                }
+                                else {
+                                    DisplayNotification(data, "success");
+                                }
+
+                                GetUserInfo('0', '0')
+                                GetUserList(1);
+                            }
+                            else {
+                                DisplayNotification(data, "error");
+                            }
+                        },
+                        error: function (err) { }
+                    })
+                }
+
+            }
+        }
+        //else {
+        //    DisplayNotification("Please fill “All” required (*) field.", "error");
+        //}
+    }
+
+    function DeleteUserDetails(val1, val2) {
+        msg = "Would you like to delete this user?"
+        if (confirm(msg)) {
+
+            $.ajax({
+                url: '../Account_Master/DeleteUserDetails?ClientID=' + val1 + '&UserID=' + val2,
+                type: 'Get',
+                success: function (data) {
+                    if (data != "Success") {
+                        DisplayNotification(data, "error");
+                    }
+                    else {
+                        DisplayNotification("User details are deleted successfully", "success");
+                        GetUserInfo('0', '0')
+                        GetUserList();
+                    }
+                },
+                error: function (err) { }
+
+            });
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    function ResetAll() {
+
+        if (confirm("Are you sure, do you want to reset all fields?")) {
+            $("#First_Name").val("");
+            $("#Last_Name").val("");
+            $("#Phone").val("");
+            $("#Photo").val("");
+            $("#User_ID").val("");
+            $("#E_Mail").val("");
+            $("#Password").val("");
+            $("#Account_Administrator").bootstrapToggle('off');
+            $("#Job_Administrator").bootstrapToggle('off');
+            $("#Part_Administrator").bootstrapToggle('off');
+            $("#Labor_Administrator").bootstrapToggle('off');
+            $("#Legal_Adminstrator").bootstrapToggle('off');
+            $("#Assembly_Administrator").bootstrapToggle('off');
+            $("#Job_Description_Report").bootstrapToggle('off');
+            $("#Client_Estimation_Report").bootstrapToggle('off');
+            $("#SuperUser").val("");
+            $("#SuperUser_Pwd").val("");
+            $("#fileupload").val("");
+            $("#UserColor").val("");
+
+            $("#dvPreview img:last-child").remove()
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function UseridIsExist(val) {
+        var UserID = $(val).val();
+        $.ajax({
+            url: '../Account_Master/CheckUserIDisvalid?UserId=' + UserID,
+            type: 'GET',
+            success: function (data) {
+                if (data == "True") {
+                    $("#useridmsg").text("That User Id  ID is taken. Try another.");
+                }
+                else {
+                    $("#useridmsg").text(" ");
+                }
+            },
+            error: function (err) {
+            }
+        })
+    }
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: #34495e;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+
+    btn btn-primary btn-xs toggle-on {
+        background-color: #2ecc71 !important;
+    }
+    /*#UserColor
+    {
+            border: none;
+    height: 35px;
+    width: 169px;
+    }*/
+    #SelectColor {
+        border: none;
+        height: 10px;
+        width: 20px;
+        float: right;
+    }
+</style>
+@if (ViewBag.SuccessMsg != null)
+{
+    <script>
+        DisplayNotification("@ViewBag.SuccessMsg", "success");
+    </script>
+}
+@if (ViewBag.DeleteSucessMsg != null)
+{
+    <script>
+        DisplayNotification("@ViewBag.DeleteSucessMsg", "success");
+    </script>
+}
+@if (ViewBag.UpdateErrorMsg != null)
+{
+    <script>
+        DisplayNotification("@ViewBag.UpdateErrorMsg", "error");
+    </script>
+}
+@if (ViewBag.UpdateSucessMsg != null)
+{
+    <script>
+        DisplayNotification("@ViewBag.UpdateSucessMsg", "success");
+    </script>
+}
+
+@if (ViewBag.DeleteFailMsg != null)
+{
+    <script>
+        DisplayNotification("@ViewBag.DeleteFailMsg", "error");
+    </script>
+}
+
+@if (ViewBag.ADDFailMsg != null)
+{
+    <script>
+        DisplayNotification("@ViewBag.ADDFailMsg", "error");
+    </script>
+}
+
+<div class="app-body" id="Scroll">
+    <div class="magic-layoutz">
+        <div class="box magic-element width-full">
+            <div class="box-row  profile-hd">
+                <h7 class="box-heading">
+                    <strong id="title-cont"> &nbsp  Add User Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                        <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                    </span>
+                </h7>
+
+            </div>
+            <div id="UserInfoDiv">
+
+            </div>
+            <div class="box-row  profile-hd">
+                <h7 class="box-heading">
+                    <strong> &nbsp  User List </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                        <img id="arrow" src="../Images/down-arrow.png" alt="" />
+                    </span>
+                </h7>
+
+            </div>
+            <div id="UserListDiv">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

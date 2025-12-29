@@ -1,0 +1,234 @@
+﻿
+
+
+<style>
+    .deletedparts {
+        color: red !important;
+    }
+
+    .pagination {
+        margin: 5px 0px !important;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 0px !important;
+    }
+
+    div.dataTables_length label {
+        float: none !important;
+    }
+
+    .content {
+        color: #000000;
+    }
+
+    .inactiveicon {
+        color: #ff0000;
+        font-size: 18px;
+    }
+
+    .activicon {
+        color: forestgreen;
+        font-size: 18px;
+    }
+</style>
+<div class="col-md-2">
+    @*<select id="lstassembly_cat" class="form-control" onchange="assembcatChange();">
+        <option value="">All Assembly Category</option>
+    </select>*@
+    @Html.DropDownList("lstassembly_cat", ViewBag.AssemblyCategory as SelectList, new { Name = "Part_Category", @class = "form-control", data_type = "other", onchange = "assembcatChange();" })
+</div>
+<div class="table table-responsive">
+    <table id="DAssembliesTbl" class="table table-bordered datatables" cellspacing="0" width="100%">
+        <thead style="background-color: #45525F">
+            <tr>
+                <th>ID</th>
+                <th>Distributor Name</th>
+                <th>Assemblies Name</th>
+                <th>Assembly Category</th>
+                <th>Assemblies Description</th>
+                <th>Parts Count</th>
+                <th>Type</th>
+                @*<th>Status</th>*@
+                <th style=" width:120px;">Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="asbody">
+
+            @*@foreach (var item in Model.asList)
+                {
+                    var rowcolor = "";
+                    if (item.assemblypartsCount == 0)
+                    {
+                        rowcolor = "deletedparts";
+                    }
+                    <tr>
+                        <td>@item.ID</td>
+                        <td class="@rowcolor">@item.distributorName</td>
+                        <td class="@rowcolor">@item.Assemblies_Name</td>
+                        <td class="@rowcolor">@item.Assemblies_Category</td>
+                        <td class="@rowcolor">
+                            @{
+                                string desc = "";
+                                desc = item.Assemblies_Description == null ? "" : item.Assemblies_Description;
+                                if (desc.Length > 100)
+                                {
+                                    desc = desc.Substring(0, 50) + "...";
+                                }
+                                <span>@desc</span>
+                            }
+                        </td>
+
+                        <td class="@rowcolor">@item.assemblypartsCount</td>
+                        @if (item.Type != null)
+                        {
+                            <td class="@rowcolor">@item.Type</td>
+                        }
+                        else
+                        {
+                            <td class="@rowcolor">@name</td>
+                        }
+
+                        @if (item.IsActive == true)
+                        {
+                            <td class=@rowcolor>
+                                <a href="javascript:void(0);" onclick="editassembly('@item.Assemblies_Name','@item.Distributor_Id');">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </a>&nbsp;&nbsp;&nbsp;
+
+                                <a class="confirm" id="alert" href="javascript:void(0)" onclick="deleteAssembly('@item.Assemblies_Name.Trim()',@item.Distributor_Id)">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+
+
+
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="@rowcolor" align="center">
+                                <a href="javascript:void(0);" onclick="editassembly('@item.Assemblies_Name','@item.Distributor_Id');">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </a>&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+                            </td>
+                        }
+                    </tr>
+                }*@
+        </tbody>
+    </table>
+    <div id="divDisAssBot" tabindex="1"></div>
+</div>
+<script>
+    var pagelen = 5;
+    var dropdwn = document.getElementsByName('DAssembliesTbl_length');
+        var tab = $('#DAssembliesTbl').DataTable({
+        "order": [[0, "asc"]],
+        "aoColumnDefs": [{ "bVisible": false, "aTargets": [0] }],
+        "aLengthMenu": [[5, 10, 15, 25, 100], [5, 10, 15, 25,100]],
+        "iDisplayLength": pagelen,
+            "sDom": '<"top"flp>rt<"bottom"pri>',
+        "processing": true,
+        "language": {
+            loadingRecords: '&nbsp;',
+            processing: '<div class="dtspinner"></div>'
+        },
+        "tableTools": {
+            "aButtons": [
+                {
+                    "sExtends": "copy",
+                    "sButtonText": "Copy to clipboard"
+                },
+                {
+                    "sExtends": "csv",
+                    "sButtonText": "Save to CSV"
+                },
+                {
+                    "sExtends": "xls",
+                    "oSelectorOpts": {
+                        page: 'current'
+                    }
+                }
+            ]
+        },
+    "proccessing": true,
+    "serverSide": true,
+    "ajax": {
+        url: "@Url.Action("DistributorAssembliesDatatable", "DistributorAssembly")" ,
+        type: 'POST',
+        contentType: "application/json",
+        data: function (d) {
+            d.extra_search = Cookies.get('assemfilter');
+            return JSON.stringify(d);
+        },
+        dataSrc: function (json) {
+
+            return json.data;
+        }
+            },
+    "language": {
+        "search": "",
+        "searchPlaceholder": "Search..."
+    },
+   "columns": [
+       { "mData": "ID" },
+       { "mData": "distributorName" },
+       { "data": "Assemblies_Name" },
+       { "data": "Assemblies_Category" },
+       { "data": "Assemblies_Description" },
+       { "data": "assemblypartsCount" },
+       { "data": "Type" },
+       {
+
+           "data": function (o) {
+               return '<a href="javascript: void (0);" title="Edit" onclick="editassembly(\'' + o.Assemblies_Name.trim() + '\',\'' + o.Distributor_Id + '\');">'+
+                   '<span class="glyphicon glyphicon-pencil"></span>'+
+                   '</a>&nbsp;' +
+
+                   '<a href="javascript: void (0);" title="Copy" onclick="duplicateAssembly(\'' + o.Assemblies_Name.trim() + '\',\'' + o.Distributor_Id + '\');">'+
+                   '<span class="glyphicon glyphicon-file"></span>'+
+                   '</a>&nbsp;' +
+
+                   '<a class="confirm" id="alert" href="javascript: void (0);" title="Delete" onclick="deleteAssembly(\'' + o.Assemblies_Name.trim() + '\',\'' + o.Distributor_Id + '\');">' +
+                   '<span class="glyphicon glyphicon-trash"></span></a>';
+
+           }, orderable: false
+       }
+    ]
+    });
+
+    //$($('#DAssembliesTbl_length')[0].parentElement).removeClass('col-md-6')
+    //$($('#DAssembliesTbl_length')[0].parentElement).addClass('col-md-10')
+    $(".dataTables_info").focus();
+    $(dropdwn).change(function () {
+        var len = this.value;
+        Cookies.set('Partsdtpagelen', len);
+    });
+    $('#DAssembliesTbl_filter input').on("keyup", function () {
+        Cookies.set('Partsearch', $(this).val());
+    });
+    $('#DAssembliesTbl').on('page.dt', function () {
+        var info = this;
+        setTimeout(function () {
+            var ss = $('.paginate_button.active');
+            var pgno = ss[0].innerText;
+            if (pgno != "" && pgno != "0") {
+                pgno = Number(pgno) - Number(1);
+            }
+            Cookies.set('partstpageno', pgno);
+        }, 1000);
+
+    });
+    function assembcatChange() {
+        debugger;
+        isloaded = true;
+        category = $('#lstassembly_cat').val();
+        Cookies.set("assemfilter", $('#lstassembly_cat').val());
+        getassemblyList($('#lstassembly_cat').val());
+    }
+</script>

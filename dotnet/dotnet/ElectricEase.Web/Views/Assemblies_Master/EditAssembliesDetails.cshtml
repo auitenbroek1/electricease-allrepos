@@ -1,0 +1,1004 @@
+﻿@model ElectricEase.Models.Assembly_MasterInfo
+
+@{
+    ViewBag.Title = "EditAssembliesDetails";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+}
+
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+        //$("#Partstotgrid").dataTable({
+        //    "bPaginate": false,
+        //    "bLengthChange": false,
+        //    "bFilter": false,
+        //    "bInfo": false,
+        //    "bAutoWidth": false,
+        //    stateSave: true
+
+
+        //});
+        //$("#laborGrid").dataTable({
+        //    "bPaginate": false,
+        //    "bLengthChange": false,
+        //    "bFilter": false,
+        //    "bInfo": false,
+        //    "bAutoWidth": false,
+        //    stateSave: true
+
+
+        //});
+        $('li').removeClass('active');
+        $("#assembliesmaster").addClass('active');
+        //alert("active");
+        //To change content tittles
+        $(".content-title").text("Assembly Master");
+
+        @*var assemblieslist = "@ViewBag.AssembliesList";
+        if (assemblieslist != null) {
+            //alert(assemblieslist);
+            $("#Assemblies_Name").val("");
+            $("#Assemblies_Description").val("");
+
+        }*@
+
+        $("[name=OtherAssemblies_Category]").attr("disabled", "disabled");
+        if ($("#Assemblies_Category option:selected").val('')) {
+            $("[name=OtherAssemblies_Category]").attr("disabled", "disabled");
+        }
+        $("#Assemblies_Category").change(function () {
+            var value = $("#Assemblies_Category option:selected").val();
+            ShowOtherCategory(value);
+        });
+
+
+        function ShowOtherCategory(value) {
+
+            if (value == 1) {
+                $("[name=OtherAssemblies_Category]").removeAttr("disabled");
+            }
+            else {
+                $("OtherAssemblies_Category").val('');
+                $("[name=OtherPart_Category]").attr("disabled", "disabled");
+            }
+        }
+
+    });
+
+    $(function () {
+        //alert("asasass");
+        LoadAssembliesCategorydropdown('@Model.Assemblies_Category');
+
+    });
+    $(function () {
+
+        var LoborResale = $("#Lobor_Resale").val();
+        if (LoborResale == 0) {
+            $("#Lobor_Resale").val("");
+        }
+        var EstimatedHour = $("#Estimated_Hour").val();
+        if (EstimatedHour == 0) {
+            $("#Estimated_Hour").val("");
+        }
+        var LoborCost = $("#Lobor_Cost").val();
+        if (LoborCost == 0) {
+            $("#Lobor_Cost").val("");
+        }
+
+    });
+    $(function () {
+
+        $(".profile-hd").click(function () {
+            //alert("hii");
+            $(this).next().slideToggle();
+        });
+    });
+    $(document).ready(function () {
+        $("button").click(function () {
+            $("p").slideToggle();
+
+        });
+        0
+
+    });
+    function modalAssignToRM() {
+
+        var AssembliesName = $("#Assemblies_Name").val();
+        var AssembliesCategory = $("#Assemblies_Category").val();
+        var OtherAssembliesCategory = $("#OtherAssemblies_Category").val();
+        var Description = $("#Assemblies_Description").val();
+
+        var PartCostTotal = $("#PartsCostTotal").val();
+       // alert(PartCostTotal);
+        var PartsResalTotal = $("#PartsResalTotal").val();
+        var Laborcost = $("#Laborcost").val();
+      //  alert(Laborcost);
+        var LaborRcost = $("#LaborRcost").val();
+        //alert(LaborRcost);
+        var Estimated_Hour = $("#EstHours").val();
+       // alert(Estimated_Hour);
+        var LabortEstCostTot = $("#LabortEstCostTot").val();
+        var LaborEstResaleTot = $("#LaborEstResaleTot").val();
+        var GrandCostTot = $("#GrandCostTot").val();
+        var GrandResaleTot = $("#GrandResaleTot").val();
+
+
+        var _Partsgriddata = gridTojson();
+        var _LabourGridData = LabourgridTojson();
+        LoadContent($("#profileAssignToRM"), "/Assemblies_Master/AddAssemblyParts?AssembliesName=" + AssembliesName +
+            "&Description=" + Description + "&PartgridData=" + _Partsgriddata +
+            "&AssembliesCategory=" + AssembliesCategory +
+             "&OtherAssembliesCategory=" + OtherAssembliesCategory +
+            "&PartCostTotal=" + PartCostTotal +
+             "&PartsResalTotal=" + PartsResalTotal +
+              "&Laborcost=" + Laborcost +
+               "&LaborRcost=" + LaborRcost +
+               "&Estimated_Hour=" + Estimated_Hour +
+               "&LabortEstCostTot=" + LabortEstCostTot +
+               "&LaborEstResaleTot=" + LaborEstResaleTot +
+               "&GrandCostTot=" + GrandCostTot +
+               "&GrandResaleTot=" + GrandResaleTot +
+            "");
+        $('#modalAssignToRM').modal({ backdrop: 'static' });
+    }
+
+    function modalAssignToALD() {
+        //alert("welcome");
+        var AssembliesName = $("#Assemblies_Name").val();
+        var Description = $("#Assemblies_Description").val();
+        var _Partsgriddata = gridTojson();
+        var _LabourGridData = LabourgridTojson();
+        // alert(AssembliesName);
+        //alert(Description);
+        // alert(_Partsgriddata);
+        // alert(_LabourGridData);
+        LoadContent($("#profileAssignToALD"), "/Assemblies_Master/AddAssembliesLaborDetails?AssembliesName=" + AssembliesName + "&Description=" + Description + "&PartgridData=" + _Partsgriddata + "&LabourgridData=" + _LabourGridData + "");
+        $('#modalAssignToALD').modal({ backdrop: 'static' });
+    }
+
+
+    $(function () {
+        $("#Reset").click(function () {
+           // alert("clear");
+            $("#Assemblies_Name").val("");
+            $("#Assemblies_Description").val("");
+            $(".PartsListGrid").remove();
+            $(".AssembliesLabourGridData").remove();
+
+
+        });
+
+    });
+    $(function () {
+
+        $("#Addbtn").click(function (e) {
+
+            var value = $("#Assemblies_Category option:selected").val();
+            msg = "Assemblies Category Field is Required";
+            if (value == 0) {
+                if (confirm(msg)) {
+                    return false;
+                }
+                else {
+                    return false;
+
+                }
+            }
+            //Modified by Arunkumar.K on 12/15/2015.
+            var value = $("#Assemblies_Category option:selected").val();
+            var otherCategory = $("#OtherAssembliesCategory").val();
+            othercatgoryMsg = "Othercategory field is Required If you have selected 'other' in Category Field";
+            if (value == 1 && otherCategory == '') {
+
+                if (confirm(othercatgoryMsg)) {
+                    $("[name=OtherAssembliesCategory]").focus();
+                    return false;
+
+                }
+            }
+            var partstable = $(".PartsListGrid").val()
+            var LabourTable = $(".AssembliesLabourGridData").val()
+            // alert(partstable);
+
+            if (partstable == null) {
+                // alert("if");
+                message = "Please Select  Parts  List!"
+                if (confirm(message)) {
+                    return false;
+                }
+                else {
+                    return false;
+                }
+
+            }
+            else {
+                var $Partstblrows = $(".PartsListGrid tbody tr");
+
+                $Partstblrows.each(function (index) {
+                    // alert("in");
+                    if ($Partstblrows.find('#Cost').val() == 0) {
+                        // alert("kkk");
+                        CostZeroMsg = "Please Enter a Parts Cost!"
+                        var result = confirm(CostZeroMsg);
+                        if (result == true) {
+                            e.preventDefault();
+                            return false
+                        }
+                        else {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            return false;
+
+                        }
+
+                    }
+                    if ($Partstblrows.find('#ResaleCost').val() == 0) {
+                        alert("kkk");
+                        ResaleCosttZeroMsg = "Please Enter a Parts ResaleCost!"
+                        var result = confirm(ResaleCosttZeroMsg);
+                        if (result == true) {
+                            e.preventDefault();
+                            return false
+                        }
+                        else {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            return false;
+                        }
+
+                    }
+                    //if ($Partstblrows.find('#EstQty').val() == 0) {
+                    //    //alert("kkk");
+                    //    EstQtyZeroMsg = "Please Enter a Parts  Estimated Quantity!"
+                    //    var result = confirm(EstQtyZeroMsg);
+                    //    if (result==true) {
+                    //        e.preventDefault();
+                    //        return false;
+                    //    }
+                    //    else {
+                    //        event.preventDefault();
+                    //        event.stopPropagation();
+                    //        return false;
+                    //    }
+
+
+
+                    //}
+
+
+                    //if ($Partstblrows.find('#ActualQuantity').val() == 0) {
+                    //    // alert("kkk");
+                    //    ActualQuantityZeroMsg = "Please Enter a Parts Actual Quantity!"
+                    //    var result = confirm(ActualQuantityZeroMsg);
+                    //    if (result == true)
+                    //    {
+
+                    //        e.preventDefault();
+                    //        return false
+                    //    }
+                    //    else {
+                    //        event.preventDefault();
+                    //        event.stopPropagation();
+                    //        return false;
+                    //    }
+
+                    //}
+                })
+
+                var $Labourtblrows = $(".AssembliesLabourGridData tbody tr");
+                //alert("klll");
+                $Labourtblrows.each(function (index) {
+                    // alert("in");
+                    if ($Labourtblrows.find('#Cost').val() == 0) {
+                        //alert("Costcheck");
+                        CostZeroMsg = "Please Enter Labour Cost!"
+                        var result = confirm(CostZeroMsg);
+                        if (result == true) {
+                            e.preventDefault();
+                            return false
+                        }
+                        else {
+                            e.preventDefault();
+                            event.stopPropagation();
+                            return false
+
+                        }
+
+                    }
+                    if ($Labourtblrows.find('#ResaleCost').val() == 0) {
+                        //alert("rCostcheck");
+                        ResaleCosttZeroMsg = "Please Enter a  Labour ResaleCost!"
+                        var result = confirm(ResaleCosttZeroMsg);
+                        if (result == true) {
+                            e.preventDefault();
+                            return false
+                        }
+                        else {
+                            e.preventDefault();
+                            event.stopPropagation();
+                            return false
+
+                        }
+
+                    }
+                    //if ($Labourtblrows.find('#EstimatedHours').val() == 0) {
+                    //    //alert("eshors");
+                    //    EstimatedHoursZeroMsg = "Please Enter a Estimated Hours!"
+                    //    var result = confirm(EstimatedHoursZeroMsg);
+                    //    if (cresult==true) {
+                    //        e.preventDefault();
+                    //        return false
+                    //    }
+                    //    else {
+                    //        e.preventDefault();
+                    //        event.stopPropagation();
+                    //        return false
+
+                    //    }
+                    //}
+                    //if ($Labourtblrows.find('#ActualHours').val() == 0) {
+                    //    //alert("achours");
+                    //    ActualHoursZeroMsg = "Please Enter a Actual Hours!"
+                    //    var result = confirm(ActualHoursZeroMsg);
+                    //    if (result==true) {
+
+                    //        e.preventDefault();
+                    //        return false
+                    //    }
+                    //    else {
+                    //        e.preventDefault();
+                    //        event.stopPropagation();
+                    //        return false
+
+                    //    }
+                    //}
+                })
+
+
+                //alert("llllll");
+                var _Partsgriddata = gridTojson();
+                // var _LabourGridData = LabourgridTojson();
+                var AssembliesName = $("#Assemblies_Name").val();
+                var AssembliesCategory = $("#Assemblies_Category").val();
+                var OtherAssembliesCategory = $("#OtherAssemblies_Category").val();
+                var Description = $("#Assemblies_Description").val();
+                var PartCostTotal = $("#PartsCostTotal").val();
+                var PartsResalTotal = $("#PartsResalTotal").val();
+                var Laborcost = $("#Laborcost").val();
+                var LaborRcost = $("#LaborRcost").val();
+                var Estimated_Hour = $("#EstHours").val();
+                var LabortEstCostTot = $("#LabortEstCostTot").val();
+                var LaborEstResaleTot = $("#LaborEstResaleTot").val();
+                var GrandCostTot = $("#GrandCostTot").val();
+                var GrandResaleTot = $("#GrandResaleTot").val();
+
+                var url = '@Url.Action("PartsGridData")';
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        PartgridData: _Partsgriddata, AssembliesName: AssembliesName, AssembliesCategory: AssembliesCategory, OtherAssembliesCategory: OtherAssembliesCategory,
+                        Description: Description,
+                        PartCostTotal: PartCostTotal,
+                        PartsResalTotal: PartsResalTotal,
+                        Laborcost: Laborcost,
+
+                        LaborRcost: LaborRcost,
+                        Estimated_Hour: Estimated_Hour,
+                        LabortEstCostTot: LabortEstCostTot,
+                        LaborEstResaleTot: LaborEstResaleTot,
+                        GrandCostTot: GrandCostTot,
+                        GrandResaleTot: GrandResaleTot,
+
+                    }
+                }).done(function (data) {
+                    if (data = "Success") {
+                        // alert("hhhhhhhh");
+                        return false;
+                        //$('#message').html(data);
+
+                    }
+                })
+
+
+
+
+            }
+
+
+
+        });
+
+    });
+   @* $(function () {
+        $("#Addbtn").click(function (e) {
+            var _Partsgriddata = gridTojson();
+            var _LabourGridData = LabourgridTojson();
+          
+            var url = '@Url.Action("PartsGridData")';
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: { griddata: _Partsgriddata, Lgriddata: _LabourGridData }
+            }).done(function (data) {
+                if (data = "Success") {
+                    // alert("hhhhhhhh");
+                    return false;
+                    //$('#message').html(data);
+
+                }
+            });
+
+        });
+    });*@
+
+    function gridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.PartsListGrid tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+    function GetLabourgridData() {
+        var _LabourGridData = LabourgridTojson();
+
+    }
+    function LabourgridTojson() {
+
+        var json = '{';
+        var otArr = [];
+        var tbl2 = $('.AssembliesLabourGridData tbody tr').each(function (i) {
+            if ($(this)[0].rowIndex != 0) {
+                x = $(this).children();
+                //alert(x);
+                var itArr = [];
+                x.each(function () {
+                    if ($(this).children('input').length > 0) {
+                        itArr.push('"' + $(this).children('input').val() + '"');
+                    }
+                    else {
+                        itArr.push('"' + $(this).text() + '"');
+                    }
+
+                });
+                otArr.push('"' + i + '":[' + itArr.join(',') + ']');
+            }
+        })
+        json += otArr.join(",") + '}'
+        return json;
+    }
+
+
+    $(function () {
+        $('#PartsCostTotal, #PartsResalTotal', '#GrandCostTot', '#GrandResaleTot').prop('readonly', true);
+        var $tblrows = $("#grid tbody tr");
+        jobPartGrandTotal = 0;
+        jobPartGrandTotalsum = 0;
+        ExpTotalsum = 0;
+        ExpTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#EstQty, #PartCost').on('keyup', function () {
+                var actQty = $tblrow.find("[name=EstQty]").val();
+                var cost = $tblrow.find("[name=PartCost]").val();
+                // alert(cost);
+                // alert(actQty);
+                ExpTotal = cost * actQty;
+                ExpTotal = isNaN(ExpTotal) ? 0 : ExpTotal;
+                if (actQty != 0 && cost != 0) {
+                    if (!isNaN(ExpTotal)) {
+                        $tblrow.find('#EstCostTot').val(ExpTotal.toFixed(2));
+                        $("#EstCostTot").each(function () {
+                            jobPartGrandTotal += parseFloat(ExpTotal);
+                            ii = ii + 1;
+                        });
+                        $('#PartsCostTotal').val(0);
+                        var $tblrowssum = $('#grid tbody tr');
+                        var $Tottblrowssum = $('#totgrid tbody tr');
+                        var $labortblrows = $('#laborGrid tbody tr');
+                        var sum = 0;
+                        jobPartGrandTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $tblrowssum.each(function () {
+                            var $tblrowsum = $(this);
+                            var actQtysum = $tblrowsum.find("[name=EstQty]").val();
+                            var costsum = $tblrowsum.find("[name=PartCost]").val();
+                            if (actQtysum != 0 && costsum != 0) {
+                                ExpTotalsum = costsum * actQtysum;
+                                if (!isNaN(ExpTotalsum)) {
+                                    jobPartGrandTotalsum += parseFloat(ExpTotalsum);
+                                }
+                            }
+                        });
+                        $('#PartsCostTotal').val(jobPartGrandTotalsum.toFixed(2));
+                        $Tottblrowssum.each(function () {
+                            // alert("tot");
+                            var $tblrowsum = $(this);
+                            var ResalGrandTot = $tblrowsum.find("[name=GrandCostTot]").val();
+                            //alert(ResalGrandTot);
+
+                            $labortblrows.each(function () {
+                                //alert("tot");
+                                var $tblrowsum = $(this);
+                                var LaborResaleTot = $tblrowsum.find("[name=LaborEst_CostTotal]").val();
+                                // alert(LaborResaleTot);
+
+                                var GrandResaleTotal = parseFloat(LaborResaleTot) + parseFloat(jobPartGrandTotalsum)
+                                //alert(GrandResaleTotal);
+                                $("#GrandCostTot").val("");
+                                if (!isNaN(GrandResaleTotal)) {
+                                    resalesum = parseFloat(GrandResaleTotal);
+                                    $("#GrandCostTot").val(resalesum.toFixed(2));
+                                }
+
+                            });
+
+                        });
+
+
+                    }
+                }
+            });
+        });
+    });
+    $(function () {
+        $('#PartsCostTotal, #PartsResalTotal', '#GrandCostTot', '#GrandResaleTot').prop('readonly', true);
+        var $tblrows = $("#grid tbody tr");
+        jobPartGrandTotal = 0;
+        jobPartGrandTotalsum = 0;
+        ExpTotalsum = 0;
+        ExpTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#EstQty, #ResaleCost').on('keyup', function () {
+                var actQty = $tblrow.find("[name=EstQty]").val();
+                var cost = $tblrow.find("[name=ResaleCost]").val();
+                // alert(cost);
+                // alert(actQty);
+                ExpTotal = cost * actQty;
+                ExpTotal = isNaN(ExpTotal) ? 0 : ExpTotal;
+                if (actQty != 0 && cost != 0) {
+                    if (!isNaN(ExpTotal)) {
+                        $tblrow.find('#EstRCostTot').val(ExpTotal.toFixed(2));
+                        $("#EstRCostTot").each(function () {
+                            jobPartGrandTotal += parseFloat(ExpTotal);
+                            ii = ii + 1;
+                        });
+                        $('#PartsResalTotal').val(0);
+                        var $tblrowssum = $('#grid tbody tr');
+                        var $Tottblrowssum = $('#totgrid tbody tr');
+                        var $labortblrows = $('#laborGrid tbody tr');
+                        var sum = 0;
+                        jobPartGrandTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $tblrowssum.each(function () {
+                            var $tblrowsum = $(this);
+                            var actQtysum = $tblrowsum.find("[name=EstQty]").val();
+                            var costsum = $tblrowsum.find("[name=ResaleCost]").val();
+                            if (actQtysum != 0 && costsum != 0) {
+                                ExpTotalsum = costsum * actQtysum;
+                                if (!isNaN(ExpTotalsum)) {
+                                    jobPartGrandTotalsum += parseFloat(ExpTotalsum);
+                                }
+                            }
+                        });
+                        $('#PartsResalTotal').val(jobPartGrandTotalsum.toFixed(2));
+                        $Tottblrowssum.each(function () {
+                            /// alert("tot");
+                            var $tblrowsum = $(this);
+                            var ResalGrandTot = $tblrowsum.find("[name=GrandResaleTotal]").val();
+                            // alert(ResalGrandTot);
+
+                            $labortblrows.each(function () {
+                                // alert("tot");
+                                var $tblrowsum = $(this);
+                                var LaborResaleTot = $tblrowsum.find("[name=LaborEst_ResaleTotal]").val();
+                                // alert(LaborResaleTot);
+
+                                var GrandResaleTotal = parseFloat(LaborResaleTot) + parseFloat(jobPartGrandTotalsum)
+                                // alert(GrandResaleTotal);
+                                $("#GrandResaleTot").val("");
+                                if (!isNaN(GrandResaleTotal)) {
+                                    resalesum = parseFloat(GrandResaleTotal);
+                                    $("#GrandResaleTot").val(resalesum.toFixed(2));
+                                }
+
+                            });
+
+                        });
+
+                    }
+                }
+            });
+        });
+    });
+    $(function () {
+        $('#PartsCostTotal, #PartsResalTotal', '#GrandCostTot', '#GrandResaleTot').prop('readonly', true);
+        var $tblrows = $("#laborGrid tbody tr");
+        jobPartGrandTotal = 0;
+        jobPartGrandTotalsum = 0;
+        ExpTotalsum = 0;
+        ExpTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#EstHours, #Laborcost').on('keyup', function () {
+                var actQty = $tblrow.find("[name=Estimated_Hour]").val();
+                var cost = $tblrow.find("[name=labor_cost]").val();
+                // alert(cost);
+                // alert(actQty);
+                ExpTotal = cost * actQty;
+                ExpTotal = isNaN(ExpTotal) ? 0 : ExpTotal;
+                if (actQty != 0 && cost != 0) {
+                    if (!isNaN(ExpTotal)) {
+                        $tblrow.find('#LabortEstCostTot').val(ExpTotal.toFixed(2));
+                        $("#LabortEstCostTot").each(function () {
+                            jobPartGrandTotal += parseFloat(ExpTotal);
+                            ii = ii + 1;
+                        });
+                        //  $('#PartsResalTotal').val(0);
+                        var $tblrowssum = $('#grid tbody tr');
+                        var $partstblsum = $('#Partstotgrid tbody tr');
+                        var $labortblrows = $('#laborGrid tbody tr');
+                        var sum = 0;
+                        jobPartGrandTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $partstblsum.each(function () {
+                            // alert("parts");
+                            var $tblrowsum = $(this);
+
+                            var PartsCostTotal = $tblrowsum.find("[name=PartCostTotal]").val();
+                            //alert(PartsCostTotal);
+                            $labortblrows.each(function () {
+                                // alert("Tot");
+                                var $tblrowsum = $(this);
+                                var LaborCostTotal = $tblrowsum.find("[name=LaborEst_CostTotal]").val();
+                                // alert(LaborCostTotal);
+                                if (PartsCostTotal != 0 && LaborCostTotal != 0) {
+                                    ExpTotalsum = parseFloat(PartsCostTotal) + parseFloat(LaborCostTotal);
+                                    // alert(ExpTotalsum);
+                                    if (!isNaN(ExpTotalsum)) {
+                                        ASGrandTotalsum = parseFloat(ExpTotalsum);
+                                    }
+                                }
+                            });
+                        });
+                        $('#GrandCostTot').val(ASGrandTotalsum.toFixed(2));
+
+                    }
+                }
+            });
+        });
+    });
+    $(function () {
+        $('#PartsCostTotal, #PartsResalTotal', '#GrandCostTot', '#GrandResaleTot').prop('readonly', true);
+        var $tblrows = $("#laborGrid tbody tr");
+        // var $tblTotal=$("#totgrid tbody tr")
+        jobPartGrandTotal = 0;
+        jobPartGrandTotalsum = 0;
+        ExpTotalsum = 0;
+        ExpTotal = 0;
+        DisplayJobPartTotal = 0;
+        ii = 0;
+        $tblrows.each(function (index) {
+            var $tblrow = $(this);
+            $tblrow.find('#EstHours, #LaborRcost').on('keyup', function () {
+                var actQty = $tblrow.find("[name=Estimated_Hour]").val();
+                var cost = $tblrow.find("[name=Lobor_Resale]").val();
+                // alert(cost);
+                // alert(actQty);
+                ExpTotal = cost * actQty;
+                ExpTotal = isNaN(ExpTotal) ? 0 : ExpTotal;
+                if (actQty != 0 && cost != 0) {
+                    if (!isNaN(ExpTotal)) {
+                        $tblrow.find('#LaborEstResaleTot').val(ExpTotal.toFixed(2));
+                        $("#LaborEstResaleTot").each(function () {
+                            jobPartGrandTotal += parseFloat(ExpTotal);
+                            ii = ii + 1;
+                        });
+                        //$('#PartsResalTotal').val(0);
+                        var $tblrowssum = $('#totgrid tbody tr');
+                        var $partstblsum = $('#Partstotgrid tbody tr');
+                        var $labortblrows = $('#laborGrid tbody tr');
+                        var sum = 0;
+                        AsGrandTotalsum = 0;
+                        //iterate through each td based on class and add the values
+                        $partstblsum.each(function () {
+                            // alert("parts");
+                            var $tblrowsum = $(this);
+                            var PartsResaleTotal = $tblrowsum.find("[name=PartResaleTotal]").val();
+                            // alert(PartsResaleTotal);
+                            $labortblrows.each(function () {
+                                //alert("Tot");
+                                var $tblrowsum = $(this);
+                                var LaborResaleTotal = $tblrowsum.find("[name=LaborEst_ResaleTotal]").val();
+                                //  alert(LaborResaleTotal);
+                                if (PartsResaleTotal != 0 && LaborResaleTotal != 0) {
+                                    ExpTotalsum = parseFloat(PartsResaleTotal) + parseFloat(LaborResaleTotal);
+                                    //alert(ExpTotalsum);
+                                    if (!isNaN(ExpTotalsum)) {
+                                        ASGrandTotalsum = parseFloat(ExpTotalsum);
+                                    }
+                                }
+                            });
+                        });
+                        //$labortblrows.each(function () {
+                        //    var $tblrowsum = $(this);
+                        //});
+                        $('#GrandResaleTot').val(ASGrandTotalsum.toFixed(2));
+
+                    }
+                }
+            });
+        });
+    });
+</script>
+<style>
+    
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: #34495e;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 35px;
+    }
+</style>
+@{
+    var parts = (List<ElectricEase.Models.AssembliesParts_DetailsInfoList>)TempData.Peek("MyParts");
+    // TempData["MyParts"] = parts;
+    var laborList = (List<ElectricEase.Models.AssembliesLabourDetailsList>)TempData.Peek("MyLaborList");
+    // TempData["Labor"] = laborList;
+}
+@if (ViewBag.ASMSuccessMsg != null)
+{ 
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #7BEA7B; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.ASMSuccessMsg</div>
+    </div>
+}
+@if (ViewBag.ASInfoFailMsg != null)
+{ 
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #FF4747; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.ASInfoFailMsg</div>
+    </div>
+}
+@if (ViewBag.AsLabourFailMsg != null)
+{ 
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #FF4747; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.AsLabourFailMsg</div>
+    </div>
+    
+}
+@if (ViewBag.ASPartsFailMsg != null)
+{ 
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #FF4747; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.ASPartsFailMsg</div>
+    </div>
+}
+@if (ViewBag.AssembliesUpdateSuccessMsg != null)
+{ 
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #7BEA7B; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.AssembliesUpdateSuccessMsg</div>
+    </div>
+}
+@if (ViewBag.AsDeleteSuccessMSg != null)
+{ 
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #7BEA7B; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.AsDeleteSuccessMSg</div>
+    </div>
+}
+@if (ViewBag.AsDeleteFailMsg != null)
+{ 
+    <div class="box-row profile-hd">
+        <div class="error box-row" style="background: #FF4747; font-size: 14px; display: block; padding: 5px; position: relative; color: black;">@ViewBag.AsDeleteFailMsg</div>
+    </div>
+}
+<div class="app-body" id="Scroll">
+    @using (Html.BeginForm("UpdateAssembliesDetails", "Assemblies_Master", FormMethod.Post, new { @class = "form-horizontal", enctype = "multipart/form-data" }))
+    {
+
+        <!-- app content here -->
+   
+        <div class="magic-layoutz">
+            <div class="box magic-element width-full">
+
+                <div class=" box-row  profile-hd">
+                    <h7 class="box-heading"><strong> &nbsp Assembly Information </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-20">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="ajax-refresh2">
+                                    <!--Starting -->
+                                    <div class="panel-body">
+                                        @*  <input  type="hidden" value=" @ViewBag.LoginUser" id="loguser"/>*@
+                                        <div class="row-fluid">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="label"><strong>Name :</strong></label>
+                                                    @Html.TextBoxFor(m => m.Assemblies_Name, new { @class = "form-control", @maxlength = "250", @placeholder = "Assemblies Name" })
+                                                    @Html.ValidationMessageFor(m => m.Assemblies_Name)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row-fluid">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="label"><strong>Category :</strong></label>
+                                                    @Html.DropDownListFor(m => m.Assemblies_Category, Enumerable.Empty<SelectListItem>(), new { @class = "form-control", data_type = "other" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row-fluid">
+                                            <div class="col-md-3">
+
+                                                <div class="form-group">
+                                                    <label for="label"><strong>If Other Category :</strong></label>
+                                                    @Html.TextBoxFor(m => m.OtherAssemblies_Category, new { @class = "form-control", @maxlength = "50", @placeholder = "Other" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row-fluid">
+                                            <div class="col-md-9">
+                                                <div class="form-group">
+                                                    <label for="title"><strong>Description :</strong></label>
+                                                    @Html.TextAreaFor(m => m.Assemblies_Description, new { @class = "form-control", @maxlength = "1000" })
+                                                    @Html.ValidationMessageFor(m => m.Assemblies_Description)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class=" box-row  profile-hd">
+                    <h7 class="box-heading"><strong> &nbsp Parts & Labor Details </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                </div>
+
+                <div class="row">
+
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+                        @*<button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" id="AddParts" tabindex="10" onclick="modalAssignToRM();">Add Parts</button>*@
+                        <a href="#" class="btn btn-flat btn-default btn-sm" data-toggle="modal" data-target="#AssignModal" onclick="modalAssignToRM();"><i class="fa fa-check-square-o"></i><span>Add Parts List</span></a>
+                        <div class="row">
+                    <div class="panel panel-default">
+                                    <!--Starting -->
+                                    <div class="panel-body" >
+
+                                         @if (parts != null && parts.Count > 0 && ViewBag.AssembliesList == null)
+                        {
+                            @Html.Partial("_AddPartsInGrid", parts);
+                        }
+                                          <table id="Partstotgrid" class="table table-bordered datatables" >
+                            <tr>
+                                <th  style="padding-left: 531px;">Total </th>
+                                 <td>
+                                     @Html.TextBoxFor(m => m.PartCostTotal, new { @id = "PartsCostTotal", @class = "col-md-10" ,@placeholder="0.00"})
+                                </td>
+                                <td>
+                                     @Html.TextBoxFor(m => m.PartResaleTotal, new { @id = "PartsResalTotal", @class = "col-md-10" ,@placeholder="0.00"})
+                                </td>
+                            </tr>
+                        </table>
+                        <table id="laborGrid" class="table table-bordered datatables" >
+                            <tr>
+                                
+                                <th colspan="2" style="padding-left: 90px;">Labour</th>
+                                <td>
+                                     @Html.TextBoxFor(m => m.labor_cost, new { @id = "Laborcost", @class = "col-md-10" })
+                                </td>
+                                <td>
+                                     @Html.TextBoxFor(m => m.labor_ResaleCost, new { @id = "LaborRcost", @class = "col-md-10"})
+                                </td>
+                                 <td>
+                                     @Html.TextBoxFor(m => m.labor_EstimatedHours, new { @id = "EstHours", @class = "col-md-10" })
+                                </td>
+                                 <td>
+                                     @Html.TextBoxFor(m => m.LaborEst_CostTotal, new { @id = "LabortEstCostTot", @class = "col-md-10",@placeholder="0.00"})
+                                </td>
+                                 <td>
+                                     @Html.TextBoxFor(m => m.LaborEst_ResaleTotal, new { @id = "LaborEstResaleTot", @class = "col-md-10",@placeholder="0.00" })
+                                </td>
+                            </tr>
+                        </table>
+                         <table id="totgrid" class="table table-bordered datatables">
+                            <tr>
+                                <th  style="padding-left: 521px;"> Grand Total </th>
+                                 <td>
+                                     @Html.TextBoxFor(m => m.GrandCostTotal, new { @id = "GrandCostTot", @class = "col-md-10" ,Value="",@placeholder="0.00"})
+                                </td>
+                                <td>
+                                     @Html.TextBoxFor(m => m.GrandResaleTotal, new { @id = "GrandResaleTot", @class = "col-md-10" ,Value="",@placeholder="0.00"})
+                                </td>
+                            </tr>
+                        </table>
+                                        </div>
+                                   
+                            </div>
+                            </div>
+                        
+                       
+                 
+                    </div>
+                </div>
+                <div id="modalAssignToRM" class="modal fade" role="dialog">
+                        <div class="modal-dialog" style="width: 60%; margin-left: 25%;    margin-top: 40px;">
+                            <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                                <div id="profileAssignToRM"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                <div class="row">
+                    <div class="panel-footer clearfix">
+                        <div class="pull-right">
+
+                            @*<button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" id="submit" tabindex="10" onclick="modalAssignToSave();">Save</button>*@
+                           
+                            <button type="submit" value="Submit" class="btn btn-flat btn-primary btn-sm" name="addLabour" tabindex="10" id="Addbtn">Update <span class="glyphicon glyphicon-upload"></span></button>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class=" box-row  profile-hd">
+                    <h7 class="box-heading"><strong> &nbsp Assembly List </strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                    <i class="icon ion-chevron-down"></i></span></h7>
+
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse in">
+
+                    <input  type="hidden" value=" @ViewBag.LoginUser" id="loguser"/>
+                    @Html.Partial("_AssembliesList", Model)
+
+                </div>
+
+
+
+            </div>
+        </div>
+    }
+</div>
+<!-- /box -->
+

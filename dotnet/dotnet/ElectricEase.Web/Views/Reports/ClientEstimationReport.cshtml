@@ -1,0 +1,187 @@
+﻿@{
+    ViewBag.Title = "ClientEstimationReport";
+    Layout = "~/Views/Shared/_estimLayout.cshtml";
+    var Grid = new WebGrid(source: Model, canPage: false, canSort: false);
+}
+
+<script src="~/Scripts/ElectricEase.Load.js"></script>
+<script src="~/Scripts/bootstrap-toggle.min.js"></script>
+<script>
+
+
+
+    function modalAssignDescriptionReport(selectedJobID) {
+        LoadContent($("#profileAssignToDescriptionReport"), "/Reports/Index?JobID=" + selectedJobID + "");
+        $('#modalAssignDescriptionReport').modal({ backdrop: 'static' });
+    }
+    $("#pdfbtn").on("click", function () {
+
+        window.open("../App/ShowMasterPDF?PdfPath=" + "~/HelpPdf/JobMaster.pdf");
+    })
+    $(document).ready(function () {
+        $("#Loading").hide();
+        $("#layouts").addClass('active');
+        $("#ClientEstReport").addClass('active');
+        $("#addjobdetails").removeClass('active');
+
+        $(".content-title").text("Client Estimation Report");
+
+        $('.JobDescription').dataTable({
+            "deferRender": true,
+            "aLengthMenu": [[5, 10, 15, 25, -1], [5, 10, 15, 25, "All"]],
+            "sDom": '<"top"flp>rt<"bottom"pri>',
+            "order": [[0, "desc"]],
+            "columnDefs": [
+          {
+              "targets": [0],
+              "visible": false,
+              "searchable": false
+          }]
+        });
+        var clientdiv = $('#grid');
+        $(clientdiv[0].parentElement).removeClass('col-md-12');
+        $(clientdiv[0].parentElement).addClass('table-responsive');
+        
+
+        //$("button").click(function () {
+        //    $("p").slideToggle();
+
+        //});
+    });
+
+</script>
+<style>
+    table.dataTable tr.odd {
+        background-color: rgba(153, 153, 153, 0.29);
+    }
+
+    table.dataTable tr.even {
+        background-color: #34495e;
+    }
+
+    .dataTables_filter {
+        padding-bottom: 10px;
+    }
+
+    btn btn-primary btn-xs toggle-on {
+        background-color: #2ecc71 !important;
+    }
+ .jobid {
+        width:80px;
+    }
+  .Address
+ {
+     width:15%;
+ }
+ .jobdesc
+ {
+      width:20%;
+ }
+.city
+{  width:10%;
+}
+
+     .pagination {
+        margin:5px 0px !important;
+    }
+    .dataTables_filter {
+        padding-bottom:0px !important;
+    }
+    div.dataTables_length label {
+        float:none !important;
+    }
+    div.dataTables_paginate {
+        margin-top:10px;
+    }
+</style>
+<div class="app-body" id="Scroll">
+
+    <div class="box-row  profile-hd">
+                        <h7 class="box-heading"><strong> &nbsp Client Estimation Report List</strong> <span class="pull-right apse b" style="padding-right:5px; color:#ffffff">
+                                                                                                     <img id="arrow" src="../Images/down-arrow.png" alt="" />       </span></h7>
+
+                    </div>
+    <!-- app content here -->
+    <div class="magic-layoutz">
+
+        <div class="box magic-element width-full">
+<div id="accordion">
+        <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="ajax-refresh2">
+                                    <div class="panel-body">
+                          @Grid.GetHtml(
+                           tableStyle: "table table-bordered datatables JobDescription",
+                            alternatingRowStyle: "alt",
+                            htmlAttributes: new { id = "grid" },
+                            rowStyle: "webgrid-row-style",
+                           columns: Grid.Columns(
+                                  Grid.Column("JobID", format: @<text> @item.Job_ID</text> ),
+                                  Grid.Column("Job ID",style:"jobid", format: @<text> <a href="/Reports/RSIndex?JobID=@item.Job_ID" >@item.JobDisplayId</a> </text>),
+                          Grid.Column("Client Name", style: "jobdesc", format: @<text> <a href="/Reports/RSIndex?JobID=@item.Job_ID" >@item.Client_Name</a> </text>),
+                              Grid.Column("Job Number", style: "jobid", format: @<text>  @item.Job_Number </text>),
+                          Grid.Column("Job Description", style: "jobdesc", format: @<text><label id="JobDesc" class="col-md-11">
+
+                                                                            @{
+                                                                                string desc = "";
+                                                                                desc = item.Job_Description == null ? "" : item.Job_Description;
+                                                                                if (desc.Length > 100)
+                                                                                {
+                                                                                    desc = desc.Substring(0, 50) + "...";
+                                                                                }
+                                                                                <span>@desc</span>
+                                                                            }
+                                        </label>
+                                         </text>),
+                          Grid.Column("Address", style: "Address", format: @<text><label id="Created" class="col-md-11">
+                               
+                               @if (item.Work_Address == null)
+                               {
+                                    @item.Client_Address 
+                               }
+                               else
+                               {
+                                    @item.Work_Address 
+                               }
+
+                             </label> </text>),
+                          Grid.Column("City", style: "Address",format: @<text><label id="City" class="col-md-11">
+                               
+                               @if (item.Work_City == null)
+                               {
+                                    @item.Client_City 
+                               }
+                               else
+                               {
+                                    @item.Work_City 
+                               }
+
+                             </label> </text>),
+
+                           Grid.Column("Job Status", format: @<text><label id="Status" class="col-md-11">@item.Job_Status</label> </text>)
+                          )
+                          )
+                                        <div id="modalAssignDescriptionReport" class="modal fade" role="dialog">
+                        <div class="modal-dialog" style="width: 60%; margin-left: 25%; margin-top: 40px;"  />
+                            <div class="modal-content" style="overflow: hidden; border-radius: 0; min-height: 185px;">
+                                <div id="profileAssignToDescriptionReport"></div>
+                            </div>
+                        </div>
+                    </div>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+        </div>
+        </div>
+        </div>
+
+
+</div>
+     

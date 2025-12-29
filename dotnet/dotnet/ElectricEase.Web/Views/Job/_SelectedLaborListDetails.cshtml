@@ -1,0 +1,149 @@
+﻿@model ElectricEase.Models.JobLaborInfo
+<script>
+    function calculatelaborscost(val) {
+        var laborbody = $('#Laborbody tr');
+        var laborgrandexptotal = 0;
+        var laborgrandesttotal = 0;
+        var actualtotal = 0;
+        for (var i = 0; i < laborbody.length; i++) {
+            $('#L_' + i + '_4').val(Number($('#L_' + i + '_0').val()) * Number($('#L_' + i + '_2').val()));
+            $('#L_' + i + '_5').val(Number($('#L_' + i + '_1').val()) * Number($('#L_' + i + '_2').val()));
+            $('#L_' + i + '_6').val(Number($('#L_' + i + '_1').val()) * Number($('#L_' + i + '_3').val()));
+            laborgrandexptotal = Number(laborgrandexptotal) + Number($('#L_' + i + '_4').val());
+            laborgrandesttotal = Number(laborgrandesttotal) + Number($('#L_' + i + '_5').val());
+            actualtotal = Number(actualtotal) + Number($('#L_' + i + '_6').val());
+        }
+        $('#Labor_GrandExpTotal').val(laborgrandexptotal);
+        $('#Labor_GrandEstTotal').val(laborgrandesttotal);
+        $('#Labor_GrandActTotal').val(actualtotal);
+        estimatevalues();
+    }
+    $(function () {
+        var LaborGrandExpTotal = $("#Labor_GrandExpTotal").val();
+        // alert(PartsGrandExpTotal);
+        if (LaborGrandExpTotal == 0) {
+            $("#Labor_GrandExpTotal").val("");
+
+        }
+        var LaborGrandEstTotal = $("#Labor_GrandEstTotal").val();
+        // alert(PartsGrandExpTotal);
+        if (LaborGrandEstTotal == 0) {
+            $("#Labor_GrandEstTotal").val("");
+
+        }
+        var LaborGrandActTotal = $("#Labor_GrandActTotal").val();
+        // alert(PartsGrandExpTotal);
+        if (LaborGrandActTotal == 0) {
+            $("#LaborGrandActTotal").val("");
+
+        }
+
+        //To validate the format of Labor section's controls by regex
+        $("[name = 'txtLaborCost']").limitkeypress({ rexp: /^(\d{1,4})?(\.)?(\.\d{1,2})?$/ });
+        $("[name = 'txtLaborResaleCost']").limitkeypress({ rexp: /^(\d{1,4})?(\.)?(\.\d{1,2})?$/ });
+        $("[name = 'txtLaborEstimatedHours']").limitkeypress({ rexp: /^(\d{1,3})?(\.)?(\.\d{1,2})?$/ });
+        $("[name = 'txtLaborActualHours']").limitkeypress({ rexp: /^(\d{1,3})?(\.)?(\.\d{1,2})?$/ });
+
+    });
+</script>
+<div class="table table-responsive">
+    <table class="table" id="LabortblInfo">
+        @{ string hidde = "hidden";
+                   if (Request.Form["JobID"] != null && Request.Form["JobID"]!="0")
+                   {
+                       hidde = ""; }}
+        <thead>
+            <tr>
+                <th>Labor Name
+                </th>
+                <th>Cost
+                </th>
+                <th>ResaleCost
+                </th>
+                <th>Est.Hrs
+                </th>
+                <th @hidde>
+                    Act Hrs
+                </th>
+                <th>Exp Total
+                </th>
+                <th>Est Total
+                </th>
+                <th @hidde>Act Total
+                </th>
+            </tr>
+        </thead>
+        <tbody id="Laborbody">
+            @{ int i = 0;
+               string pid = "";
+               foreach (var item in Model.NewLabourListInJob)
+               {
+                <tr>
+                    <td id="LaborerName">
+                        @item.Laborer_Name
+                    </td>
+                     
+                    <td>
+                        @{pid = "L_" + i + "_0"; }
+                        <input name="txtLaborCost" type="text" class="form-control" value="@item.Cost" onkeyup="calculatelaborscost(this);" id="@pid" style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "L_" + i + "_1"; }
+                        <input name="txtLaborResaleCost" type="text" class="form-control"  value="@item.Resale_Cost" onkeyup="calculatelaborscost(this);"  id="@pid" style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "L_" + i + "_2";
+                          string EstimatedHour = item.Estimated_Hour == 0 ? "" : item.Estimated_Hour.ToString(); 
+                          }
+                        <input name="txtLaborEstimatedHours" type="text"  class="form-control" value="@EstimatedHour"  onkeyup="calculatelaborscost(this);" id="@pid" style="text-align: right"/>
+                    </td>
+                    <td @hidde>
+                        @{pid = "L_" + i + "_3";
+                          string actualhrs = item.Actual_Hours == 0 ? "" : item.Actual_Hours.ToString();  
+                          }
+                         
+                        <input name="txtLaborActualHours" type="text"  class="form-control" value="@actualhrs" onkeyup="calculatelaborscost(this);" name="Act_Hrs" id="@pid"style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "L_" + i + "_4";
+                          string ExpectedTotal = item.Expected_Total == 0 ? "" : item.Expected_Total.ToString();  
+                          }
+                         
+                        <input type="text"  class="form-control" value="@ExpectedTotal" disabled name="EstCost_Total" id="@pid" style="text-align: right" />
+                    </td>
+                    <td>
+                        @{pid = "L_" + i + "_5";
+                          string EstimatedTotal = item.Estimated_Total == 0 ? "" : item.Estimated_Total.ToString();   }
+                        <input type="text" class="form-control"  value="@EstimatedTotal" disabled id="@pid" style="text-align: right" />
+                    </td>
+                    <td @hidde>
+                        @{pid = "L_" + i + "_6";
+                          string ActualTotal = item.Actual_Total == 0 ? "" : item.Actual_Total.ToString(); 
+                          
+                           }
+                        <input type="text" class="form-control"  value="@ActualTotal" disabled id="@pid" style="text-align: right" />
+                    </td>
+                </tr>
+                          i++;
+               }
+            }
+        </tbody>
+        <tfoot id="PartsTotal">
+            <tr>
+                <th colspan="4">Total</th>
+                <th>
+                     
+                    @Html.TextBoxFor(x => x.Labor_GrandExpTotal, new { @class = "form-control" , @readonly = "readonly" ,@dir = "rtl"})
+                </th>
+                <th>
+                    @Html.TextBoxFor(x => x.Labor_GrandEstTotal, new { @class = "form-control", @readonly = "readonly",@dir = "rtl" })
+                </th>
+                 <th hidden>
+                    @Html.TextBoxFor(x => x.Labor_GrandActTotal, new { @class = "form-control", @readonly = "readonly",@dir = "rtl" })
+                </th>
+            </tr>
+            
+            
+        </tfoot>
+    </table>
+</div>
