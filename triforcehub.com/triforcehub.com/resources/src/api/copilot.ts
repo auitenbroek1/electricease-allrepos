@@ -24,9 +24,30 @@ export interface CopilotChatResponse {
   error?: string
 }
 
+export interface CopilotInsight {
+  title?: string
+  content: string
+}
+
+export interface CopilotInsightsRequest {
+  page: string
+  context?: Record<string, unknown>
+}
+
+export interface CopilotInsightsResponse {
+  success: boolean
+  insights?: CopilotInsight[]
+  error?: string
+}
+
 export const CopilotController = {
   chat: async (request: CopilotChatRequest): Promise<CopilotChatResponse> => {
     const response = await axios.post<CopilotChatResponse>('/api/copilot/chat', request)
+    return response.data
+  },
+
+  getInsights: async (request: CopilotInsightsRequest): Promise<CopilotInsightsResponse> => {
+    const response = await axios.post<CopilotInsightsResponse>('/api/copilot/insights', request)
     return response.data
   },
 }

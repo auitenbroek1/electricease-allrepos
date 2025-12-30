@@ -56,4 +56,37 @@ class CopilotController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get contextual insights for a page
+     */
+    public function getInsights(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'page' => 'required|string|max:100',
+            'context' => 'nullable|array',
+        ]);
+
+        $page = $validated['page'];
+        $context = $validated['context'] ?? [];
+
+        try {
+            $insights = $this->copilotService->getInsights($page, $context);
+
+            return response()->json([
+                'success' => true,
+                'insights' => $insights,
+            ]);
+        } catch (Exception $e) {
+            Log::error('Copilot insights error', [
+                'error' => $e->getMessage(),
+                'page' => $page,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load insights.',
+            ], 500);
+        }
+    }
 }

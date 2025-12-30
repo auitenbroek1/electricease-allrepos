@@ -236,3 +236,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 // Copilot AI Assistant (no auth required for demo)
 Route::post('/copilot/chat', [CopilotController::class, 'chat']);
+Route::post('/copilot/insights', [CopilotController::class, 'getInsights']);
