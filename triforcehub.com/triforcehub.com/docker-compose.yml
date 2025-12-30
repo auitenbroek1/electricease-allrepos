@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # PHP/Laravel Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_ID: 1000
+        GROUP_ID: 1000
+    container_name: electricease-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+      - ./docker/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=electricease
+      - DB_USERNAME=electricease
+      - DB_PASSWORD=secret
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - electricease-network
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: electricease-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: electricease
+      MYSQL_USER: electricease
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - electricease-network
+
+  # Node.js for Vite/React Frontend
+  node:
+    image: node:20-alpine
+    container_name: electricease-node
+    restart: unless-stopped
+    working_dir: /var/www/html
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/var/www/html
+      - node-modules:/var/www/html/node_modules
+    environment:
+      - VITE_URL=http://localhost:3000
+      - API_URL=http://app:8000
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on:
+      - app
+    networks:
+      - electricease-network
+
+networks:
+  electricease-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  node-modules:

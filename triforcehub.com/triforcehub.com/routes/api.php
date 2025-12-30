@@ -35,6 +35,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Src\Bids\Controllers\SendProposalEmailController;
 use Src\Bids\Controllers\SendWorkOrderEmailController;
+use Src\Copilot\Controllers\CopilotController;
 use Src\Dashboard\Controllers\DashboardController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -232,3 +233,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/impersonation', [ImpersonationController::class, 'store']);
     Route::delete('/impersonation', [ImpersonationController::class, 'destroy']);
 });
+
+// Copilot AI Assistant (no auth required for demo)
+Route::post('/copilot/chat', [CopilotController::class, 'chat']);

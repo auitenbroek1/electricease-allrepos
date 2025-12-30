@@ -25,6 +25,10 @@ Route::get('/', function () {
     return Redirect::to('/app');
 });
 
+Route::get('/copilot-demo', function () {
+    return view('copilot-demo');
+});
+
 Route::get('/auth/check', CheckSubscriptionController::class)->name('auth.check');
 
 Route::middleware(['auth', CheckSubscription::class])->group(function () {

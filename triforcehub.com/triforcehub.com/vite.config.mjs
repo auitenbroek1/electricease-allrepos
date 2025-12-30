@@ -29,7 +29,21 @@ export default defineConfig({
       // emitter: require.resolve(`emitter-component`),
     },
   },
-  server: detectServerConfig(),
+  server: {
+    ...detectServerConfig(),
+    proxy: {
+      '/api': {
+        target: process.env.API_URL ?? 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/sanctum': {
+        target: process.env.API_URL ?? 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })
 
 function detectServerConfig() {
